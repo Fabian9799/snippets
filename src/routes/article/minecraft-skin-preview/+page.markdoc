@@ -1,12 +1,13 @@
 ---
-title: Svelte image preview
-description: Preview a selected image
+title: Minecraft Skin preview
+description: Preview a minecraft Skin
 tags:
     - svelte
-    - image
+    - minecraft
+    - threejs
 ---
 
-# Svelte image preview
+# Minecraft Skin preview
 
 ```svelte
 <script> 
