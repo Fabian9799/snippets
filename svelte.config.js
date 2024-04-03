@@ -21,7 +21,7 @@ const config = {
 			partials: absoulute('./src/lib/partials'),
 			layouts: {
 				default: absoulute('./src/markdoc/layouts/Snippet.svelte'),
-				author: absoulute('./src/markdoc/layouts/Author.svelte')
+
 			}
 		})
 	],
