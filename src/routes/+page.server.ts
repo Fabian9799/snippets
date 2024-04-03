@@ -3,18 +3,19 @@ export function load() {
 		eager: true
 	});
 
-	const articles = Object.entries(modules).map(([filepath, module]) => {
+	const snippets = Object.entries(modules).map(([filepath, module]) => {
 		const { frontmatter } = module;
 		const slug = filepath.split('/+page')[0].replace(/^\./, '');
 
 		return {
 			title: frontmatter.title,
 			description: frontmatter.description,
-			slug
+			slug,
+			tags: frontmatter.tags
 		};
 	});
 
 	return {
-		articles
+		snippets
 	};
 }

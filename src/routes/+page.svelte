@@ -5,15 +5,20 @@
 </script>
 
 <main class="p-8 max-w-2xl mx-auto">
-	<p class="text-3xl font-bold mb-4">Articles</p>
+	<p class="text-3xl font-bold mb-4">Snippets</p>
 	<ul class=" grid grid-cols-2 flex-wrap gap-2">
-		{#each data.articles as { slug, description, title }}
-			<li>
+		{#each data.snippets as { slug, description, title, tags }}
+			<li
+				class="border border-zinc-800 p-4 rounded-md shadow hover:bg-gradient-to-r hover:from-rose-900/10 hover:border-rose-800"
+			>
 				<a href={slug} class="group">
-					<article class="border p-4 rounded-md shadow hover:ring ring-zinc-300/30">
+					<article>
 						<h2 class="font-semibold">{title}</h2>
 						<p>{description}</p>
 					</article>
+					{#each tags as tag}
+						<p class="text-sm text-zinc-500 uppercase font-semibold">{tag}</p>
+					{/each}
 				</a>
 			</li>
 		{/each}

@@ -1,0 +1,33 @@
+---
+title: Svelte image preview
+description: Preview a selected image
+tags:
+    - svelte
+---
+
+# Svelte image preview
+
+```svelte
+<script> 
+	let files
+	let preview_image = ""
+	
+	$:  { 
+		if (files) {
+		  const reader = new FileReader();
+			
+	    reader.onload = (readerEvent) => {
+	      const base64Image = readerEvent.target.result;
+	     preview_image = base64Image
+	    };
+			
+	    reader.readAsDataURL(files[0]); // Read the file as data URL
+	  }
+	}
+</script>
+
+<input accept="image/*" type="file" bind:files />
+{#if files}
+	<img src={preview_image} alt="placeholder">
+{/if}
+```
