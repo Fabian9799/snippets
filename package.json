@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@sveltejs/adapter-static": "^3.0.1",
 		"shiki": "^1.2.3"
 	}
 }

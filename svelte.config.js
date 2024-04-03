@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-static';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
