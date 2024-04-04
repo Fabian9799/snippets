@@ -13,7 +13,7 @@
 					<article
 						class="border border-zinc-800 p-4 rounded-md shadow hover:bg-gradient-to-r hover:from-rose-900/10 hover:border-rose-800"
 					>
-						<h2 class="font-semibold">{title}</h2>
+						<h2 class="font-semibold text-xl">{title}</h2>
 						<p class="text-zinc-300">{description}</p>
 						<div class="flex gap-2">
 							{#each tags as tag}

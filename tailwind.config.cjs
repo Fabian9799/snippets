@@ -3,7 +3,12 @@ const config = {
   content: ["./src/**/*.{html,js,svelte,ts}"],
 
   theme: {
-    extend: {}
+    extend: {
+
+    },
+    fontFamily: {
+      'atkinson': ['Atkinson Hyperlegible', 'sans-serif'],
+    },
   },
 
   plugins: [require('@tailwindcss/typography')]
