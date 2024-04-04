@@ -10,26 +10,25 @@ tags:
 # Minecraft Skin preview
 
 ```svelte
-<script> 
-	let files
-	let preview_image = ""
-	
-	$:  { 
-		if (files) {
-		  const reader = new FileReader();
-			
-	    reader.onload = (readerEvent) => {
-	      const base64Image = readerEvent.target.result;
-	     preview_image = base64Image
-	    };
-			
-	    reader.readAsDataURL(files[0]); // Read the file as data URL
-	  }
-	}
+<script>
+	import { SkinViewer } from "skinview3d"
+	import { onMount } from "svelte"
+	let skinContainer
+	onMount(()=>{
+		let skinViewer = new SkinViewer({
+			canvas: skinContainer,
+			width: 300,
+			height: 400,
+			skin: "https://crafatar.com/skins/23dcc84821654815822be2d6eedfe5af"
+		});
+	})
 </script>
 
-<input accept="image/*" type="file" bind:files />
-{#if files}
-	<img src={preview_image} alt="placeholder">
-{/if}
+<canvas bind:this={skinContainer}/>
+
+<style>
+	canvas {
+		border: 1px solid
+	}
+</style> 
 ```
