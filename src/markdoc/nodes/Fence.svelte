@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { highlighter } from '$lib/shiki';
+	import { page } from '$app/stores';
 
 	export let content: string;
 	export let language: string;
 
-	const html = highlighter.codeToHtml(content, {
+	const html = $page.data.highlighter.codeToHtml(content, {
 		lang: language,
 		theme: 'dracula'
 	});
