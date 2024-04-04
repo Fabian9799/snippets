@@ -3,7 +3,7 @@
 </script>
 
 <main>
-	<article class="max-w-2xl mx-auto py-8">
+	<article class="max-w-2xl mx-auto py-8 px-4">
 		<div class="flex gap-2">
 			{#each tags as tag}
 				<a
