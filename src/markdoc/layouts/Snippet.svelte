@@ -8,7 +8,7 @@
 			{#each tags as tag}
 				<a
 					href="/tags/{tag}"
-					class="uppercase text-xs tracking-wider px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+					class="uppercase rounded-xl hover:ring ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
 					>#{tag}</a
 				>
 			{/each}
