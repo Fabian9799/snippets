@@ -1,0 +1,90 @@
+---
+title: SvelteKit auth with seperate Backend
+description: SvelteKit auth with seperate Backend
+tags:
+    - auth
+    - sveltekit
+    - hooks
+    - locals
+---
+
+## Handle fetch to other backend and forward cookie
+
+```js
+export const handle = async ({ event, resolve }) => {
+	const res = await event.fetch(`http://127.0.0.1:3000/user`);
+	if (res.ok) {
+		const data = await res.json();
+		event.locals.user = data;
+	}
+
+	const response = await resolve(event);
+	return response;
+};
+
+export const handleFetch = async ({ event, request, fetch }) => {
+	if (request.url.startsWith('http://127.0.0.1:3000/')) {
+		const cookies = event.request.headers.get('cookie');
+		if (cookies) {
+			request.headers.set('cookie', cookies);
+		}
+	}
+	return fetch(request);
+};
+```
+
+## Define locals
+
+```js
+declare global {
+	namespace App {
+		interface Locals {
+			user?: {
+				name: string;
+			};
+		}
+	}
+}
+
+export {};
+```
+
+## Return user data to page
+
+```js
+export const load = async ({ locals }) => {
+	return {
+		user: locals.user
+	};
+};
+```
+
+## Login and show user data
+
+```html
+<script>
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+</script>
+
+<p>Hello {$page.data.user.name}</p>
+
+<form method="POST" action="?/login" use:enhance>
+	<button>Login</button>
+</form>
+```
+
+```js
+export const actions = {
+	login: async ({ fetch, cookies }) => {
+		const res = await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
+		const data = await res.json();
+		// data = { token: 123} or read cookie
+		cookies.set('token', data.token, {
+			path: '/',
+			sameSite: 'none',
+			secure: true
+		});
+	}
+};
+```

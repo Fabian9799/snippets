@@ -1,0 +1,67 @@
+---
+title: Sveltekit Pagefind
+description: How to use Pagefind with sveltekit
+tags:
+    - search
+    - sveltekit
+    - pagefind
+---
+
+
+## Install pagefind search ui
+
+```
+pnpm add @pagefind/default-ui -D
+```
+
+## Create pagefind config
+
+```
+site: build
+```
+
+## Modify build script
+
+```
+- "build": "vite build",
++ "build": "vite build && npx pagefind",
+```
+
+## Add search
+
+```svelte
+<script>
+	import { onMount } from 'svelte';
+	import { PagefindUI } from '@pagefind/default-ui';
+	import '@pagefind/default-ui/css/ui.css';
+
+	let searchInput;
+
+	onMount(() => {
+		new PagefindUI({
+			element: searchInput,
+			showSubResults: true,
+			showImages: false,
+			showEmptyFilters: false,
+		});
+	});
+</script>
+
+<div bind:this={searchInput} />
+```
+
+## Test in in development
+
+Build the project and copy the `build/pagefind` folder to `static/pagefind`
+
+You probably also want to add `static/pagefind` to your .gitignore file
+
+Make sure to delete it after you tested it
+
+## More
+
+### Search with url query
+
+Example code here: 
+
+[How does one use the Pagefind JavaScript search API within SvelteKit? · Issue #327 · CloudCannon/pagefind](https://github.com/CloudCannon/pagefind/issues/327#issuecomment-1870456693)

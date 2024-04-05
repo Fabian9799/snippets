@@ -1,0 +1,90 @@
+---
+title: Sveltekit shallow routing with form
+description: How to use sveltekits shallow routing with forms
+tags:
+    - form
+    - sveltekit
+---
+
+{%alert text="Work in progress! Basic example should work" /%}
+
+## Main page
+
+src/routes/+page.svelte
+```svelte
+<script>
+	import { preloadData, pushState, goto, replaceState } from '$app/navigation';
+	import { page } from '$app/stores';
+	import Form from './form/+page.svelte';
+</script>
+
+<a
+	href="/form"
+	on:click={async (e) => {
+		// bail if opening a new tab, or we're on too small a screen
+		if (e.metaKey || innerWidth < 640) return;
+
+		// prevent navigation
+		e.preventDefault();
+
+		const { href } = e.currentTarget;
+
+		// run `load` functions (or rather, get the result of the `load` functions
+		// that are already running because of `data-sveltekit-preload-data`)
+		const result = await preloadData(href);
+
+		if (result.type === 'loaded' && result.status === 200) {
+			pushState(href, { selected: result.data });
+		} else {
+			// something bad happened! try navigating
+			goto(href);
+		}
+	}}
+>
+	Go to form
+</a>
+
+{#if $page.state.selected}
+	<button on:click={() => history.back()}>Close</button>
+	<Form data={$page.state.selected} shallow={true} />
+{/if}
+```
+
+## Form route
+
+`export let shallow` lets the page know its "embedded"
+
+`action="/form` lets the main page know where to submit the form
+
+src/routes/form/+page.svelte
+```svelte
+<script>
+  import { enhance } from '$app/forms';
+  import { goto, preloadData, replaceState } from '$app/navigation';
+  export let data;
+  export let shallow = false;
+</script>
+
+<p>Hello {data.name}</p>
+
+<form
+  method="POST"
+  action="/form"
+  use:enhance={() => {
+    return async ({ update }) => {
+      await update();
+      if (shallow) {
+        const result = await preloadData('/form');
+        if (result.type === 'loaded' && result.status === 200) {
+          replaceState('/form', { selected: result.data });
+        } else {
+          goto('/form');
+        }
+      }
+    };
+  }}
+>
+    <input type="text" name="name" />
+    <button>Submit</button>
+</form>
+```
