@@ -41,6 +41,7 @@
 	"dependencies": {
 		"@fontsource/atkinson-hyperlegible": "^5.0.19",
 		"@sveltejs/adapter-static": "^3.0.1",
+		"bits-ui": "^0.21.2",
 		"shiki": "^1.2.3"
 	}
 }
