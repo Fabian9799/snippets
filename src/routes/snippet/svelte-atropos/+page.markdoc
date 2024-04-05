@@ -1,0 +1,33 @@
+---
+title: Svelte Atropos.js
+description: How to use Atropos.js with svelte
+tags:
+    - svelte
+    - atropos
+---
+
+```svelte
+<script>
+	import 'atropos/atropos.css';
+	import div from 'atropos';
+
+	function atropos(node){
+		div({
+			el: node
+		});
+	}
+</script>
+
+<div class="atropos" use:atropos>
+	<!-- scale container (required) -->
+	<div class="atropos-scale">
+		<!-- rotate container (required) -->
+		<div class="atropos-rotate">
+			<!-- inner container (required) -->
+			<div class="atropos-inner">
+				<p>Content</p>
+			</div>
+		</div>
+	</div>
+</div>
+```

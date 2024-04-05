@@ -23,7 +23,7 @@
 <div
 	class="not-prose border-2 {copied
 		? 'border-green-500'
-		: 'border-zinc-800'} duration-200 rounded-xl overflow-hidden code-block relative"
+		: 'border-zinc-800'} duration-200 rounded-xl overflow-hidden code-block relative my-4"
 >
 	<div class="absolute top-0 right-0 p-2">
 		<button on:click={copyTextToClipboard}>

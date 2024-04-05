@@ -1,0 +1,26 @@
+---
+title: Sveltekit custom pathing
+description: How to set up custom pathing in sveltekit
+tags:
+    - sveltekit
+---
+
+## Set up custom pathing
+
+If you want to use `$ts/file.svelte` instead of `../../ts/file.svelte`
+
+```js
+const config = {
+	kit: {
+		alias: {
+			"$ts": "./src/ts"
+		}
+	}
+};
+```
+
+## Usage:
+
+```js
+import Button from '$ts/Button.svelte';
+```

@@ -1,0 +1,29 @@
+---
+title: Sveltekit page store
+description: How to use the sveltekit page store to access url parameters
+tags:
+    - svelte
+    - sveltekit
+---
+
+
+```js
+import { page } from '$app/stores'
+$: name = $page.url.searchParams.get("name")
+
+// name = Thomas
+```
+
+```js
+import { page } from "$app/stores";
+$: slug = $page.params.id;
+
+// url: /snippets/[id] => slug = value of id
+```
+
+```js
+import {page} from '$app/stores';
+$: path = $page.url.pathname
+
+// path = /test
+```
