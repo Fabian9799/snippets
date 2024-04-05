@@ -1,3 +1,3 @@
 <script context="module">
-	export { default as Multiply } from './Multiply.svelte';
+	export { default as Alert } from './Alert.svelte';
 </script>

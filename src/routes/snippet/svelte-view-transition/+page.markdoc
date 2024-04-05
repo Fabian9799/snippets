@@ -1,0 +1,30 @@
+---
+title: Svelte ViewTransition
+description: How to use the view transition api with svelte
+tags:
+    - svelte
+    - viewtransition
+---
+
+```svelte
+<script>
+	import { onNavigate } from '$app/navigation';
+
+	onNavigate((navigation) => {
+        if (!document.startViewTransition) return;
+
+        return new Promise((resolve) => {
+            document.startViewTransition(async () => {
+                resolve();
+                await navigation.complete;
+            });
+        });
+    });
+</script>
+
+<div
+	style="view-transition-name: full-embed;"
+/>
+```
+
+{% alert text="Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped." /%}
