@@ -6,6 +6,8 @@
 	export let data: PageData;
 </script>
 
+<title>Snippets</title>
+
 <main class="p-8 max-w-2xl mx-auto">
 	<div class="flex">
 		<p class="text-3xl flex-1 font-bold mb-4">Snippets</p>
