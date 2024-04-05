@@ -31,7 +31,7 @@
 <Dialog.Root>
 	<Dialog.Trigger
 		class="inline-flex size-12 items-center
-    justify-center "
+    justify-center rounded-md "
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

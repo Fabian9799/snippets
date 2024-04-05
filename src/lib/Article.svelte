@@ -5,7 +5,7 @@
 	export let tags: string[];
 </script>
 
-<a href={slug}>
+<a href={slug} class="inline-block w-full rounded-md">
 	<div
 		class="border border-zinc-800 p-4 rounded-md shadow hover:bg-gradient-to-r hover:from-rose-900/50 hover:ring ring-rose-600"
 	>
