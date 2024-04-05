@@ -40,6 +40,7 @@
 			{/each}
 		</div>
 		<h1 class="font-extrabold text-4xl mt-2">{title}</h1>
+		<p class="text-zinc-400 text-xl">{description}</p>
 		<div class="prose-invert prose py-4 prose-rose max-w-none">
 			<slot />
 		</div>
