@@ -1,6 +1,32 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	export let title: string;
 	export let tags: string[] = [];
+	export let description: string;
+	$: slug = $page.url.pathname.split('/').pop();
 </script>
+
+<svelte:head>
+	<title>{title}</title>
+	<meta property="og:site_name" content="Snippets" /><meta property="og:title" content={title} />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://snippets.fabian9799.cloud/snippet/{slug}" /><meta
+		name="description"
+		content={description}
+	/>
+	<meta name="twitter:description" content={description} /><meta
+		property="og:description"
+		content={description}
+	/>
+	<meta property="og:image" content="https://snippets.fabian9799.cloud/og/image/{slug}.png" />
+	<meta name="twitter:image" content="https://snippets.fabian9799.cloud/og/image/{slug}.png" />
+	<meta name="twitter:card" content="summary_large_image" /><meta
+		property="og:image:alt"
+		content={description}
+	/>
+	<meta name="twitter:image:alt" content={description} />
+</svelte:head>
 
 <main>
 	<article class="max-w-2xl mx-auto py-8 px-4">
