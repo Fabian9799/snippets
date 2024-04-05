@@ -7,8 +7,6 @@ tags:
     - threejs
 ---
 
-# Minecraft Skin preview
-
 ```svelte
 <script>
 	import { SkinViewer } from "skinview3d"

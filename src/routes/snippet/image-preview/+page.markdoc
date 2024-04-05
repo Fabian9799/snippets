@@ -6,8 +6,6 @@ tags:
     - image
 ---
 
-# Svelte image preview
-
 ```svelte
 <script> 
 	let files
