@@ -19,8 +19,8 @@
 		property="og:description"
 		content={description}
 	/>
-	<meta property="og:image" content="https://snippets.fabian9799.cloud/og/image/{slug}.png" />
-	<meta name="twitter:image" content="https://snippets.fabian9799.cloud/og/image/{slug}.png" />
+	<meta property="og:image" content="https://snippets.fabian9799.cloud/og/{slug}.png" />
+	<meta name="twitter:image" content="https://snippets.fabian9799.cloud/og/{slug}.png" />
 	<meta name="twitter:card" content="summary_large_image" /><meta
 		property="og:image:alt"
 		content={description}
