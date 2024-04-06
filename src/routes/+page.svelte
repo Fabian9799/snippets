@@ -22,12 +22,12 @@
 	<meta name="twitter:image:alt" content="A list of some useful snippets" />
 </svelte:head>
 
-<main class="p-8 max-w-2xl mx-auto">
+<main class="p-8 max-w-2xl lg:max-w-4xl mx-auto">
 	<div class="flex">
 		<p class="text-3xl flex-1 font-bold mb-4">Snippets</p>
 		<Search />
 	</div>
-	<ul class="grid grid-cols-2 flex-wrap gap-2">
+	<ul class="grid sm:grid-cols-2 flex-wrap gap-2">
 		{#each data.snippets as { slug, description, title, tags }}
 			<li>
 				<Article {slug} {title} {description} {tags} />

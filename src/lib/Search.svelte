@@ -26,12 +26,26 @@
 	let searchTerm = '';
 
 	$: filteredSnippets = formattedSnippets.filter((snippet) => snippet.text.includes(searchTerm));
+
+	let open = false;
 </script>
 
-<Dialog.Root>
+<svelte:window
+	on:keydown={(e) => {
+		if (e.ctrlKey || e.metaKey) {
+			if (e.key === 'k' || e.key === 'K') {
+				e.preventDefault();
+				open = !open;
+			}
+		}
+	}}
+/>
+
+<Dialog.Root bind:open>
 	<Dialog.Trigger
 		class="inline-flex size-12 items-center
-    justify-center rounded-md "
+    justify-center rounded-md"
+		title="Ctrl + K to open Search"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
