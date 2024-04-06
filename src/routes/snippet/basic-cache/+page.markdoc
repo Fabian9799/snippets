@@ -1,0 +1,32 @@
+---
+title: Simple javascript cache
+description: How to create a basic javascript cache
+tags:
+    - javascript
+    - cache
+---
+
+```js
+const cache = {};
+
+function addToCache(key, value, maxTimeInSeconds) {
+    cache[key] = {
+        value,
+        expiry: Date.now() + maxTimeInSeconds * 1000
+    };
+}
+
+function getFromCache(key: string) {
+    const cacheItem = cache[key];
+    if (cacheItem && cacheItem.expiry > Date.now()) {
+        return cacheItem.value;
+    } else {
+        delete cache[key];
+        return undefined;
+    }
+}
+
+// Usage
+addToCache("key", "value", 10);
+getFromCache("key");
+```
