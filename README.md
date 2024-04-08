@@ -1,15 +1,17 @@
-# A simple Sveltekit blog with markdoc
+# Snippets
 
-A _very_ basic blog example with SvelteKit, Markdoc and Tailwind
+A collection of useful Snippets
 
-## Demo
+## Live website
 
-[![Open in SvelteLab](https://docs.sveltelab.dev/button/light_short.svg)](https://sveltelab.dev/github.com/Fabian9799/sveltekit-markdoc)
+https://snippets.fabian9799.cloud/
 
 ## Made with
 
 - Styling with [Tailwind](https://tailwindcss.com/) and [Tailwind Typography](https://tailwindcss.com/docs/typography-plugin)
 - Markdown with [Markdoc](https://markdoc.dev/) and [svelte-markdoc-preprocess](https://svelte-markdoc-preprocess.pages.dev/)
+- OG images based on the blog post by [Geoff Rich](https://geoffrich.net/posts/svelte-social-image/)
+- [Shiki](https://shiki.style/) to highlight code
 
 ## Features
 
@@ -17,6 +19,7 @@ A _very_ basic blog example with SvelteKit, Markdoc and Tailwind
 - Custom node styling (h1, img, etc.)
 - Tags (embed custom svelte components)
 - Partials (reuse content across documents)
+- Uses sveltekits static adapter
 
 ## Usage
 
