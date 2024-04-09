@@ -88,7 +88,7 @@
 				<div class="flex flex-col w-full gap-2 max-h-96 overflow-y-auto p-1">
 					{#each filteredSnippets as { description, slug, tags, text, title }}
 						<div class="w-full">
-							<Article {slug} {title} {description} {tags} />
+							<Article {slug} {title} {description} {tags} search={true} />
 						</div>
 					{/each}
 				</div>

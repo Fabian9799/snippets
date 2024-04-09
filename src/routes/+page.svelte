@@ -27,7 +27,7 @@
 		<p class="text-3xl flex-1 font-bold mb-4">Snippets</p>
 		<Search />
 	</div>
-	<ul class="grid sm:grid-cols-2 flex-wrap gap-2">
+	<ul class="grid sm:grid-cols-2 flex-wrap gap-4">
 		{#each data.snippets as { slug, description, title, tags }}
 			<li>
 				<Article {slug} {title} {description} {tags} />
