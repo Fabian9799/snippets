@@ -1,0 +1,65 @@
+---
+title: Add Darkmode to sveltekit
+description: How to add darkmode to a sveltekit project
+tags:
+    - svelte
+    - sveltekit
+    - cookie
+    - tailwind
+---
+
+`hooks.server.ts`
+```js
+/** @type {import('@sveltejs/kit').Handle} */
+const darkMode: Handle = async ({ event, resolve }) => {
+    const cookie = event.request.headers.get('cookie');
+    const darkModeCookie = cookie?.split(';').find((c) => c.trim().startsWith('darkmode=true')) ? true : false;
+
+    const response = await resolve(event, {
+        transformPageChunk: ({ html }) => html.replace('%darkmode%', darkModeCookie ? 'dark' : '')
+    });
+
+    return response;
+};
+
+export const handle = sequence(darkMode);
+```
+
+`app.html`
+```html
+<body class="%darkmode%">
+```
+
+If you are using tailwind edit the following config
+
+`tailwind.config.csj`
+```js
+module.exports = {
+    darkMode: 'selector'
+}
+```
+
+`ToggleDarkmode.svelte`
+```svelte
+<script>
+    import { onMount } from 'svelte';
+
+    let darkModeState = false;
+
+    function toggleDarkmode() {
+        darkModeState = !darkModeState;
+        const darkMode = document.cookie.includes('darkmode=true');
+        document.cookie = `darkmode=${!darkMode};path=/`;
+        if (darkMode) document.body.classList.remove('dark');
+        if (!darkMode) document.body.classList.add('dark');
+    }
+
+    onMount(() => {
+        darkModeState = document.cookie.includes('darkmode=true');
+    });
+</script>
+
+<button on:click={toggleDarkmode}>Toggle Darkmode</button>
+```
+
+Now the body element is gonna have the `dark` class once the cookie is set.
