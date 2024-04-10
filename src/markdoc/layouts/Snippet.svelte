@@ -39,8 +39,12 @@
 				>
 			{/each}
 		</div>
-		<h1 class="font-extrabold text-4xl mt-2">{title}</h1>
-		<p class="text-zinc-400 text-xl">{description}</p>
+		<h1 class="font-extrabold text-4xl mt-2" style="view-transition-name: snippet-{slug}-title">
+			{title}
+		</h1>
+		<p class="text-zinc-400 text-xl" style="view-transition-name: snippet-{slug}-description">
+			{description}
+		</p>
 		<div class="prose-invert prose py-4 prose-rose max-w-none">
 			<slot />
 		</div>
