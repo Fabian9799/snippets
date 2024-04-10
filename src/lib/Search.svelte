@@ -25,7 +25,20 @@
 
 	let searchTerm = '';
 
-	$: filteredSnippets = formattedSnippets.filter((snippet) => snippet.text.includes(searchTerm));
+	$: filteredSnippets = formattedSnippets.filter((snippet) =>
+		snippet.text.toLowerCase().includes(searchTerm.toLowerCase())
+	);
+
+	$: {
+		// rainbow easter egg
+		if (searchTerm.toLowerCase() === 'rainbow') {
+			const main = document.getElementsByTagName('main')[0];
+			main.style.backgroundImage = `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnN2Z2pzPSJodHRwOi8vc3ZnanMuZGV2L3N2Z2pzIiB2aWV3Qm94PSIwIDAgODAwIDgwMCIgb3BhY2l0eT0iMSI+PGRlZnM+PGZpbHRlciBpZD0iYmJibHVycnktZmlsdGVyIiB4PSItMTAwJSIgeT0iLTEwMCUiIHdpZHRoPSI0MDAlIiBoZWlnaHQ9IjQwMCUiIGZpbHRlclVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgcHJpbWl0aXZlVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgoJPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTMwIiB4PSIwJSIgeT0iMCUiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGluPSJTb3VyY2VHcmFwaGljIiBlZGdlTW9kZT0ibm9uZSIgcmVzdWx0PSJibHVyIj48L2ZlR2F1c3NpYW5CbHVyPjwvZmlsdGVyPjwvZGVmcz48ZyBmaWx0ZXI9InVybCgjYmJibHVycnktZmlsdGVyKSI+PGVsbGlwc2Ugcng9IjE1MCIgcnk9IjE1MCIgY3g9IjU3MS4zNzU3MjgyNjc2NDk3IiBjeT0iMTUyLjIxMzQwNjc4NzQ5MjkiIGZpbGw9ImhzbCgzNywgOTklLCA2NyUpIj48L2VsbGlwc2U+PGVsbGlwc2Ugcng9IjE1MCIgcnk9IjE1MCIgY3g9IjQ3MC4zMzE4NTA4NjA3NTU2IiBjeT0iNTc4Ljk2ODE0MDEyNzc3MTEiIGZpbGw9ImhzbCgzMTYsIDczJSwgNTIlKSI+PC9lbGxpcHNlPjxlbGxpcHNlIHJ4PSIxNTAiIHJ5PSIxNTAiIGN4PSIyNTYuMzQyNjg4NTE1NTQ4MyIgY3k9IjI3My4xNzcxMzIyNTE5OTkxIiBmaWxsPSJoc2woMTg1LCAxMDAlLCA1NyUpIj48L2VsbGlwc2U+PC9nPjwvc3ZnPg==")`;
+			main.style.backgroundRepeat = 'no-repeat';
+			main.style.backgroundPosition = 'center';
+			main.style.backgroundSize = 'cover';
+		}
+	}
 
 	let open = false;
 </script>
@@ -86,11 +99,17 @@
 					/>
 				</div>
 				<div class="flex flex-col w-full gap-2 max-h-96 overflow-y-auto p-1">
-					{#each filteredSnippets as { description, slug, tags, text, title }}
-						<div class="w-full">
-							<Article {slug} {title} {description} {tags} search={true} />
-						</div>
-					{/each}
+					{#if searchTerm !== ''}
+						{#if filteredSnippets.length > 0}
+							{#each filteredSnippets as { description, slug, tags, text, title }}
+								<div class="w-full">
+									<Article {slug} {title} {description} {tags} search={true} />
+								</div>
+							{/each}
+						{:else}
+							<p>No snippets found</p>
+						{/if}
+					{/if}
 				</div>
 			</div>
 
