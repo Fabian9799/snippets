@@ -6,7 +6,9 @@ tags:
     - sveltekit
 ---
 
-{%alert text="Work in progress! Basic example should work" /%}
+{% alert %}
+	Work in progress! Basic example should work
+{% /alert %}
 
 ## Main page
 

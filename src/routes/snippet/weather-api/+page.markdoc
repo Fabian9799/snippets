@@ -1,0 +1,116 @@
+---
+title: Weather API
+description: A simple function to return data with a weather api and some icons
+tags:
+    - api
+    - weather
+---
+
+```ts
+export interface Weather {
+	current_condition: {
+		weatherCode: string;
+		icon: string;
+		FeelsLikeC: string;
+		temp_C: string;
+	}[];
+	weather: {
+		avgtempC: string;
+		date: string;
+		hourly: {
+			FeelsLikeC: string;
+			humidity: string;
+			precipMM: string;
+			tempC: string;
+			weatherCode: string;
+			icon: string;
+			time: string;
+		}[];
+		maxtempC: string;
+		mintempC: string;
+		totalSnow_cm: string;
+	}[];
+}
+
+const location = "Bern"
+
+export async function getWeather(){
+	const res = await fetch(`https://wttr.in/~${location}?format=j1`);
+	const data = (await res.json()) as Weather;
+
+	data.current_condition.forEach((condition) => {
+		condition.icon = getWeatherIcon(condition.weatherCode);
+	});
+
+	data.weather.forEach((weather) => {
+		weather.hourly.forEach((hour) => {
+			hour.icon = getWeatherIcon(hour.weatherCode);
+		});
+	});
+
+	return data;
+};
+
+function getWeatherIcon(weatherCode: string) {
+	const weatherArray = [
+		{ code: '113', name: 'clear-day' },
+		{ code: '116', name: 'partly-cloudy-day' },
+		{ code: '119', name: 'cloudy' },
+		{ code: '122', name: 'overcast' },
+		{ code: '143', name: 'mist' },
+		{ code: '176', name: 'drizzle' },
+		{ code: '179', name: 'sleet' },
+		{ code: '182', name: 'sleet' },
+		{ code: '185', name: 'sleet' },
+		{ code: '200', name: 'thunderstorms-rain' },
+		{ code: '227', name: 'Snow' },
+		{ code: '230', name: 'Snow' },
+		{ code: '248', name: 'Fog' },
+		{ code: '260', name: 'Fog' },
+		{ code: '263', name: 'drizzle' },
+		{ code: '266', name: 'drizzle' },
+		{ code: '281', name: 'sleet' },
+		{ code: '284', name: 'sleet' },
+		{ code: '293', name: 'drizzle' },
+		{ code: '296', name: 'drizzle' },
+		{ code: '299', name: 'rain' },
+		{ code: '302', name: 'rain' },
+		{ code: '305', name: 'rain' },
+		{ code: '308', name: 'rain' },
+		{ code: '311', name: 'drizzle' },
+		{ code: '314', name: 'drizzle' },
+		{ code: '317', name: 'drizzle' },
+		{ code: '320', name: 'snow' },
+		{ code: '323', name: 'snow' },
+		{ code: '326', name: 'snow' },
+		{ code: '329', name: 'extreme-snow' },
+		{ code: '332', name: 'extreme-snow' },
+		{ code: '335', name: 'extreme-snow' },
+		{ code: '338', name: 'extreme-snow' },
+		{ code: '350', name: 'drizzle' },
+		{ code: '353', name: 'drizzle' },
+		{ code: '356', name: 'extreme-drizzle' },
+		{ code: '359', name: 'extreme-rain' },
+		{ code: '362', name: 'drizzle' },
+		{ code: '365', name: 'drizzle' },
+		{ code: '368', name: 'snow' },
+		{ code: '371', name: 'extreme-snow' },
+		{ code: '374', name: 'sleet' },
+		{ code: '377', name: 'sleet' },
+		{ code: '386', name: 'thunderstorms-rain' },
+		{ code: '389', name: 'thunderstorms-extreme-rain' },
+		{ code: '392', name: 'thunderstorms-extreme-snow' },
+		{ code: '395', name: 'extreme-snow' }
+	];
+	const weatherIcon = weatherArray.find((weather) => weather.code == weatherCode)?.name;
+	return weatherIcon
+		? `https://bmcdn.nl/assets/weather-icons/v3.0/fill/svg/${weatherIcon}.svg`
+		: '';
+}
+```
+
+
+{% alert %}
+	Thanks to [Flaced](https://flaced.de/) for the idea with the icons
+{% /alert %}
+

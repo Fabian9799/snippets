@@ -27,4 +27,7 @@ tags:
 />
 ```
 
-{% alert text="Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped." /%}
+
+{% alert %}
+	Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped.
+{% /alert %}
