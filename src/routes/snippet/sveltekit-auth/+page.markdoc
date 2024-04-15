@@ -79,7 +79,7 @@ export const actions = {
 	login: async ({ fetch, cookies }) => {
 		const res = await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
 		const data = await res.json();
-		// data = { token: 123} or read cookie
+		// data = { token: 123} or read cookie (see next section)
 		cookies.set('token', data.token, {
 			path: '/',
 			sameSite: 'none',
@@ -87,4 +87,28 @@ export const actions = {
 		});
 	}
 };
+```
+
+## Parse Cookies
+
+```js
+export const actions = {
+	default: async ({ fetch }) => {
+		const res = await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
+		const responseCookies = res.headers.get('set-cookie');
+		if (responseCookies) {
+			const parsedCookies = parseCookie(responseCookies);
+			// set cookie
+		}
+	}
+};
+
+const parseCookie = (str: string): { [key: string]: string } =>
+	str
+		.split(';')
+		.map((v) => v.split('='))
+		.reduce<{ [key: string]: string }>((acc, v) => {
+			acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+			return acc;
+		}, {});
 ```
