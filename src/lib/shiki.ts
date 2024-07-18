@@ -4,5 +4,5 @@ import { getHighlighter } from 'shiki/bundle/web';
 // loads the themes and languages specified.
 export const highlighter = await getHighlighter({
 	themes: ['dracula'],
-	langs: ['svelte']
+	langs: ['svelte', 'json']
 });

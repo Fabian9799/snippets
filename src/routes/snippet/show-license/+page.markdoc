@@ -1,0 +1,113 @@
+---
+title: Get License from package.json
+description: How to get and show the projects license from package.json
+tags:
+    - svelte
+    - javascript
+---
+
+## Create json file from licenses
+
+```json
+{
+	"scripts": {
+		"generate-license-page": "npx license-checker --json --customPath src/routes/license/template.json  --out src/routes/license/license.json"
+	}
+}
+```
+
+## Create a template file to define the structure
+
+src/routes/license/template.json
+```json
+{
+    "licenses": "",
+    "repository": ",",
+    "licenseFile": "none"
+}
+```
+
+## Create a page to show the licenses
+
+src/routes/license/+page.svelte
+```svelte
+<script>
+	import licenses from './license.json';
+
+	let licensesArray = convertObjectToArray(licenses);
+
+	licensesArray = [
+		...licensesArray,
+		{
+			name: 'Website',
+			data: {
+				licenses: 'CUSTOM',
+				licenseText:
+					'License text for custom licenses here',
+				copyright: '',
+				repository: ''
+			}
+		}
+	];
+	type License = {
+		/** Package name. */
+		name: string;
+		data: {
+			/** License type. */
+			licenses: string | undefined;
+			/** Repository URL. */
+			repository: string | undefined;
+			/** License text. */
+			licenseText: string | undefined;
+			/** Copyright text. */
+			copyright: string | undefined;
+		};
+	};
+
+	function convertObjectToArray(obj: object) {
+		let resultArray = [];
+
+		for (let key in obj) {
+			if (obj.hasOwnProperty(key)) {
+				let entry = {
+					name: key,
+					//@ts-expect-error
+					data: obj[key]
+				};
+
+				resultArray.push(entry);
+			}
+		}
+
+		return resultArray as License[];
+	}
+</script>
+
+<p class="my-4 text-center text-4xl font-bold">Licenses</p>
+
+<div class="flex flex-col gap-4">
+	{#each licensesArray as { data: { licenses, repository, copyright, licenseText }, name }}
+		<div class="rounded-xl border border-zinc-700 p-4">
+			<a href={repository} class="text-blue-500 hover:underline">{licenses} - {name}</a>
+			{#if copyright}
+				<p class="mt-2">{copyright}</p>
+			{/if}
+			<div class=" mt-2 w-full border-b border-zinc-700"></div>
+			{#if licenseText}
+				<details>
+					<summary
+						class="mt-4 cursor-pointer text-sm font-medium text-zinc-500 hover:text-zinc-700"
+					>
+						View License Text
+					</summary>
+					<div class="mt-2">
+						<p class="whitespace-pre-wrap break-words text-sm" style="white-space: pre-wrap;">
+							{licenseText}
+						</p>
+					</div>
+				</details>
+			{/if}
+		</div>
+	{/each}
+</div>
+```
