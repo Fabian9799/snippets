@@ -10,16 +10,16 @@ tags:
 
 `hooks.server.ts`
 ```js
-/** @type {import('@sveltejs/kit').Handle} */
+import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
+
 const darkMode: Handle = async ({ event, resolve }) => {
-    const cookie = event.request.headers.get('cookie');
-    const darkModeCookie = cookie?.split(';').find((c) => c.trim().startsWith('darkmode=true')) ? true : false;
+	const darkModeCookie = event.cookies.get('darkmode') === 'true';
+	const response = await resolve(event, {
+		transformPageChunk: ({ html }) => html.replace('%darkmode%', darkModeCookie ? 'dark' : '')
+	});
 
-    const response = await resolve(event, {
-        transformPageChunk: ({ html }) => html.replace('%darkmode%', darkModeCookie ? 'dark' : '')
-    });
-
-    return response;
+	return response;
 };
 
 export const handle = sequence(darkMode);
