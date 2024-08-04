@@ -44,22 +44,23 @@ module.exports = {
 <script>
     import { onMount } from 'svelte';
 
-    let darkModeState = false;
+    let isDarkMode = false;
 
-    function toggleDarkmode() {
-        darkModeState = !darkModeState;
-        const darkMode = document.cookie.includes('darkmode=true');
-        document.cookie = `darkmode=${!darkMode};path=/`;
-        if (darkMode) document.body.classList.remove('dark');
-        if (!darkMode) document.body.classList.add('dark');
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        document.cookie = `darkmode=${isDarkMode};path=/`;
+        document.body.classList.toggle('dark', isDarkMode);
     }
 
     onMount(() => {
-        darkModeState = document.cookie.includes('darkmode=true');
+        isDarkMode = document.cookie.includes('darkmode=true');
+        document.body.classList.toggle('dark', isDarkMode);
     });
 </script>
 
-<button on:click={toggleDarkmode}>Toggle Darkmode</button>
+<button on:click={toggleDarkMode}>
+    {isDarkMode ? '🌙' : '☀️'}
+</button>
 ```
 
 Now the body element is gonna have the `dark` class once the cookie is set.
