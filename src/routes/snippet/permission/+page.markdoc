@@ -12,7 +12,7 @@ Basic permissions example with bitwise
 Usage example at the bottom of the codeblock
 
 ```js
-class Permission {
+export class Permission {
   private permissions = 0;
 
   private PERMISSIONS = {
@@ -37,9 +37,10 @@ class Permission {
     return { int: this.permissions, array: userPermissions };
   }
 
-  setPermissions(
-    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-  ): { int: number; array: PermissionKeys[] } {
+  setPermissions(permissionarray: PermissionKeys[]): {
+    int: number;
+    array: PermissionKeys[];
+  } {
     let permissions = 0;
     permissionarray.forEach((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
@@ -49,9 +50,10 @@ class Permission {
     return this.getPermissions();
   }
 
-  removePermissions(
-    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-  ): { int: number; array: PermissionKeys[] } {
+  removePermissions(permissionarray: PermissionKeys[]): {
+    int: number;
+    array: PermissionKeys[];
+  } {
     permissionarray.forEach((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
       this.permissions &= ~permissionValue;
@@ -59,9 +61,10 @@ class Permission {
     return this.getPermissions();
   }
 
-  addPermissions(
-    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-  ): { int: number; array: PermissionKeys[] } {
+  addPermissions(permissionarray: PermissionKeys[]): {
+    int: number;
+    array: PermissionKeys[];
+  } {
     permissionarray.forEach((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
       this.permissions |= permissionValue;
@@ -69,18 +72,14 @@ class Permission {
     return this.getPermissions();
   }
 
-  hasAnyPermission(
-    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-  ): boolean {
+  hasAnyPermission(permissionarray: PermissionKeys[]): boolean {
     return permissionarray.some((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
       return (this.permissions & permissionValue) !== 0;
     });
   }
 
-  hasAllPermissions(
-    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-  ): boolean {
+  hasAllPermissions(permissionarray: PermissionKeys[]): boolean {
     return permissionarray.every((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
       return (this.permissions & permissionValue) !== 0;
@@ -92,11 +91,15 @@ class Permission {
   }
 }
 
-// permission keys
-type PermissionKeys = keyof Permission["PERMISSIONS"];
+export type PermissionKeys = keyof Permission["PERMISSIONS"] // ['none', 'admin',... etc];
+
 
 
 // HOW TO USE
+import { Permission, type PermissionKeys } from "./permission";
+
+// type variable
+let permission: PermissionKeys
 
 // Initialize permissions and set user permission to 0
 const permission = new Permission(0);
