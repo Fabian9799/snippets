@@ -13,84 +13,88 @@ Usage example at the bottom of the codeblock
 
 ```js
 class Permission {
-	private permissions = 0;
+  private permissions = 0;
 
-	private PERMISSIONS: { [key: string]: number } = {
-		none: 0,
-		read: 1 << 1,
-		write: 1 << 2,
-		admin: 1 << 3,
-		owner: 1 << 4,
-		// to add more permissions increase the last number by 1
-	};
+  private PERMISSIONS = {
+    none: 0,
+    read: 1 << 1,
+    write: 1 << 2,
+    admin: 1 << 3,
+    owner: 1 << 4,
+    // to add more permissions increase the last number by 1
+  };
 
-	constructor(permission = 0) {
-		this.permissions = permission;
-	}
+  constructor(permission = 0) {
+    this.permissions = permission;
+  }
 
-	getPermissions(): { int: number; array: string[] } {
-		const permissionKeys = Object.keys(this.PERMISSIONS);
-		const userPermissions = permissionKeys.filter((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			return (this.permissions & permissionValue) !== 0;
-		});
-		return { int: this.permissions, array: userPermissions };
-	}
+  getPermissions(): { int: number; array: PermissionKeys[] } {
+    const permissionKeys = Object.keys(this.PERMISSIONS) as PermissionKeys[];
+    const userPermissions = permissionKeys.filter((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      return (this.permissions & permissionValue) !== 0;
+    });
+    return { int: this.permissions, array: userPermissions };
+  }
 
-	setPermissions(
-		permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-	): { int: number; array: string[] } {
-		let permissions = 0;
-		permissionarray.forEach((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			permissions += permissionValue;
-		});
-		this.permissions = permissions;
-		return this.getPermissions();
-	}
+  setPermissions(
+    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
+  ): { int: number; array: PermissionKeys[] } {
+    let permissions = 0;
+    permissionarray.forEach((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      permissions += permissionValue;
+    });
+    this.permissions = permissions;
+    return this.getPermissions();
+  }
 
-	removePermissions(
-		permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-	): { int: number; array: string[] } {
-		permissionarray.forEach((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			this.permissions &= ~permissionValue;
-		});
-		return this.getPermissions();
-	}
+  removePermissions(
+    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
+  ): { int: number; array: PermissionKeys[] } {
+    permissionarray.forEach((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      this.permissions &= ~permissionValue;
+    });
+    return this.getPermissions();
+  }
 
-	addPermissions(
-		permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-	): { int: number; array: string[] } {
-		permissionarray.forEach((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			this.permissions |= permissionValue;
-		});
-		return this.getPermissions();
-	}
+  addPermissions(
+    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
+  ): { int: number; array: PermissionKeys[] } {
+    permissionarray.forEach((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      this.permissions |= permissionValue;
+    });
+    return this.getPermissions();
+  }
 
-	hasAnyPermission(
-		permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-	): boolean {
-		return permissionarray.some((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			return (this.permissions & permissionValue) !== 0;
-		});
-	}
+  hasAnyPermission(
+    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
+  ): boolean {
+    return permissionarray.some((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      return (this.permissions & permissionValue) !== 0;
+    });
+  }
 
-	hasAllPermissions(
-		permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
-	): boolean {
-		return permissionarray.every((permissionKey) => {
-			const permissionValue = this.PERMISSIONS[permissionKey];
-			return (this.permissions & permissionValue) !== 0;
-		});
-	}
+  hasAllPermissions(
+    permissionarray: (keyof typeof Permission.prototype.PERMISSIONS)[]
+  ): boolean {
+    return permissionarray.every((permissionKey) => {
+      const permissionValue = this.PERMISSIONS[permissionKey];
+      return (this.permissions & permissionValue) !== 0;
+    });
+  }
 
-	getPermissionKeys(): string[] {
-		return Object.keys(this.PERMISSIONS);
-	}
+  getPermissionKeys(): PermissionKeys[] {
+    return Object.keys(this.PERMISSIONS) as PermissionKeys[];
+  }
 }
+
+// permission keys
+type PermissionKeys = keyof Permission["PERMISSIONS"];
+
 
 // HOW TO USE
 
