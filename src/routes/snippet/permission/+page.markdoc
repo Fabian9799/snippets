@@ -13,59 +13,59 @@ Usage example at the bottom of the codeblock
 
 ```js
 export class Permission {
-  private permissions = 0;
+  private permissions = BigInt(0);
 
   private PERMISSIONS = {
-    none: 0,
-    read: 1 << 1,
-    write: 1 << 2,
-    admin: 1 << 3,
-    owner: 1 << 4,
-    // to add more permissions increase the last number by 1
+    none: BigInt(0),
+    read: BigInt(1) << BigInt(1),
+    write: BigInt(1) << BigInt(2),
+    admin: BigInt(1) << BigInt(3),
+    owner: BigInt(1) << BigInt(4),
+    // Add more permissions here by increasing the last number by 1
   };
 
-  constructor(permission = 0) {
+  constructor(permission = BigInt(0)) {
     this.permissions = permission;
   }
 
-  getPermissions(): { int: number; array: PermissionKeys[] } {
+  getPermissions(): { string: string; array: PermissionKeys[] } {
     const permissionKeys = Object.keys(this.PERMISSIONS) as PermissionKeys[];
     const userPermissions = permissionKeys.filter((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== 0;
+      return (this.permissions & permissionValue) !== BigInt(0);
     });
-    return { int: this.permissions, array: userPermissions };
+    return { string: this.permissions.toString(), array: userPermissions };
   }
 
-  setPermissions(permissionarray: PermissionKeys[]): {
-    int: number;
-    array: PermissionKeys[];
-  } {
-    let permissions = 0;
+  setPermissions(
+    permissionarray: PermissionKeys[]
+  ): ReturnType<Permission["getPermissions"]> {
+    let permissions = BigInt(0);
     permissionarray.forEach((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
-      permissions += permissionValue;
+      permissions += permissionValue || BigInt(0);
     });
     this.permissions = permissions;
     return this.getPermissions();
   }
 
-  removePermissions(permissionarray: PermissionKeys[]): {
-    int: number;
-    array: PermissionKeys[];
-  } {
+  removePermissions(
+    permissionarray: PermissionKeys[]
+  ): ReturnType<Permission["getPermissions"]> {
     permissionarray.forEach((permissionKey) => {
+      if (!this.PERMISSIONS[permissionKey]) return this.getPermissions();
+
       const permissionValue = this.PERMISSIONS[permissionKey];
       this.permissions &= ~permissionValue;
     });
     return this.getPermissions();
   }
 
-  addPermissions(permissionarray: PermissionKeys[]): {
-    int: number;
-    array: PermissionKeys[];
-  } {
+  addPermissions(
+    permissionarray: PermissionKeys[]
+  ): ReturnType<Permission["getPermissions"]> {
     permissionarray.forEach((permissionKey) => {
+      if (!this.PERMISSIONS[permissionKey]) return this.getPermissions();
       const permissionValue = this.PERMISSIONS[permissionKey];
       this.permissions |= permissionValue;
     });
@@ -75,14 +75,14 @@ export class Permission {
   hasAnyPermission(permissionarray: PermissionKeys[]): boolean {
     return permissionarray.some((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== 0;
+      return (this.permissions & permissionValue) !== BigInt(0);
     });
   }
 
   hasAllPermissions(permissionarray: PermissionKeys[]): boolean {
     return permissionarray.every((permissionKey) => {
       const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== 0;
+      return (this.permissions & permissionValue) !== BigInt(0);
     });
   }
 
@@ -91,30 +91,29 @@ export class Permission {
   }
 }
 
-export type PermissionKeys = keyof Permission["PERMISSIONS"] // ['none', 'admin',... etc];
+export type PermissionKeys = keyof Permission["PERMISSIONS"];
 
 
-
-// HOW TO USE
+// How to use
 import { Permission, type PermissionKeys } from "./permission";
 
 // type variable
 let permission: PermissionKeys
 
-// Initialize permissions and set user permission to 0
-const permission = new Permission(0);
+
+const permission = new Permission(BigInt(0));
 
 // set permissions
-permission.setPermissions(["admin", "owner"]); // { int: 24, array: [ 'admin', 'owner' ] }
+permission.setPermissions(["admin", "owner"]); // { string: "24", array: [ 'admin', 'owner' ] }
 
 // get permissions
-permission.getPermissions(); // { int: 24, array: [ 'admin', 'owner' ] }
+permission.getPermissions(); // { string: "24", array: [ 'admin', 'owner' ] }
 
 // add permissions
-permission.addPermissions(["read"]); // { int: 26, array: ['read', 'admin', 'owner' ] }
+permission.addPermissions(["read"]); // { string: "26", array: ['read', 'admin', 'owner' ] }
 
 // remove permissions
-permission.removePermissions(["admin"]); // { int: 18, array: [ 'read', 'owner' ] }
+permission.removePermissions(["admin"]); // { string: "18", array: [ 'read', 'owner' ] }
 
 // returns true if atleast one permission matches
 permission.hasAnyPermission(["read", "write", "admin"]); // true
@@ -123,5 +122,6 @@ permission.hasAnyPermission(["read", "write", "admin"]); // true
 permission.hasAllPermissions(["admin"]); // false
 
 // get all available permissions
-permission.getPermissionKeys(); // ['none', 'admin',... etc]
+permission.getPermissionKeys(); // [ 'none', 'read', 'write', ... ]
+
 ```
