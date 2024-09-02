@@ -13,7 +13,7 @@ Usage example at the bottom of the codeblock
 
 ```js
 class Permission {
-	permissions = 0;
+	private permissions = 0;
 
 	private PERMISSIONS: { [key: string]: number } = {
 		none: 0,
