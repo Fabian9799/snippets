@@ -13,115 +13,98 @@ Usage example at the bottom of the codeblock
 
 ```js
 export class Permission {
-  private permissions = BigInt(0);
+  private permissions: bigint;
 
-  private PERMISSIONS = {
-    none: BigInt(0),
-    read: BigInt(1) << BigInt(1),
-    write: BigInt(1) << BigInt(2),
-    admin: BigInt(1) << BigInt(3),
-    owner: BigInt(1) << BigInt(4),
-    // Add more permissions here by increasing the last number by 1
-  };
+  private static readonly PERMISSIONS = {
+    NONE: 0n,
+    READ: 1n << 0n,
+    WRITE: 1n << 1n,
+    ADMIN: 1n << 2n,
+    OWNER: 1n << 3n,
+    // Add more permissions here (make sure to increase the last number by one)
+  } as const;
 
-  constructor(permission = BigInt(0)) {
+  constructor(permission: bigint = 0n) {
     this.permissions = permission;
   }
 
-  getPermissions(): { string: string; array: PermissionKeys[] } {
-    const permissionKeys = Object.keys(this.PERMISSIONS) as PermissionKeys[];
-    const userPermissions = permissionKeys.filter((permissionKey) => {
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== BigInt(0);
-    });
+  getPermissions(): { string: string; array: PermissionKey[] } {
+    const userPermissions = Object.entries(Permission.PERMISSIONS)
+      .filter(([, value]) => (this.permissions & value) !== 0n)
+      .map(([key]) => key as PermissionKey);
+
     return { string: this.permissions.toString(), array: userPermissions };
   }
 
   setPermissions(
-    permissionarray: PermissionKeys[]
+    permissionArray: PermissionKey[]
   ): ReturnType<Permission["getPermissions"]> {
-    let permissions = BigInt(0);
-    permissionarray.forEach((permissionKey) => {
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      permissions += permissionValue || BigInt(0);
-    });
-    this.permissions = permissions;
+    this.permissions = permissionArray.reduce(
+      (acc, key) => acc | Permission.PERMISSIONS[key],
+      0n
+    );
     return this.getPermissions();
   }
 
   removePermissions(
-    permissionarray: PermissionKeys[]
+    permissionArray: PermissionKey[]
   ): ReturnType<Permission["getPermissions"]> {
-    permissionarray.forEach((permissionKey) => {
-      if (!this.PERMISSIONS[permissionKey]) return this.getPermissions();
-
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      this.permissions &= ~permissionValue;
-    });
+    this.permissions &= ~permissionArray.reduce(
+      (acc, key) => acc | Permission.PERMISSIONS[key],
+      0n
+    );
     return this.getPermissions();
   }
 
   addPermissions(
-    permissionarray: PermissionKeys[]
+    permissionArray: PermissionKey[]
   ): ReturnType<Permission["getPermissions"]> {
-    permissionarray.forEach((permissionKey) => {
-      if (!this.PERMISSIONS[permissionKey]) return this.getPermissions();
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      this.permissions |= permissionValue;
-    });
+    this.permissions |= permissionArray.reduce(
+      (acc, key) => acc | Permission.PERMISSIONS[key],
+      0n
+    );
     return this.getPermissions();
   }
 
-  hasAnyPermission(permissionarray: PermissionKeys[]): boolean {
-    return permissionarray.some((permissionKey) => {
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== BigInt(0);
-    });
+  hasAnyPermission(permissionArray: PermissionKey[]): boolean {
+    const requiredPermissions = permissionArray.reduce(
+      (acc, key) => acc | Permission.PERMISSIONS[key],
+      0n
+    );
+    return (this.permissions & requiredPermissions) !== 0n;
   }
 
-  hasAllPermissions(permissionarray: PermissionKeys[]): boolean {
-    return permissionarray.every((permissionKey) => {
-      const permissionValue = this.PERMISSIONS[permissionKey];
-      return (this.permissions & permissionValue) !== BigInt(0);
-    });
+  hasAllPermissions(permissionArray: PermissionKey[]): boolean {
+    const requiredPermissions = permissionArray.reduce(
+      (acc, key) => acc | Permission.PERMISSIONS[key],
+      0n
+    );
+    return (this.permissions & requiredPermissions) === requiredPermissions;
   }
 
-  getPermissionKeys(): PermissionKeys[] {
-    return Object.keys(this.PERMISSIONS) as PermissionKeys[];
+  static getPermissionKeys(): PermissionKey[] {
+    return Object.keys(Permission.PERMISSIONS) as PermissionKey[];
   }
 }
 
-export type PermissionKeys = keyof Permission["PERMISSIONS"];
+export type PermissionKey = keyof (typeof Permission)["PERMISSIONS"];
 
+// Usage example
+const permission = new Permission();
 
-// How to use
-import { Permission, type PermissionKeys } from "./permission";
+permission.setPermissions(["ADMIN", "OWNER"]);
+console.log(permission.getPermissions()); // { string: "12", array: ['ADMIN', 'OWNER'] }
 
-// type variable
-let permission: PermissionKeys
+permission.addPermissions(["READ"]);
+console.log(permission.getPermissions()); // { string: "13", array: ['READ', 'ADMIN', 'OWNER'] }
 
+permission.removePermissions(["ADMIN"]);
+console.log(permission.getPermissions()); // { string: "9", array: ['READ', 'OWNER'] }
 
-const permission = new Permission(BigInt(0));
+console.log(permission.hasAnyPermission(["READ", "WRITE", "ADMIN"])); // true
+console.log(permission.hasAllPermissions(["READ", "OWNER"])); // true
+console.log(permission.hasAllPermissions(["READ", "ADMIN"])); // false
 
-// set permissions
-permission.setPermissions(["admin", "owner"]); // { string: "24", array: [ 'admin', 'owner' ] }
-
-// get permissions
-permission.getPermissions(); // { string: "24", array: [ 'admin', 'owner' ] }
-
-// add permissions
-permission.addPermissions(["read"]); // { string: "26", array: ['read', 'admin', 'owner' ] }
-
-// remove permissions
-permission.removePermissions(["admin"]); // { string: "18", array: [ 'read', 'owner' ] }
-
-// returns true if atleast one permission matches
-permission.hasAnyPermission(["read", "write", "admin"]); // true
-
-// returns true if all permissions match
-permission.hasAllPermissions(["admin"]); // false
-
-// get all available permissions
-permission.getPermissionKeys(); // [ 'none', 'read', 'write', ... ]
+console.log(Permission.getPermissionKeys()); // ['NONE', 'READ', 'WRITE', 'ADMIN', 'OWNER']
 
 ```
