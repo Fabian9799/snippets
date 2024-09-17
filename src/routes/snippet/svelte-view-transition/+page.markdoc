@@ -68,12 +68,12 @@ tags:
 ```css
 /* Old stuff going out */
 ::view-transition-old(container) {
-	animation: out 2.5s cubic-bezier(0.65, 0, 0.35, 1); forwards;
+	animation: out 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 /* New stuff coming in */
 ::view-transition-new(container) {
-	animation: in 2.5s cubic-bezier(0.65, 0, 0.35, 1); forwards;
+	animation: in 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 @keyframes out {
