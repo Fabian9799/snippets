@@ -31,3 +31,79 @@ tags:
 {% alert %}
 	Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped.
 {% /alert %}
+
+## Simple scaling transition
+`+layout.svelte`
+```html
+<div class="background"></div>
+<div class="container">
+	<slot />
+</div>
+
+<style>
+	.background {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: black;
+		z-index: -1;
+	}
+
+	.container {
+		view-transition-name: container;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1;
+	}
+</style>
+```
+
+
+`app.css`
+```css
+/* Old stuff going out */
+::view-transition-old(container) {
+	animation: out 2.5s cubic-bezier(0.65, 0, 0.35, 1); forwards;
+}
+
+/* New stuff coming in */
+::view-transition-new(container) {
+	animation: in 2.5s cubic-bezier(0.65, 0, 0.35, 1); forwards;
+}
+
+@keyframes out {
+	0% {
+		transform: scale(1);
+	}
+	25% {
+		transform: scale(0.75) translate(0%);
+	}
+	50% {
+		transform: scale(0.75) translate(150%);
+	}
+	100% {
+		transform: scale(0.75) translate(150%);
+	}
+}
+
+@keyframes in {
+	0% {
+		transform: scale(0.75) translate(-150%);
+	}
+	25% {
+		transform: scale(0.75) translate(-150%);
+	}
+	50% {
+		transform: scale(0.75) translate(0%);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+```
