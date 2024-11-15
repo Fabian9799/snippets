@@ -1,9 +1,8 @@
 <script lang="ts">
 	import Article from '$lib/Article.svelte';
 	import Search from '$lib/Search.svelte';
-	import type { PageData } from './$types';
 
-	export let data: PageData;
+	let { data } = $props();
 </script>
 
 <svelte:head>

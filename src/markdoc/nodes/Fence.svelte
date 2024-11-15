@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 
-	export let content: string;
-	export let language: string;
+	interface Props {
+		content: string;
+		language: string;
+	}
+
+	let { content, language }: Props = $props();
 
 	const html = $page.data.highlighter.codeToHtml(content, {
 		lang: language,
 		theme: 'dracula'
 	});
 
-	let copied = false;
+	let copied = $state(false);
 
 	function copyTextToClipboard() {
 		navigator.clipboard.writeText(content);
@@ -26,7 +30,7 @@
 		: 'border-zinc-800'} duration-200 rounded-xl overflow-hidden code-block relative my-4"
 >
 	<div class="absolute top-0 right-0 p-2">
-		<button on:click={copyTextToClipboard}>
+		<button onclick={copyTextToClipboard} aria-label="Copy to clipboard">
 			<svg
 				class="{copied ? 'text-green-500 bg-green-500/20' : ''} p-2 w-10 rounded-md duration-200"
 				xmlns="http://www.w3.org/2000/svg"

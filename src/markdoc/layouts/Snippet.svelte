@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { type Snippet } from 'svelte';
 
-	export let title: string;
-	export let tags: string[] = [];
-	export let description: string;
-	$: slug = $page.url.pathname.split('/').pop();
+	interface Props {
+		title: string;
+		tags?: string[];
+		description: string;
+		children?: Snippet;
+	}
+
+	let { title, tags = [], description, children }: Props = $props();
+	let slug = $derived($page.url.pathname.split('/').pop());
 </script>
 
 <svelte:head>
@@ -46,7 +52,7 @@
 			{description}
 		</p>
 		<div class="prose-invert prose py-4 prose-rose max-w-none">
-			<slot />
+			{@render children?.()}
 		</div>
 	</article>
 </main>

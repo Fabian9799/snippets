@@ -1,9 +1,19 @@
 <script lang="ts">
-	export let slug: string;
-	export let title: string;
-	export let description: string;
-	export let tags: string[];
-	export let search = false;
+	interface Props {
+		slug: string;
+		title: string;
+		description: string;
+		tags: string[];
+		search?: boolean;
+	}
+
+	let {
+		slug,
+		title,
+		description,
+		tags,
+		search = false
+	}: Props = $props();
 </script>
 
 <a href="/snippet/{slug}" class="inline-block w-full rounded-md h-full">

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { page } from '$app/stores';
 	import { Dialog, Separator, Label } from 'bits-ui';
 	import { fade } from 'svelte/transition';
@@ -23,13 +25,15 @@
 		};
 	});
 
-	let searchTerm = '';
+	let searchTerm = $state('');
 
-	$: filteredSnippets = formattedSnippets.filter((snippet) =>
-		snippet.text.toLowerCase().includes(searchTerm.toLowerCase())
+	let filteredSnippets = $derived(
+		formattedSnippets.filter((snippet) =>
+			snippet.text.toLowerCase().includes(searchTerm.toLowerCase())
+		)
 	);
 
-	$: {
+	run(() => {
 		// rainbow easter egg
 		if (searchTerm.toLowerCase() === 'rainbow') {
 			const main = document.getElementsByTagName('main')[0];
@@ -38,13 +42,13 @@
 			main.style.backgroundPosition = 'center';
 			main.style.backgroundSize = 'cover';
 		}
-	}
+	});
 
-	let open = false;
+	let open = $state(false);
 </script>
 
 <svelte:window
-	on:keydown={(e) => {
+	onkeydown={(e) => {
 		if (e.ctrlKey || e.metaKey) {
 			if (e.key === 'k' || e.key === 'K') {
 				e.preventDefault();

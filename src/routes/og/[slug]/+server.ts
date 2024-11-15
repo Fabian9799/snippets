@@ -12,6 +12,7 @@ export const GET = async ({ params }) => {
 	const sanitizedSlug = params.slug.replace(/\.png$/, '');
 	const snippet = snippets.find((snippet) => snippet.slug === sanitizedSlug);
 
+
 	return componentToPng(
 		Image,
 		{ title: snippet?.title, description: snippet?.description },

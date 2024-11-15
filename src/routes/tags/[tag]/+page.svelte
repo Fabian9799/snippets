@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import Article from '$lib/Article.svelte';
 
-	export let data: PageData;
+	let { data } = $props();
 </script>
 
 <main class="p-8 max-w-2xl lg:max-w-4xl mx-auto">
