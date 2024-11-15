@@ -6,6 +6,9 @@ tags:
     - broadcastchannel
 ---
 
+## What?
+A simple state implementation using the broadcast channel api to sync state between tabs.
+
 ## State
 ```js
 export class MultiTabState {
