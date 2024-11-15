@@ -1,0 +1,58 @@
+---
+title: Svelte Brodcast Channel State
+description: How to use the broadcast channel api with a state
+tags:
+    - svelte
+    - broadcastchannel
+---
+
+## State
+```js
+export class MultiTabState {
+    value = $state(0);
+    channel;
+
+    constructor(channelName: string) {
+        this.channel = new BroadcastChannel(channelName);
+
+        // Each new tab sends a { type: 'request' } message to ask for the current value.
+		// An existing tab responds with { type: 'set', value: this.value }.
+        this.channel.onmessage = ({ data }) => {
+            if (data.type === 'set') {
+                this.value = data.value;
+            } else if (data.type === 'request') {
+                this.channel.postMessage({ type: 'set', value: this.value });
+            }
+        };
+
+        this.channel.postMessage({ type: 'request' });
+    }
+
+    increment() {
+        this.value++;
+        this.sync();
+    }
+
+    decrement() {
+        this.value--;
+        this.sync();
+    }
+
+    sync() {
+        this.channel.postMessage({ type: 'set', value: this.value });
+    }
+}
+```
+
+## Usage:
+```svelte
+<script>
+	import { MultiTabState } from '$lib/state.svelte';
+	export const state = new MultiTabState('stateChannel');
+</script>
+
+{state.value}
+
+<button onclick={() => state.increment()}>+</button>
+<button onclick={() => state.decrement()}>-</button>
+```
