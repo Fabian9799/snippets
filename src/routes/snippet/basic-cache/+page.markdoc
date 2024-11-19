@@ -7,26 +7,65 @@ tags:
 ---
 
 ```js
-const cache = {};
-
-function addToCache(key, value, maxTimeInSeconds) {
-    cache[key] = {
-        value,
-        expiry: Date.now() + maxTimeInSeconds * 1000
-    };
-}
-
-function getFromCache(key: string) {
-    const cacheItem = cache[key];
-    if (cacheItem && cacheItem.expiry > Date.now()) {
-        return cacheItem.value;
-    } else {
-        delete cache[key];
-        return undefined;
+class CustomCache<T> {
+  private cache: Map<
+    string,
+    {
+      value: T;
+      /** Timestamp in unix when the cache entry expires */
+      expiry: number;
     }
+  > = new Map();
+  private cacheDuration: number;
+  private maxCacheLength: number;
+
+  private pruneExpiredEntries() {
+    const now = Date.now();
+    this.cache.forEach((value, key) => {
+      if (value.expiry < now) {
+        this.cache.delete(key);
+      }
+    });
+  }
+
+  /**
+   * Creates a new CustomCache instance.
+   * @param cacheDuration time in milliseconds for which the cache entry is valid
+   * @param maxCacheLength maximum number of entries in the cache
+   */
+  constructor(cacheDuration: number = 1000, maxCacheLength: number = 1000) {
+    this.maxCacheLength = maxCacheLength;
+    this.cacheDuration = cacheDuration;
+  }
+
+  add(key: string, value: T) {
+    if (this.cache.size >= this.maxCacheLength) {
+      this.cache.delete(this.cache.keys().next().value);
+    }
+
+    this.cache.set(key, {
+      value,
+      expiry: Date.now() + this.cacheDuration,
+    });
+  }
+
+  get(key: string): T | null {
+    this.pruneExpiredEntries();
+    return this.cache.get(key)?.value ?? null;
+  }
+
+  clear() {
+    this.cache.clear();
+  }
 }
 
-// Usage
-addToCache("key", "value", 10);
-getFromCache("key");
+/*
+ 1000 = time in milliseconds for which the cache entry is valid
+ 100 = maximum number of entries in the cache
+ */
+const cache = new CustomCache<string>(1000, 100);
+
+cache.add("test", "test");
+console.log(cache.get("test"));
+cache.clear();
 ```
