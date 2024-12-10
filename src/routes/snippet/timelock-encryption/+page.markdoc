@@ -1,0 +1,108 @@
+---
+title: Timelock encryption
+description: Timelock encryption allows you to encrypt data that can only be decrypted after a certain time
+tags:
+    - javascript
+    - timelock
+    - svelte
+---
+
+Timelock encryption allows you to encrypt data that can only be decrypted after a certain time.
+The timelock package uses [Drand](https://drand.love/) to generate the encryption key.
+
+This is a basic [TimeVault](https://timevault.drand.love/) implementation in Svelte.
+
+## Install timelock package
+
+```
+pnpm i tlock-js
+```
+
+## Create encrypt and decrypt functions
+src/lib/drand.ts - based on [this file](https://github.com/fabianlindfors/timebin/blob/main/src/drand.ts)
+```ts
+import * as tlock from 'tlock-js';
+
+const client = tlock.mainnetClient();
+client.httpOptions = {};
+
+export async function encrypt(plaintext: string, timestampMs: number): Promise<string> {
+	const round = tlock.roundAt(timestampMs, tlock.defaultChainInfo);
+
+	return await tlock.timelockEncrypt(round, tlock.Buffer.from(plaintext), client);
+}
+
+export async function decrypt(ciphertext: string): Promise<string> {
+	try {
+		const result = await tlock.timelockDecrypt(ciphertext, client);
+		return result.toString();
+	} catch (e: any) {
+		// Convert not decryptable yet error into a more informative error with a date and time
+		const earlyRegex = /decryptable at round ([0-9]+)/;
+		const matches = e.message.match(earlyRegex);
+		if (matches) {
+			const round = parseInt(matches[1]);
+			const timestampMs = tlock.roundTime(tlock.defaultChainInfo, round);
+			const date = new Date(timestampMs);
+
+			throw new Error(`This message is not decryptable until ${date.toLocaleString()} UTC`);
+		}
+
+		throw e;
+	}
+}
+```
+
+## Write the UI
+```svelte
+<script>
+	import { page } from '$app/stores';
+	import { encrypt, decrypt } from '$lib/drand';
+	import { onMount } from 'svelte';
+	let plaintext = $state('Hello, world!');
+	let decryptedPromise = $state();
+	let copied = $state(false);
+	let decryptionDate = $state();
+
+	onMount(() => {
+		if (!$page.url.hash) return;
+		const ciphertext = atob($page.url.hash.slice(1));
+		decryptedPromise = decrypt(ciphertext);
+	});
+</script>
+
+{#if $page.url.hash}
+	<a href="/">Encrypt a message</a>
+	{#await decryptedPromise}
+		Loading...
+	{:then decrypted}
+		<p>Decrypted text:</p>
+		<pre>{decrypted}</pre>
+	{:catch error}
+		<p>Error: {error.message}</p>
+	{/await}
+{:else}
+	<textarea bind:value={plaintext} rows="10" cols="40"></textarea>
+	<br />
+	<input type="datetime-local" bind:value={decryptionDate} />
+	<br />
+	<button
+		onclick={async () => {
+			if (!decryptionDate) {
+				alert('Please enter a decryption date');
+				return;
+			}
+			const url = new URL(window.location.href);
+			const date = new Date(decryptionDate);
+			const unix = date.getTime();
+			const ciphertext = await encrypt(plaintext, unix);
+			url.hash = btoa(ciphertext);
+			navigator.clipboard.writeText(url.toString());
+			copied = true;
+			setTimeout(() => {
+				copied = false;
+			}, 1000);
+		}}>{copied ? 'Copied!' : 'Copy encrypted link'}</button
+	>
+{/if}
+```
