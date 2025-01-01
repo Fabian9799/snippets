@@ -39,15 +39,18 @@ class CustomCache<T> {
   }
 
   add(key: string, value: T) {
-    if (this.cache.size >= this.maxCacheLength) {
-      this.cache.delete(this.cache.keys().next().value);
-    }
+		if (this.cache.size >= this.maxCacheLength) {
+			const firstKey = this.cache.keys().next().value;
+			if (firstKey !== undefined) {
+				this.cache.delete(firstKey);
+			}
+		}
 
-    this.cache.set(key, {
-      value,
-      expiry: Date.now() + this.cacheDuration,
-    });
-  }
+		this.cache.set(key, {
+			value,
+			expiry: Date.now() + this.cacheDuration
+		});
+	}
 
   get(key: string): T | null {
     this.pruneExpiredEntries();
