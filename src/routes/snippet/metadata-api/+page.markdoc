@@ -139,3 +139,4 @@ export const getMetaTags = async (url: string) => {
 ## TODO
 - Make sure to change the `User-Agent` to your own
 - Add caching to the endpoint to prevent unnecessary requests
+- Cache images to prevent unnecessary requests
