@@ -1,0 +1,141 @@
+---
+title: Metadata API
+description: How to create a simple api to get metadata from a url
+tags:
+    - javascript
+    - sveltekit
+    - metadata
+---
+
+{% alert %}
+	Based on the repo from [DUB](https://github.com/dubinc/dub/blob/main/apps/web/app/api/metatags/utils.ts)
+
+  They also have a hosted version at [https://dub.co/tools/metatags](https://dub.co/tools/metatags)
+{% /alert %}
+
+## Create sveltekit endpoint
+`src/routes/api/metatags/+server.ts`
+
+```js
+import { json } from '@sveltejs/kit';
+import { getMetaTags } from './utils';
+
+export const GET = async () => {
+	const metatags = await getMetaTags('https://example.com');
+
+	return json(metatags);
+};
+```
+
+## Create utils
+`src/routes/api/metatags/utils.ts`
+
+```js
+import he from 'he';
+import { parse } from 'node-html-parser';
+
+export const isValidUrl = (url: string) => {
+	try {
+		new URL(url);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
+
+export const getHtml = async (url: string) => {
+	return await fetch(url, {
+		headers: {
+			'User-Agent': 'Metatag Bot (https://example.com)'
+		}
+	})
+		.then((r) => r.text())
+		.catch(() => null);
+};
+
+export const getHeadChildNodes = (html: string) => {
+	const ast = parse(html); // parse the html into AST format with node-html-parser
+	const metaTags = ast.querySelectorAll('meta').map(({ attributes }) => {
+		const property = attributes.property || attributes.name || attributes.href;
+		return {
+			property,
+			content: attributes.content
+		};
+	});
+	const title = ast.querySelector('title')?.innerText;
+	const linkTags = ast.querySelectorAll('link').map(({ attributes }) => {
+		const { rel, href } = attributes;
+		return {
+			rel,
+			href
+		};
+	});
+
+	return { metaTags, title, linkTags };
+};
+
+export const getRelativeUrl = (url: string, imageUrl: string) => {
+	if (!imageUrl) {
+		return null;
+	}
+	if (isValidUrl(imageUrl)) {
+		return imageUrl;
+	}
+	const { protocol, host } = new URL(url);
+	const baseURL = `${protocol}//${host}`;
+	return new URL(imageUrl, baseURL).toString();
+};
+
+export const getMetaTags = async (url: string) => {
+	const html = await getHtml(url);
+	if (!html) {
+		return {
+			title: url,
+			description: 'No description',
+			image: null
+		};
+	}
+	const { metaTags, title: titleTag, linkTags } = getHeadChildNodes(html);
+
+	let object: Record<string, string> = {};
+
+	for (let k in metaTags) {
+		let { property, content } = metaTags[k];
+
+		// !object[property] → (meaning we're taking the first instance of a metatag and ignoring the rest)
+		property && !object[property] && (object[property] = content && he.decode(content));
+	}
+
+	for (let m in linkTags) {
+		let { rel, href } = linkTags[m];
+
+		// !object[rel] → (ditto the above)
+		rel && !object[rel] && (object[rel] = href);
+	}
+
+	const title = object['og:title'] || object['twitter:title'] || titleTag;
+
+	const description =
+		object['description'] || object['og:description'] || object['twitter:description'];
+
+	const image =
+		object['og:image'] ||
+		object['twitter:image'] ||
+		object['image_src'] ||
+		object['icon'] ||
+		object['shortcut icon'];
+
+	const color = object['theme-color'] || object['msapplication-TileColor'];
+
+	return {
+		title: title || url,
+		description: description || 'No description',
+		image: getRelativeUrl(url, image),
+		color: color
+	};
+};
+```
+
+## TODO
+- Make sure to change the `User-Agent` to your own
+- Add caching to the endpoint to prevent unnecessary requests
