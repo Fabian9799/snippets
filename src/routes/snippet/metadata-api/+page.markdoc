@@ -131,7 +131,7 @@ export const getMetaTags = async (url: string) => {
 		title: title || url,
 		description: description || 'No description',
 		image: getRelativeUrl(url, image),
-		color: color
+		color: color || null
 	};
 };
 ```
