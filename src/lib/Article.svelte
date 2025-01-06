@@ -7,13 +7,7 @@
 		search?: boolean;
 	}
 
-	let {
-		slug,
-		title,
-		description,
-		tags,
-		search = false
-	}: Props = $props();
+	let { slug, title, description, tags, search = false }: Props = $props();
 </script>
 
 <a href="/snippet/{slug}" class="inline-block w-full rounded-md h-full">
@@ -30,7 +24,7 @@
 		>
 			{description}
 		</p>
-		<div class="flex gap-2">
+		<div class="flex gap-2 flex-wrap">
 			{#each tags as tag}
 				<p class="text-xs text-zinc-500 uppercase tracking-wider group-hover:text-zinc-200">
 					#{tag}
