@@ -1,0 +1,54 @@
+---
+title: Kiwi schema
+description: How to use Kiwi schema
+tags:
+    - javascript
+    - svelte
+---
+
+[Playground](https://evanw.github.io/kiwi/)
+
+## Example
+
+```javascript
+// Import Kiwi
+import * as kiwi from 'kiwi-schema';
+
+// Define schema
+const schemaDefinition = `
+message Test {
+  string name = 1;
+}
+`
+
+// Define KIWI
+const schema = kiwi.compileSchema(kiwi.parseSchema(schemaDefinition));
+
+// Encode data
+function encode(data){
+	const binaryData = schema.encodeTest(data);
+	const base64Data = btoa(String.fromCharCode(...binaryData));
+	const urlSafeData = encodeURIComponent(base64Data);
+	return urlSafeData
+}
+
+// Decode data
+function decode(urlSafeData){
+	const base64Data = decodeURIComponent(urlSafeData);
+	const binaryString = atob(base64Data);
+	const binaryData = new Uint8Array([...binaryString].map(char => char.charCodeAt(0)));
+	const decodedBinaryData = schema.decodeTest(binaryData)
+	return decodedBinaryData
+}
+
+const encodedData = encode({name: "Fabian"})
+console.log("Encoded:",encodedData) // Encoded: AUZhYmlhbgAA
+const decodedData = decode(encodedData)
+console.log("Decoded:", decodedData) // Decoded: { name: "Fabian" }
+```
+
+## Using schema
+If the schema message (`message Test`) is called `Test`, your encode and decode functions will be called `encodeTest` and `decodeTest`.
+
+## Typescript
+for typescript check out [This page](https://github.com/evanw/kiwi/blob/master/examples/js.md#typescript)
