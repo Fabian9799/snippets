@@ -1,0 +1,42 @@
+---
+title: Hono Server Sent Events
+description: How to Server Sent Events with Hono
+tags:
+    - javascript
+    - hono
+---
+
+```javascript
+let sseConnections = new Set<any>();
+
+app.get("/sse", async (c) => {
+  return streamSSE(c, async (stream) => {
+    sseConnections.add(stream);
+
+    stream.onAbort(() => {
+      sseConnections.delete(stream);
+    });
+
+    // keep connection alive
+    while (true) {
+      await stream.writeSSE({
+        event: "ping",
+        data: "pong",
+        retry: 5000,
+      });
+      await stream.sleep(30000);
+    }
+  });
+});
+
+app.get("/sse/send", async (c) => {
+  for (const connection of sseConnections) {
+    await connection.writeSSE({
+      data: "It is " + new Date().toISOString(),
+      event: "time-update",
+    });
+  }
+
+  return c.text("ok");
+});
+```
