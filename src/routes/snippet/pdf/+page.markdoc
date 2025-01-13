@@ -1,0 +1,92 @@
+---
+title: Generate a pdf file
+description: Different ways to generate a pdf file
+tags:
+    - pdf
+    - html
+---
+
+## Option 1: Using the browsers print feature
+Use `window.print()` to print the current page.
+
+To hide certain elements from the print view you can use `@media print` in your css.
+
+```html
+<button onclick="window.print()">Print</button>
+
+<p class="no-print">I'm visible on the website but hidden on the printed page.</p>
+<p class="print">I'm invisible on the website but visible on the printed page.</p>
+
+<style>
+    .print {
+        display: none;
+    }
+
+    @media print {
+        .no-print {
+            display: none;
+        }
+        .print {
+            display: block;
+        }
+    }
+</style>
+```
+
+This approach does require the user to select the PDF option in the print dialog.
+
+## Option 2: Using a PDF library
+
+There are many PDF libraries like [PDF-LIB](https://pdf-lib.js.org/) that allow you to easily generate a pdf file.
+Here is a basic example of using it with a sveltekit `+server.ts` endpoint:
+
+```ts
+import { PDFDocument } from 'pdf-lib';
+
+export async function GET() {
+    const pdfDoc = await PDFDocument.create();
+
+    const page = pdfDoc.addPage();
+
+    page.drawText('Pdf content', {
+        x: 50,
+        y: 700,
+        size: 20
+    });
+
+    const pdfBytes = await pdfDoc.save();
+
+    return new Response(pdfBytes, {
+        headers: {
+            'Content-Type': 'application/pdf'
+            'Content-Disposition': 'attachment; filename="example.pdf"' // use "inline" instead of "attachment" to display the pdf in the browser
+        }
+    });
+}
+```
+
+## Option 3: Using a headless browser
+
+You can use a headless browser like [Playwright](https://playwright.dev/) to generate a pdf file.
+
+Here is a basic example of using it with a sveltekit `+server.ts` endpoint:
+
+```ts
+import { chromium } from 'playwright';
+
+export async function GET() {
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+    await page.goto('https://playwright.dev/');
+    await page.emulateMedia({ media: 'print' });
+    const pdf = await page.pdf();
+    await browser.close();
+
+    return new Response(pdf, {
+        headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename="page-print.pdf"' // use 'inline' instead of 'attachment' to display the PDF in the browser
+        }
+    });
+}
+```
