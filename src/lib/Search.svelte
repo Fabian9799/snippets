@@ -5,6 +5,7 @@
 	import { Dialog, Separator, Label } from 'bits-ui';
 	import { fade } from 'svelte/transition';
 	import Article from './Article.svelte';
+	import { untrack } from 'svelte';
 
 	type Snippet = {
 		text: string;
@@ -32,16 +33,8 @@
 			snippet.text.toLowerCase().includes(searchTerm.toLowerCase())
 		)
 	);
-	const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
 
-	$effect(() => {
-		if (searchTerm.toLowerCase() === 'rainbow') {
-			document.querySelectorAll('p, h1, h2, h3, h4, h5').forEach(function (element) {
-				const randomColor = colors[Math.floor(Math.random() * colors.length)];
-				element.style.color = randomColor;
-			});
-		}
-	});
+	let showSoos = $derived(searchTerm.toLowerCase() === 'soos');
 
 	let open = $state(false);
 </script>
@@ -100,6 +93,11 @@
 						autocomplete="off"
 						bind:value={searchTerm}
 					/>
+
+					{#if showSoos}
+						<p class="mt-2">Hello I'm Soos! How can I help you?</p>
+						<img class="absolute animate-spin -top-8 right-0 w-32" src="/soos.svg" alt="Soos" />
+					{/if}
 				</div>
 				<div class="flex flex-col w-full gap-2 max-h-96 overflow-y-auto p-1">
 					{#if searchTerm !== ''}
