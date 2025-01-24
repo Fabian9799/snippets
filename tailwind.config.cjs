@@ -8,6 +8,7 @@ const config = {
     },
     fontFamily: {
       'atkinson': ['Atkinson Hyperlegible', 'sans-serif'],
+      'jetbrains': ['JetBrains Mono Variable', 'monospace'],
     },
   },
 

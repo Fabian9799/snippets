@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fontsource-variable/jetbrains-mono": "^5.1.2",
 		"@fontsource/atkinson-hyperlegible": "^5.1.0",
 		"@resvg/resvg-js": "^2.6.2",
 		"@sveltejs/adapter-static": "^3.0.6",

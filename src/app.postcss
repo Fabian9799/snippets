@@ -1,5 +1,6 @@
 @import '@fontsource/atkinson-hyperlegible/400.css';
 @import '@fontsource/atkinson-hyperlegible/700.css';
+@import '@fontsource-variable/jetbrains-mono';
 /* Write your global styles here, in PostCSS syntax */
 /* Write your global styles here, in PostCSS syntax */
 @tailwind base;
@@ -15,5 +16,8 @@
 	}
 	*:focus-visible {
 		@apply outline-none ring ring-rose-600;
+	}
+	code {
+		@apply font-jetbrains;
 	}
 }
