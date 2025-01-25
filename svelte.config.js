@@ -32,6 +32,14 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter(),
 
+	},
+	vitePlugin: {
+		inspector: {
+			// show or hide the inspector option
+			showToggleButton: 'always',
+			// inspector position
+			toggleButtonPos: 'bottom-right',
+		}
 	}
 };
 
