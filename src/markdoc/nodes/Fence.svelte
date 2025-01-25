@@ -29,12 +29,12 @@
 		? 'border-rose-500'
 		: 'border-zinc-700'} duration-200 rounded-xl overflow-hidden code-block relative my-4"
 >
-	<div class="absolute top-0 right-0 p-2">
+	<div class="absolute top-0 right-0">
 		<button onclick={copyTextToClipboard} aria-label="Copy to clipboard">
 			<svg
 				class="{copied
 					? 'text-rose-500 bg-rose-500/20'
-					: 'bg-zinc-50/10'} p-2 w-9 rounded-md duration-200"
+					: 'bg-zinc-50/10'} p-2 w-9 rounded-bl-xl duration-200"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"
 				fill="none"
