@@ -1,13 +1,13 @@
 @import '@fontsource/atkinson-hyperlegible/400.css';
 @import '@fontsource/atkinson-hyperlegible/700.css';
-@import '@fontsource-variable/jetbrains-mono/index.css';
+@import '@fontsource-variable/jetbrains-mono';
 
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
 @theme {
 	--font-atkinson: 'Atkinson Hyperlegible', 'sans-serif';
-	--font-jetbrains: 'JetBrains Mono', 'monospace';
+	--font-jetbrains: 'JetBrains Mono Variable', 'monospace';
 }
 
 @layer base {
