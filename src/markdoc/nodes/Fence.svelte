@@ -55,7 +55,8 @@
 <style>
 	.code-block :global(pre) {
 		padding: 20px;
-		white-space: pre-wrap;
 		overflow: auto;
+
+		scrollbar-color: #3f3f46 #282a35;
 	}
 </style>
