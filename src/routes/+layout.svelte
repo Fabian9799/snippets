@@ -1,5 +1,5 @@
 <script>
-	import '../app.postcss';
+	import '../app.css';
 	import { onNavigate } from '$app/navigation';
 	let { children } = $props();
 

@@ -34,7 +34,7 @@
 			<svg
 				class="{copied
 					? 'text-rose-500 bg-rose-500/20'
-					: 'bg-zinc-50/10'} p-2 w-9 rounded-bl-xl duration-200"
+					: 'bg-zinc-50/10'} p-2 w-9 rounded-bl-xl duration-200 cursor-pointer"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"
 				fill="none"

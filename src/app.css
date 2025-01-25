@@ -1,11 +1,14 @@
 @import '@fontsource/atkinson-hyperlegible/400.css';
 @import '@fontsource/atkinson-hyperlegible/700.css';
 @import '@fontsource-variable/jetbrains-mono';
-/* Write your global styles here, in PostCSS syntax */
-/* Write your global styles here, in PostCSS syntax */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+@theme {
+	--font-atkinson: 'Atkinson Hyperlegible', 'sans-serif';
+	--font-jetbrains: 'JetBrains Mono', 'monospace';
+}
 
 @layer base {
 	html {
@@ -15,7 +18,7 @@
 		@apply text-zinc-100 bg-zinc-900 font-atkinson;
 	}
 	*:focus-visible {
-		@apply outline-none ring ring-rose-600;
+		@apply outline-none ring-3 ring-rose-600;
 	}
 	code {
 		@apply font-jetbrains;

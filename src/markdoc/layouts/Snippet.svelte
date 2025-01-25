@@ -40,7 +40,7 @@
 			<a
 				aria-label="Home"
 				href="/"
-				class="uppercase rounded-xl hover:ring ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
 			>
 				<svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
 					><rect width="256" height="256" fill="none" /><path
@@ -52,7 +52,7 @@
 			{#each tags as tag}
 				<a
 					href="/tags/{tag}"
-					class="uppercase rounded-xl hover:ring ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
 					>#{tag}</a
 				>
 			{/each}
