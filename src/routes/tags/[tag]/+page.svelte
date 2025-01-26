@@ -9,7 +9,7 @@
 		<button
 			aria-label="Back"
 			onclick={() => window.history.back()}
-			class="uppercase h-min rounded-xl hover:ring ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto"
+			class="uppercase h-min rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto"
 		>
 			<svg class="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
 				><rect width="256" height="256" fill="none" /><polyline
