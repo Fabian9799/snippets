@@ -32,11 +32,9 @@ export const handle = sequence(darkMode);
 
 If you are using tailwind edit the following config
 
-`tailwind.config.csj`
+`app.css`
 ```js
-module.exports = {
-    darkMode: 'selector'
-}
+@custom-variant dark (&:where(.dark, .dark *));
 ```
 
 `ToggleDarkmode.svelte`
@@ -44,7 +42,7 @@ module.exports = {
 <script>
     import { onMount } from 'svelte';
 
-    let isDarkMode = false;
+    let isDarkMode = $state(false);
 
     function toggleDarkMode() {
         isDarkMode = !isDarkMode;
@@ -58,7 +56,7 @@ module.exports = {
     });
 </script>
 
-<button on:click={toggleDarkMode}>
+<button onclick={toggleDarkMode}>
     {isDarkMode ? '🌙' : '☀️'}
 </button>
 ```
