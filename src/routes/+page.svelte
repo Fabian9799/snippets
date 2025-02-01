@@ -22,9 +22,17 @@
 </svelte:head>
 
 <main class="p-8 max-w-2xl lg:max-w-4xl mx-auto">
-	<div class="flex">
-		<p class="text-3xl flex-1 font-bold mb-4">Snippets</p>
-		<Search />
+	<div class="flex justify-between mb-4">
+		<div class="flex gap-2">
+			<p class="text-3xl flex-1 font-bold">Snippets</p>
+		</div>
+		<div class="flex gap-2">
+			<a
+				class="uppercase rounded-full hover:ring-3 ring-rose-600 text-sm h-min my-auto font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+				href="/tags">All Tags</a
+			>
+			<Search />
+		</div>
 	</div>
 	<ul class="grid sm:grid-cols-2 flex-wrap gap-4">
 		{#each data.snippets as { slug, description, title, tags }}
