@@ -2,11 +2,12 @@
 title: Tailwind add custom font
 description: How to add a custom font to tailwind
 tags:
-    - tailwind
-    - font
+  - tailwind
+  - font
 ---
 
 ## Choose a font
+
 [Fontsource](https://fontsource.org/)
 
 [Bunny.net Fonts](https://fonts.bunny.net/) (google fonts mirror)
@@ -20,23 +21,15 @@ pnpm add @fontsource/FONT
 ## Add font to your main css file
 
 ```css
-@import '@fontsource/FONT'; /* or @import url(https://fonts.bunny.net/css?family=FONT:WEIGHT);
-/* @tailwind imports here */
-```
-
-## Add to tailwind config
-
-```js
-module.exports = {
-    theme: {
-        fontFamily: {
-				'FONT': ['FONT-NAME','Type (if available)'],
-			},
-    }
+@import '@fontsource/FONT';
+/* OR @import url(https://fonts.bunny.net/css?family=FONT:WEIGHT)*/
+@theme {
+	--font-NAME: 'FONTNAME', 'sans-serif';
 }
 ```
 
 ## How to use
+
 ```html
-<h1 class="font-FONT">Hello World</h1>
+<h1 class="font-NAME">Hello World</h1>
 ```
