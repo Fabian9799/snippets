@@ -2,31 +2,31 @@
 title: Minecraft Skin preview
 description: Preview a Minecraft Skin
 tags:
-    - svelte
-    - minecraft
-    - threejs
+  - svelte
+  - minecraft
+  - threejs
 ---
 
 ```svelte
 <script>
-	import { SkinViewer } from "skinview3d"
-	import { onMount } from "svelte"
-	let skinContainer
-	onMount(()=>{
+	import { SkinViewer } from 'skinview3d';
+	import { onMount } from 'svelte';
+	let skinContainer;
+	onMount(() => {
 		let skinViewer = new SkinViewer({
 			canvas: skinContainer,
 			width: 300,
 			height: 400,
-			skin: "https://crafatar.com/skins/23dcc84821654815822be2d6eedfe5af"
+			skin: 'https://crafatar.com/skins/23dcc84821654815822be2d6eedfe5af'
 		});
-	})
+	});
 </script>
 
-<canvas bind:this={skinContainer}/>
+<canvas bind:this={skinContainer}></canvas>
 
 <style>
 	canvas {
-		border: 1px solid
+		border: 1px solid;
 	}
-</style> 
+</style>
 ```

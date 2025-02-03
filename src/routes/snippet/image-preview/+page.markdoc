@@ -2,31 +2,30 @@
 title: Svelte image preview
 description: Preview a selected image
 tags:
-    - svelte
-    - image
+  - svelte
+  - image
 ---
 
 ```svelte
-<script> 
-	let files
-	let preview_image = ""
-	
-	$:  { 
-		if (files) {
-		  const reader = new FileReader();
-			
-	    reader.onload = (readerEvent) => {
-	      const base64Image = readerEvent.target.result;
-	     preview_image = base64Image
-	    };
-			
-	    reader.readAsDataURL(files[0]); // Read the file as data URL
-	  }
+<script>
+	let preview_image = $state();
+
+	function handleFileSelect(event) {
+		const files = event.target.files;
+		if (files && files.length > 0) {
+			const reader = new FileReader();
+
+			reader.onload = (readerEvent) => {
+				preview_image = readerEvent.target.result;
+			};
+
+			reader.readAsDataURL(files[0]);
+		}
 	}
 </script>
 
-<input accept="image/*" type="file" bind:files />
-{#if files}
-	<img src={preview_image} alt="placeholder">
+<input accept="image/*" type="file" onchange={handleFileSelect} />
+{#if preview_image}
+	<img src={preview_image} alt="placeholder" />
 {/if}
 ```
