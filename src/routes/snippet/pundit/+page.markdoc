@@ -94,6 +94,9 @@ export const pundit = new Pundit<User>().register(new PostPolicy())
 ## Validate authorization
 
 ```js
+import { Post, User } from './models';
+import { pundit } from './pundit';
+
 const adminUser = new User(1, 'admin');
 const editorUser = new User(2, 'editor');
 const authorUser = new User(3, 'user');
