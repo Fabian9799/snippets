@@ -8,6 +8,8 @@ tags:
 
 ## Install Pundit
 
+Github repo: [https://github.com/fatihky/pundit-ts](https://github.com/fatihky/pundit-ts)
+
 ```bash
 npm install pundit-ts
 ```
