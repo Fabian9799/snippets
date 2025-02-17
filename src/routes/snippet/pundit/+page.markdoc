@@ -1,0 +1,114 @@
+---
+title: Authorization with Pundit
+description: Pundit is a simple and powerful authorization library that allows you to define policies for your application.
+tags:
+  - authorization
+  - javascript
+---
+
+## Install Pundit
+
+```bash
+npm install pundit-ts
+```
+
+## Create models
+
+`models.ts`
+
+```js
+export class User {
+  constructor(public id: number, public role: "admin" | "editor" | "user") {}
+}
+
+export class Post {
+  constructor(public authorId: number) {}
+}
+```
+
+## Define actions
+
+`actions.ts`
+
+```js
+export type PostActions = "create" | "delete" | "update";
+```
+
+## Define policies
+
+`policies.ts`
+
+```js
+import { PunditPolicy } from "pundit-ts";
+import { PostActions } from "./actions";
+import { Post, User } from "./models";
+
+export class PostPolicy extends PunditPolicy<User, Post, PostActions> {
+  constructor() {
+    super(Post);
+  }
+
+  authorize(user: User, post: Post, action: PostActions): boolean {
+    switch (action) {
+      case "create":
+        return (
+          user.role === "admin" ||
+          user.role === "editor" ||
+          user.role === "user"
+        );
+      case "update":
+        return (
+          user.role === "admin" ||
+          post.authorId === user.id ||
+          user.role === "editor"
+        );
+      case "delete":
+        return user.role === "admin" || post.authorId === user.id;
+      default:
+        return false;
+    }
+  }
+
+  filter(ctx) {
+    // Placeholder for filtering logic if needed
+  }
+}
+
+```
+
+## Create pundit instance
+
+`pundit.ts`
+
+```js
+import { Pundit } from "pundit-ts";
+import { User } from "./models";
+import { PostPolicy } from "./policies";
+
+export const pundit = new Pundit<User>().register(new PostPolicy())
+// use .register() to register multiple policies
+```
+
+## Validate authorization
+
+```js
+const adminUser = new User(1, 'admin');
+const editorUser = new User(2, 'editor');
+const authorUser = new User(3, 'user');
+const otherUser = new User(4, 'user');
+
+const post = new Post(3);
+
+console.log(await pundit.authorize(adminUser, post, 'update'));
+// Admin update: true
+
+console.log(await pundit.authorize(editorUser, post, 'delete'));
+// Editor delete: false
+
+console.log(await pundit.authorize(authorUser, post, 'update'));
+// Author update: true
+// True because the post id matches the author id
+
+console.log(await pundit.authorize(otherUser, post, 'delete'));
+// Other user delete: false
+```
