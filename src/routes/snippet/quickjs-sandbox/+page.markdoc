@@ -1,0 +1,86 @@
+---
+title: QuickJS sandbox
+description: A basic example on how to run user provided code in a sandbox in the browser with svelte
+tags:
+  - sandbox
+  - javascript
+  - svelte
+  - vite
+---
+
+## What is this?
+
+[QuickJS](https://sebastianwessel.github.io/quickjs/) allows you to run JavaScript code in a sandbox in the browser (or on the server). It also allows you to define custom environment variables for the sandbox, limit memory, modify fetch requests, and [much more](https://sebastianwessel.github.io/quickjs/docs/runtime-options.html).
+
+## Install packages
+
+```bash
+pnpm i @sebastianwessel/quickjs vite-plugin-node-polyfills
+```
+
+## Change vite config
+
+Modify vite config to include node polyfills
+`vite.config.ts`
+
+```ts
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+export default defineConfig({
+	plugins: [
+		sveltekit(),
+		nodePolyfills({ include: ['buffer', 'path', 'stream', 'util'] }) // Used for @sebastianwessel/quickjs
+	]
+});
+```
+
+## Svelte file
+
+```svelte
+<script lang="ts">
+	import { onMount } from 'svelte';
+	let value = $state(`//Run code
+let name = env.getName();
+export default name
+`);
+	let result: OkResponse | ErrorResponse | undefined = $state();
+	import { loadQuickJs, type ErrorResponse, type OkResponse } from '@sebastianwessel/quickjs';
+
+	type RunSandboxedType = Awaited<ReturnType<typeof loadQuickJs>>['runSandboxed'];
+	let run: RunSandboxedType;
+
+	type Options = Parameters<Awaited<ReturnType<typeof loadQuickJs>>['runSandboxed']>[1];
+	const options: Options = {
+		env: {
+			getName() {
+				return 'SvelteKit';
+			}
+		}
+	};
+
+	async function execute(code: string) {
+		const returnValue = await run(async ({ evalCode }) => {
+			return evalCode(code);
+		}, options);
+		return returnValue;
+	}
+
+	onMount(async () => {
+		const { runSandboxed } = await loadQuickJs(
+			'https://esm.sh/@jitl/quickjs-wasmfile-release-sync'
+		);
+
+		run = runSandboxed;
+	});
+</script>
+
+<textarea rows="4" style="width: 100%" bind:value></textarea>
+<br />
+<button
+	onclick={async () => {
+		result = await execute(value);
+	}}>Execute</button
+>
+
+<pre>{JSON.stringify(result, null, 2)}</pre>
+```
