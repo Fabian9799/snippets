@@ -29,7 +29,13 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 export default defineConfig({
 	plugins: [
 		sveltekit(),
-		nodePolyfills({ include: ['buffer', 'path', 'stream', 'util'] }) // Used for @sebastianwessel/quickjs
+		nodePolyfills({
+			include: ['buffer', 'path', 'stream', 'util', 'fs'],
+			overrides: {
+				fs: 'memfs'
+			},
+			protocolImports: true
+		}) // Used for @sebastianwessel/quickjs
 	]
 });
 ```
