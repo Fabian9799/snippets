@@ -56,7 +56,7 @@
 
 <main>
 	<article class="max-w-2xl lg:max-w-4xl mx-auto py-8 px-4">
-		<div class="flex gap-2">
+		<div class="flex gap-2 flex-wrap">
 			<a
 				aria-label="Home"
 				href="/"
