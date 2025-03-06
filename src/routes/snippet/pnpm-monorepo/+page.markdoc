@@ -1,0 +1,111 @@
+---
+title: Pnpm Monorepo
+description: How to create a monorepo with pnpm workspaces
+tags:
+  - monorepo
+  - pnpm
+---
+
+## Create a basic monorepo
+
+`pnpm-workspace.yaml`
+
+```yaml
+packages:
+  - 'sites/*'
+  - 'packages/*'
+  - 'services/*'
+```
+
+- sites: contains website (homepage, blog, etc.)
+- packages: contains shared packages (sdk, database clients, etc.)
+- services: contains services (api, database, etc.)
+
+## Create a shared package
+
+`packages/shared/package.json`
+
+```json
+{
+	"name": "shared-package-name",
+	"scripts": {
+		"dev": "some dev command"
+	},
+	// ...
+	"exports": {
+		".": {
+			"import": "./index.ts",
+			"types": "./index.ts" // or .d.ts
+		},
+		"./sub-package": {
+			"import": "./sub-package/index.ts",
+			"types": "./sub-package/index.ts" // or .d.ts
+		}
+	}
+}
+```
+
+## Use code from shared package
+
+`sites/my-site/package.json`
+
+```json
+{
+	"dependencies": {
+		"shared-package-name": "workspace:*" // * always uses the newest version
+	}
+}
+```
+
+```bash
+pnpm i
+```
+
+```ts
+import { someFunction } from 'shared-package-name';
+import { someFunction } from 'shared-package-name/sub-package';
+```
+
+## Commands
+
+### Run command in shared package anywhere in the monorepo
+
+```bash
+pnpm -F shared-package-name run dev
+```
+
+### Recursive scripts
+
+If you want to run the `dev` command in all packages, you can use the `-r` flag.
+
+```bash
+pnpm -r run dev
+```
+
+### Update every node package
+
+```bash
+pnpm -r update -i -L
+```
+
+### Delete every node_modules folder
+
+```bash
+find ./ -name node_modules -type d -exec rm -rf {} +
+```
+
+### View installed npm package versions
+
+```bash
+pnpm -F shared-package-name why your-npm-package-name
+```
+
+### Add npm package to shared package
+
+```bash
+pnpm -F shared-package-name add your-npm-package-name
+```
+
+Or cd into the package and install using `pnpm add your-npm-package-name`
+
+Packages installed using the `-w` flag in the root directory are available for every package
