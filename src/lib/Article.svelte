@@ -10,9 +10,9 @@
 	let { slug, title, description, tags, search = false }: Props = $props();
 </script>
 
-<a href="/snippet/{slug}" class="inline-block w-full rounded-md h-full">
+<a href="/snippet/{slug}" class="inline-block w-full rounded-xl h-full">
 	<div
-		class="border duration-200 group border-zinc-800 hover:border-rose-600 h-full flex flex-col p-5 rounded-md shadow hover:bg-gradient-to-r hover:from-rose-900/50 hover:ring-2 ring-rose-600"
+		class="border duration-200 group border-zinc-800 hover:border-rose-600 h-full flex flex-col p-5 rounded-xl shadow hover:bg-gradient-to-r hover:from-rose-900/50 hover:ring-2 ring-rose-600"
 	>
 		<h2 class="font-semibold text-xl" style="view-transition-name: snippet-{slug}-title">
 			{title}

@@ -91,7 +91,10 @@
 						<img class="absolute animate-spin -top-8 right-0 w-32" src="/soos.svg" alt="Soos" />
 					{/if}
 				</div>
-				<div class="flex flex-col w-full gap-2 max-h-96 overflow-y-auto p-1">
+				<div
+					class="flex flex-col w-full gap-2 max-h-96 overflow-y-auto p-1"
+					style="scrollbar-width: thin;"
+				>
 					{#if searchTerm !== ''}
 						{#if filteredSnippets.length > 0}
 							{#each filteredSnippets as { description, slug, tags, text, title }}
