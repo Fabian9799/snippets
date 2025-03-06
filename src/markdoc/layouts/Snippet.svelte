@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { type Snippet } from 'svelte';
+	import { generateTableOfContents } from '$lib/toc';
+	import { onMount, type Snippet } from 'svelte';
 
 	interface Props {
 		title: string;
@@ -11,6 +12,25 @@
 
 	let { title, tags = [], description, children }: Props = $props();
 	let slug = $derived($page.url.pathname.split('/').pop());
+
+	let article: HTMLDivElement | undefined;
+	let tocElement: HTMLElement | undefined;
+
+	onMount(() => {
+		if (article && tocElement) {
+			if (tocElement) {
+				const tocElements = generateTableOfContents(article);
+				tocElement.appendChild(tocElements);
+			}
+			// if # in url, scroll to element
+			if (window.location.hash) {
+				const element = document.getElementById(window.location.hash.slice(1));
+				if (element) {
+					element.scrollIntoView({ behavior: 'smooth' });
+				}
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -57,6 +77,7 @@
 				>
 			{/each}
 		</div>
+
 		<h1
 			class="font-extrabold text-4xl mt-4 mb-2"
 			style="view-transition-name: snippet-{slug}-title"
@@ -66,8 +87,29 @@
 		<p class="text-zinc-400 text-xl" style="view-transition-name: snippet-{slug}-description">
 			{description}
 		</p>
-		<div class="prose-invert prose py-4 prose-rose max-w-none">
+
+		<details class="border-zinc-800 open:border rounded-xl group">
+			<summary
+				class="cursor-pointer text-lg font-semibold px-4 py-2 rounded-xl group-open:rounded-b-none hover:bg-zinc-800 group-open:bg-zinc-800 transition duration-300"
+			>
+				Table of Contents
+			</summary>
+			<div class="text-grey-200 px-2 py-4 toc">
+				<div bind:this={tocElement}></div>
+			</div>
+		</details>
+
+		<div
+			bind:this={article}
+			class="prose-invert prose py-4 prose-rose max-w-none prose-headings:scroll-m-6"
+		>
 			{@render children?.()}
 		</div>
 	</article>
 </main>
+
+<style>
+	.toc :global(a):hover {
+		color: var(--color-rose-500);
+	}
+</style>

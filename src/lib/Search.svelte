@@ -1,11 +1,7 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Dialog, Separator, Label } from 'bits-ui';
-	import { fade } from 'svelte/transition';
 	import Article from './Article.svelte';
-	import { untrack } from 'svelte';
 
 	type Snippet = {
 		text: string;
@@ -15,7 +11,7 @@
 		description: string;
 	};
 
-	const snippets = $page.data.snippets as Snippet[];
+	const snippets = page.data.snippets as Snippet[];
 	const formattedSnippets = snippets.map((snippet) => {
 		return {
 			text: `${snippet.title} ${snippet.description} ${snippet.tags.join(' ')}`,
@@ -69,11 +65,7 @@
 		>
 	</Dialog.Trigger>
 	<Dialog.Portal>
-		<Dialog.Overlay
-			transition={fade}
-			transitionConfig={{ duration: 150 }}
-			class="fixed inset-0 z-50 bg-black/80"
-		/>
+		<Dialog.Overlay class="fixed inset-0 z-50 bg-black/80" />
 		<Dialog.Content
 			class="fixed left-[50%] top-[50%] z-50 w-full max-w-[94%] translate-x-[-50%] translate-y-[-50%] rounded-xl border border-zinc-800 bg-zinc-900 p-5 shadow-xl outline-none sm:max-w-[490px] md:w-full"
 		>
