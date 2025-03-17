@@ -1,0 +1,56 @@
+---
+title: Sveltekit Login Redirect
+description: A basic example on how to redirect the user back to the previous page after login.
+tags:
+  - sveltekit
+  - authentication
+---
+
+This example uses [getRequestEvent](https://svelte.dev/docs/kit/load#Using-getRequestEvent) (added in 2.20.0) to protect a route from being accessed without a valid session.
+
+## Create function to validate the user session
+
+`src/lib/server/auth.ts`
+
+```ts
+import { redirect } from '@sveltejs/kit';
+import { getRequestEvent } from '$app/server';
+
+export function requireLogin() {
+	const { locals, url } = getRequestEvent();
+
+	// assume `locals.user` is populated in `handle` inside `hooks.server.ts`
+	if (!locals.user) {
+		const redirectTo = url.pathname + url.search;
+		const params = new URLSearchParams({ redirectTo });
+
+		// if not on login page, redirect to login page
+		if (url.pathname !== '/login') {
+			redirect(307, `/login?${params}`);
+		}
+	}
+
+	return locals.user;
+}
+```
+
+## Handle redirect in the login form
+
+`src/routes/login/+page.server.ts`
+
+```ts
+export const actions = {
+	default: async ({ request, cookies, url }) => {
+		const { username, password } = Object.fromEntries(await request.formData());
+
+		// TODO: Add auth here
+
+		const redirectTo = url.searchParams.get('redirectTo') ?? '/';
+
+		// TODO: validate to make sure it's only a pathname and not a full url
+		// More info about Open redirect attacks here: https://thecopenhagenbook.com/open-redirect
+
+		redirect(307, redirectTo);
+	}
+};
+```
