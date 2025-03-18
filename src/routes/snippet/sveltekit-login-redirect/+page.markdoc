@@ -50,7 +50,7 @@ export const load = async ({ locals }) => {
 };
 ```
 
-## Handle redirect on the login form
+## Handle redirect in the login form
 
 `src/routes/login/+page.server.ts`
 
