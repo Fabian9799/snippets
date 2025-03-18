@@ -34,7 +34,23 @@ export function requireLogin() {
 }
 ```
 
-## Handle redirect in the login form
+## Protect a route
+
+`src/routes/dashboard/+page.server.ts`
+
+```ts
+import { requireLogin } from '$lib/server/auth';
+
+export const load = async ({ locals }) => {
+	const user = requireLogin();
+
+	return {
+		user
+	};
+};
+```
+
+## Handle redirect on the login form
 
 `src/routes/login/+page.server.ts`
 
