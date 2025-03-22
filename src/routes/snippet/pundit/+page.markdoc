@@ -20,11 +20,13 @@ npm install pundit-ts
 
 ```js
 export class User {
-  constructor(public id: number, public role: "admin" | "editor" | "user") {}
+  constructor(
+    // the type for Data can also come from an ORM
+    public data: { id: number; role: "admin" | "editor" | "user" }) {}
 }
 
 export class Post {
-  constructor(public authorId: number) {}
+  constructor(public data: { id: number; authorId: number }) {}
 }
 ```
 
@@ -50,31 +52,34 @@ export class PostPolicy extends PunditPolicy<User, Post, PostActions> {
     super(Post);
   }
 
-  authorize(user: User, post: Post, action: PostActions): boolean {
+  async authorize(user: User, post: Post, action: PostActions) {
     switch (action) {
       case "create":
         return (
-          user.role === "admin" ||
-          user.role === "editor" ||
-          user.role === "user"
+          user.data.role === "admin" ||
+          user.data.role === "editor" ||
+          user.data.role === "user"
         );
       case "update":
         return (
-          user.role === "admin" ||
-          post.authorId === user.id ||
-          user.role === "editor"
+          user.data.role === "admin" ||
+          post.data.authorId === user.data.id ||
+          user.data.role === "editor"
         );
       case "delete":
-        return user.role === "admin" || post.authorId === user.id;
+        return (
+          user.data.role === "admin" || post.data.authorId === user.data.id
+        );
       default:
         return false;
     }
   }
 
-  filter(ctx) {
+  async filter(ctx) {
     // Placeholder for filtering logic if needed
   }
 }
+
 
 ```
 
@@ -87,7 +92,7 @@ import { Pundit } from "pundit-ts";
 import { User } from "./models";
 import { PostPolicy } from "./policies";
 
-export const pundit = new Pundit<User>().register(new PostPolicy())
+export const pundit = new Pundit<User>().register(new PostPolicy());
 // use .register() to register multiple policies
 ```
 
@@ -97,12 +102,12 @@ export const pundit = new Pundit<User>().register(new PostPolicy())
 import { Post, User } from './models';
 import { pundit } from './pundit';
 
-const adminUser = new User(1, 'admin');
-const editorUser = new User(2, 'editor');
-const authorUser = new User(3, 'user');
-const otherUser = new User(4, 'user');
+const adminUser = new User({ id: 1, role: 'admin' });
+const editorUser = new User({ id: 2, role: 'editor' });
+const authorUser = new User({ id: 3, role: 'user' });
+const otherUser = new User({ id: 4, role: 'user' });
 
-const post = new Post(3);
+const post = new Post({ id: 1, authorId: 3 });
 
 console.log(await pundit.authorize(adminUser, post, 'update'));
 // Admin update: true
@@ -112,7 +117,7 @@ console.log(await pundit.authorize(editorUser, post, 'delete'));
 
 console.log(await pundit.authorize(authorUser, post, 'update'));
 // Author update: true
-// True because the post id matches the author id
+// True because the post author id matches the author id
 
 console.log(await pundit.authorize(otherUser, post, 'delete'));
 // Other user delete: false
