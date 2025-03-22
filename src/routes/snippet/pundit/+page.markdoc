@@ -22,11 +22,11 @@ npm install pundit-ts
 export class User {
   constructor(
     // the type for Data can also come from an ORM
-    public data: { id: number; role: "admin" | "editor" | "user" }) {}
+    readonly data: { id: number; role: "admin" | "editor" | "user" }) {}
 }
 
 export class Post {
-  constructor(public data: { id: number; authorId: number }) {}
+  constructor(readonly data: { id: number; authorId: number }) {}
 }
 ```
 
