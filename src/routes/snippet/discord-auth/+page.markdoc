@@ -2,13 +2,13 @@
 title: Discord oAuth with Sveltekit
 description: How to log in to a website with discord
 tags:
-    - auth
-    - sveltekit
-    - discord
+  - authentication
+  - sveltekit
+  - discord
 ---
 
 {% alert %}
-	Work in progress!
+Work in progress!
 {% /alert %}
 
 Based on the amazing [Sveltesnaps](https://github.com/Rich-Harris/sveltesnaps) example
@@ -16,14 +16,15 @@ Based on the amazing [Sveltesnaps](https://github.com/Rich-Harris/sveltesnaps) e
 ## Setup
 
 ### Discord App
+
 Create a discord app on [The Discord Developer Portal](https://discord.com/developers/applications)
 
 ### Environment variables
+
 Specify the following environment variables
 
 - DISCORD_CLIENT_ID
 - DISCORD_CLIENT_SECRET
-
 
 ## Login and logout actions
 
@@ -69,13 +70,15 @@ To log in use the following code on any page:
 	<button class="text-pink-600">log in</button>
 </form>
 ```
+
 ```svelte
 <form method="POST" action="/auth?/logout" use:enhance>
-    <button>log out</button>
+	<button>log out</button>
 </form>
 ```
 
 ## Auth callback route
+
 (thats the url you put as the redirect url in the discord dashboard)
 
 src/routes/auth/callback/+server.ts
@@ -98,19 +101,18 @@ export async function GET({ url, cookies }) {
 	}
 
 	const { access_token } = await get_token(code, url.origin);
-    // more info about the tokens: https://discord.com/developers/docs/topics/oauth2#authorization-code-grant-access-token-response
+	// more info about the tokens: https://discord.com/developers/docs/topics/oauth2#authorization-code-grant-access-token-response
 	const user = await get_user(access_token);
 
 	const avatar = user.avatar
 		? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`
 		: null;
 
-    // create/update user in database (discord id, name, avatar, etc)
-    // create session in database (session id, discord account id)
+	// create/update user in database (discord id, name, avatar, etc)
+	// create session in database (session id, discord account id)
 
-    const session = //session id from database
-
-	cookies.set('session', session, { path: '/' });
+	const session = //session id from database
+		cookies.set('session', session, { path: '/' });
 
 	throw redirect(307, '/');
 }
@@ -157,13 +159,14 @@ async function get_user(access_token: string) {
 ## Hooks
 
 src/hooks.server.ts
+
 ```ts
 export async function handle({ event, resolve }) {
 	const session_id = event.cookies.get('session');
 
 	if (session_id) {
 		const account = // check if session token is valid and return user
-		event.locals.user = account
+			(event.locals.user = account);
 	}
 
 	return resolve(event);

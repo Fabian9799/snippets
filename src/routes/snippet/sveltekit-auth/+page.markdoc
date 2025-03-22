@@ -2,10 +2,10 @@
 title: SvelteKit auth with seperate Backend
 description: SvelteKit auth with seperate Backend
 tags:
-    - auth
-    - sveltekit
-    - hooks
-    - locals
+  - authentication
+  - sveltekit
+  - hooks
+  - locals
 ---
 
 ## Handle fetch to other backend and forward cookie
