@@ -2,19 +2,20 @@
 title: Metadata API
 description: How to create a simple api to get metadata from a url
 tags:
-    - javascript
-    - sveltekit
-    - metadata
+  - javascript
+  - sveltekit
+  - metadata
 ---
 
 {% alert %}
-	Based on the repo from [DUB](https://github.com/dubinc/dub/blob/main/apps/web/app/api/metatags/utils.ts)
+Based on the repo from [DUB](https://github.com/dubinc/dub/blob/main/apps/web/app/api/metatags/utils.ts)
 
-  They also have a hosted version at [https://dub.co/tools/metatags](https://dub.co/tools/metatags)
+They also have a hosted version at [https://dub.co/tools/metatags](https://dub.co/tools/metatags)
 {% /alert %}
 
 ## Create sveltekit endpoint
-`src/routes/api/metatags/+server.ts`
+
+{% filename name="src/routes/api/metatags/+server.ts" %}
 
 ```js
 import { json } from '@sveltejs/kit';
@@ -27,8 +28,11 @@ export const GET = async () => {
 };
 ```
 
+{% /filename %}
+
 ## Create utils
-`src/routes/api/metatags/utils.ts`
+
+{% filename name="src/routes/api/metatags/utils.ts" %}
 
 ```js
 import he from 'he';
@@ -136,7 +140,10 @@ export const getMetaTags = async (url: string) => {
 };
 ```
 
+{% /filename %}
+
 ## TODO
+
 - Make sure to change the `User-Agent` to your own
 - Add caching to the endpoint to prevent unnecessary requests
 - Cache images to prevent unnecessary requests

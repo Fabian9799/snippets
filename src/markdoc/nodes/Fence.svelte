@@ -27,7 +27,7 @@
 <div
 	class="not-prose border-2 {copied
 		? 'border-rose-500'
-		: 'border-zinc-700'} duration-200 rounded-xl overflow-hidden code-block relative my-4"
+		: 'border-zinc-700'} duration-200 rounded-xl overflow-hidden code-block mb-4 relative"
 >
 	<div class="absolute top-0 right-0">
 		<button onclick={copyTextToClipboard} aria-label="Copy to clipboard">

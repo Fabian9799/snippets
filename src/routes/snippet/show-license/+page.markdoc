@@ -2,11 +2,13 @@
 title: Get License from package.json
 description: How to get and show the projects license from package.json
 tags:
-    - svelte
-    - javascript
+  - svelte
+  - javascript
 ---
 
 ## Create json file from licenses
+
+{% filename name="package.json" %}
 
 ```json
 {
@@ -16,20 +18,26 @@ tags:
 }
 ```
 
+{% /filename %}
+
 ## Create a template file to define the structure
 
-src/routes/license/template.json
+{% filename name="src/routes/license/template.json" %}
+
 ```json
 {
-    "licenses": "",
-    "repository": ",",
-    "licenseFile": "none"
+	"licenses": "",
+	"repository": ",",
+	"licenseFile": "none"
 }
 ```
 
+{% /filename %}
+
 ## Create a page to show the licenses
 
-src/routes/license/+page.svelte
+{% filename name="src/routes/license/+page.svelte" %}
+
 ```svelte
 <script>
 	import licenses from './license.json';
@@ -42,8 +50,7 @@ src/routes/license/+page.svelte
 			name: 'Website',
 			data: {
 				licenses: 'CUSTOM',
-				licenseText:
-					'License text for custom licenses here',
+				licenseText: 'License text for custom licenses here',
 				copyright: '',
 				repository: ''
 			}
@@ -111,3 +118,5 @@ src/routes/license/+page.svelte
 	{/each}
 </div>
 ```
+
+{% /filename %}

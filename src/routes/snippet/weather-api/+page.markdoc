@@ -2,9 +2,11 @@
 title: Weather API
 description: A simple function to return data with a weather api and some icons
 tags:
-    - api
-    - weather
+  - api
+  - weather
 ---
+
+{% filename name="weather.ts" %}
 
 ```ts
 export interface Weather {
@@ -32,9 +34,9 @@ export interface Weather {
 	}[];
 }
 
-const location = "Bern"
+const location = 'Bern';
 
-export async function getWeather(){
+export async function getWeather() {
 	const res = await fetch(`https://wttr.in/~${location}?format=j1`);
 	const data = (await res.json()) as Weather;
 
@@ -49,7 +51,7 @@ export async function getWeather(){
 	});
 
 	return data;
-};
+}
 
 function getWeatherIcon(weatherCode: string) {
 	const weatherArray = [
@@ -109,8 +111,8 @@ function getWeatherIcon(weatherCode: string) {
 }
 ```
 
+{% /filename %}
 
 {% alert %}
-	Thanks to [Flaced](https://flaced.de/) for the idea with the icons
+Thanks to [Flaced](https://flaced.de/) for the idea with the icons
 {% /alert %}
-

@@ -10,7 +10,7 @@ This example uses [getRequestEvent](https://svelte.dev/docs/kit/load#Using-getRe
 
 ## Create function to validate the user session
 
-`src/lib/server/auth.ts`
+{% filename name="src/lib/server/auth.ts" %}
 
 ```ts
 import { redirect } from '@sveltejs/kit';
@@ -34,9 +34,11 @@ export function requireLogin() {
 }
 ```
 
+{% /filename %}
+
 ## Protect a route
 
-`src/routes/dashboard/+page.server.ts`
+{% filename name="src/routes/dashboard/+page.server.ts" %}
 
 ```ts
 import { requireLogin } from '$lib/server/auth';
@@ -50,9 +52,11 @@ export const load = async ({ locals }) => {
 };
 ```
 
+{% /filename %}
+
 ## Handle redirect in the login form
 
-`src/routes/login/+page.server.ts`
+{% filename name="src/routes/login/+page.server.ts" %}
 
 ```ts
 export const actions = {
@@ -70,3 +74,5 @@ export const actions = {
 	}
 };
 ```
+
+{% /filename %}

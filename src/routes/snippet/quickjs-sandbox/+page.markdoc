@@ -21,7 +21,8 @@ pnpm i @sebastianwessel/quickjs vite-plugin-node-polyfills
 ## Change vite config
 
 Modify vite config to include node polyfills
-`vite.config.ts`
+
+{% filename name="vite.config.ts" %}
 
 ```ts
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -39,6 +40,8 @@ export default defineConfig({
 	]
 });
 ```
+
+{% /filename %}
 
 ## Svelte file
 

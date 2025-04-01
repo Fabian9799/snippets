@@ -6,6 +6,8 @@ tags:
   - image
 ---
 
+{% filename name="Component.svelte" %}
+
 ```svelte
 <script>
 	let preview_image = $state();
@@ -29,3 +31,5 @@ tags:
 	<img src={preview_image} alt="placeholder" />
 {/if}
 ```
+
+{% /filename %}

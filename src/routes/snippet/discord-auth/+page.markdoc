@@ -28,7 +28,7 @@ Specify the following environment variables
 
 ## Login and logout actions
 
-/src/routes/auth/+page.server.ts
+{% filename name="src/routes/auth/+page.server.ts" %}
 
 ```js
 import { redirect } from '@sveltejs/kit';
@@ -63,6 +63,8 @@ export const actions = {
 };
 ```
 
+{% /filename %}
+
 To log in use the following code on any page:
 
 ```svelte
@@ -81,7 +83,7 @@ To log in use the following code on any page:
 
 (thats the url you put as the redirect url in the discord dashboard)
 
-src/routes/auth/callback/+server.ts
+{% filename name="src/routes/auth/callback/+server.ts" %}
 
 ```ts
 import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET } from '$env/static/private';
@@ -156,9 +158,11 @@ async function get_user(access_token: string) {
 }
 ```
 
+{% /filename %}
+
 ## Hooks
 
-src/hooks.server.ts
+{% filename name="src/hooks.server.ts" %}
 
 ```ts
 export async function handle({ event, resolve }) {
@@ -172,3 +176,5 @@ export async function handle({ event, resolve }) {
 	return resolve(event);
 }
 ```
+
+{% /filename %}

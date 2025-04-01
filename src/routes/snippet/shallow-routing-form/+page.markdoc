@@ -2,17 +2,18 @@
 title: Sveltekit shallow routing with form
 description: How to use sveltekits shallow routing with forms
 tags:
-    - form
-    - sveltekit
+  - form
+  - sveltekit
 ---
 
 {% alert %}
-	Work in progress! Basic example should work
+Work in progress! Basic example should work
 {% /alert %}
 
 ## Main page
 
-src/routes/+page.svelte
+{% filename name="src/routes/+page.svelte" %}
+
 ```svelte
 <script>
 	import { preloadData, pushState, goto, replaceState } from '$app/navigation';
@@ -52,41 +53,46 @@ src/routes/+page.svelte
 {/if}
 ```
 
+{% /filename %}
+
 ## Form route
 
 `export let shallow` lets the page know its "embedded"
 
 `action="/form` lets the main page know where to submit the form
 
-src/routes/form/+page.svelte
+{% filename name="src/routes/form/+page.svelte" %}
+
 ```svelte
 <script>
-  import { enhance } from '$app/forms';
-  import { goto, preloadData, replaceState } from '$app/navigation';
-  export let data;
-  export let shallow = false;
+	import { enhance } from '$app/forms';
+	import { goto, preloadData, replaceState } from '$app/navigation';
+	export let data;
+	export let shallow = false;
 </script>
 
 <p>Hello {data.name}</p>
 
 <form
-  method="POST"
-  action="/form"
-  use:enhance={() => {
-    return async ({ update }) => {
-      await update();
-      if (shallow) {
-        const result = await preloadData('/form');
-        if (result.type === 'loaded' && result.status === 200) {
-          replaceState('/form', { selected: result.data });
-        } else {
-          goto('/form');
-        }
-      }
-    };
-  }}
+	method="POST"
+	action="/form"
+	use:enhance={() => {
+		return async ({ update }) => {
+			await update();
+			if (shallow) {
+				const result = await preloadData('/form');
+				if (result.type === 'loaded' && result.status === 200) {
+					replaceState('/form', { selected: result.data });
+				} else {
+					goto('/form');
+				}
+			}
+		};
+	}}
 >
-    <input type="text" name="name" />
-    <button>Submit</button>
+	<input type="text" name="name" />
+	<button>Submit</button>
 </form>
 ```
+
+{% /filename %}

@@ -1,21 +1,25 @@
 ---
-title: "Sveltekit Files endpoint"
-description: "How to list files with sveltekit"
+title: 'Sveltekit Files endpoint'
+description: 'How to list files with sveltekit'
 tags:
-    - sveltekit
-    - vite
+  - sveltekit
+  - vite
 ---
 
-```js
-import { json } from "@sveltejs/kit"
+{% filename name="src/routes/api/files/+server.ts" %}
 
-export const GET = ()=>{
-	const files = import.meta.glob("../../../static/*")
+```js
+import { json } from '@sveltejs/kit';
+
+export const GET = () => {
+	const files = import.meta.glob('../../../static/*');
 
 	return json({
-		images: Object.keys(files).map(key => key.split('/').pop())
-	})
-}
+		images: Object.keys(files).map((key) => key.split('/').pop())
+	});
+};
 
 // returns {"images":["file1.png","file2.png"]}
 ```
+
+{% /filename %}

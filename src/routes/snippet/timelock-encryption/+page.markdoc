@@ -2,9 +2,9 @@
 title: Timelock encryption
 description: Timelock encryption allows you to encrypt data that can only be decrypted after a certain time
 tags:
-    - javascript
-    - timelock
-    - svelte
+  - javascript
+  - timelock
+  - svelte
 ---
 
 Timelock encryption allows you to encrypt data that can only be decrypted after a certain time.
@@ -19,7 +19,11 @@ pnpm i tlock-js
 ```
 
 ## Create encrypt and decrypt functions
-src/lib/drand.ts - based on [this file](https://github.com/fabianlindfors/timebin/blob/main/src/drand.ts)
+
+based on [this file](https://github.com/fabianlindfors/timebin/blob/main/src/drand.ts)
+
+{% filename name="src/lib/drand.ts" %}
+
 ```ts
 import * as tlock from 'tlock-js';
 
@@ -53,7 +57,12 @@ export async function decrypt(ciphertext: string): Promise<string> {
 }
 ```
 
+{% /filename %}
+
 ## Write the UI
+
+{% filename name="+page.svelte" %}
+
 ```svelte
 <script>
 	import { page } from '$app/stores';
@@ -106,3 +115,5 @@ export async function decrypt(ciphertext: string): Promise<string> {
 	>
 {/if}
 ```
+
+{% /filename %}

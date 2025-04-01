@@ -8,7 +8,7 @@ tags:
 
 ## Create a basic monorepo
 
-`pnpm-workspace.yaml`
+{% filename name="pnpm-workspace.yaml" %}
 
 ```yaml
 packages:
@@ -17,13 +17,15 @@ packages:
   - 'services/*'
 ```
 
+{% /filename %}
+
 - sites: contains website (homepage, blog, etc.)
 - packages: contains shared packages (sdk, database clients, etc.)
 - services: contains services (api, database, etc.)
 
 ## Create a shared package
 
-`packages/shared/package.json`
+{% filename name="packages/shared/package.json" %}
 
 ```json
 {
@@ -45,9 +47,11 @@ packages:
 }
 ```
 
+{% /filename %}
+
 ## Use code from shared package
 
-`sites/my-site/package.json`
+{% filename name="sites/my-site/package.json" %}
 
 ```json
 {
@@ -56,6 +60,8 @@ packages:
 	}
 }
 ```
+
+{% /filename %}
 
 ```bash
 pnpm i

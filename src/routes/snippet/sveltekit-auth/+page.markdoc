@@ -10,6 +10,8 @@ tags:
 
 ## Handle fetch to other backend and forward cookie
 
+{% filename name="src/hooks.server.ts" %}
+
 ```js
 export const handle = async ({ event, resolve }) => {
 	const res = await event.fetch(`http://127.0.0.1:3000/user`);
@@ -33,7 +35,11 @@ export const handleFetch = async ({ event, request, fetch }) => {
 };
 ```
 
+{% /filename %}
+
 ## Define locals
+
+{% filename name="src/app.d.ts" %}
 
 ```js
 declare global {
@@ -49,7 +55,11 @@ declare global {
 export {};
 ```
 
+{% /filename %}
+
 ## Return user data to page
+
+{% filename name="src/routes/+page.svelte" %}
 
 ```js
 export const load = async ({ locals }) => {
@@ -59,7 +69,11 @@ export const load = async ({ locals }) => {
 };
 ```
 
+{% /filename %}
+
 ## Login and show user data
+
+{% filename name="src/routes/login/+page.svelte" %}
 
 ```html
 <script>
@@ -89,7 +103,11 @@ export const actions = {
 };
 ```
 
+{% /filename %}
+
 ## Parse Cookies
+
+{% filename name="+page.server.ts" %}
 
 ```js
 export const actions = {
@@ -112,3 +130,5 @@ const parseCookie = (str: string): { [key: string]: string } =>
 			return acc;
 		}, {});
 ```
+
+{% /filename %}

@@ -16,7 +16,7 @@ npm install pundit-ts
 
 ## Create models
 
-`models.ts`
+{% filename name="models.ts" %}
 
 ```js
 export class User {
@@ -30,17 +30,21 @@ export class Post {
 }
 ```
 
+{% /filename %}
+
 ## Define actions
 
-`actions.ts`
+{% filename name="actions.ts" %}
 
 ```js
 export type PostActions = "create" | "delete" | "update";
 ```
 
+{% /filename %}
+
 ## Define policies
 
-`policies.ts`
+{% filename name="policies.ts" %}
 
 ```js
 import { PunditPolicy } from "pundit-ts";
@@ -79,13 +83,13 @@ export class PostPolicy extends PunditPolicy<User, Post, PostActions> {
     // Placeholder for filtering logic if needed
   }
 }
-
-
 ```
+
+{% /filename %}
 
 ## Create pundit instance
 
-`pundit.ts`
+{% filename name="pundit.ts" %}
 
 ```js
 import { Pundit } from "pundit-ts";
@@ -95,6 +99,8 @@ import { PostPolicy } from "./policies";
 export const pundit = new Pundit<User>().register(new PostPolicy());
 // use .register() to register multiple policies
 ```
+
+{% /filename %}
 
 ## Validate authorization
 

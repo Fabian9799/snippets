@@ -2,14 +2,18 @@
 title: Svelte Brodcast Channel State
 description: How to use the broadcast channel api with a state
 tags:
-    - svelte
-    - broadcastchannel
+  - svelte
+  - broadcastchannel
 ---
 
 ## What?
+
 A simple state implementation using the broadcast channel api to sync state between tabs.
 
 ## State
+
+{% filename name="state.svelte.ts" %}
+
 ```js
 export class MultiTabState {
     value = $state(0);
@@ -47,7 +51,12 @@ export class MultiTabState {
 }
 ```
 
+{% /filename %}
+
 ## Usage:
+
+{% filename name="Component.svelte" %}
+
 ```svelte
 <script>
 	import { MultiTabState } from '$lib/state.svelte';
@@ -59,3 +68,5 @@ export class MultiTabState {
 <button onclick={() => state.increment()}>+</button>
 <button onclick={() => state.decrement()}>-</button>
 ```
+
+{% /filename %}

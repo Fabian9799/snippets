@@ -2,38 +2,41 @@
 title: Svelte ViewTransition
 description: How to use the view transition api with svelte
 tags:
-    - svelte
-    - viewtransition
+  - svelte
+  - viewtransition
 ---
+
+{% filename name="+layout.svelte" %}
 
 ```svelte
 <script>
 	import { onNavigate } from '$app/navigation';
 
 	onNavigate((navigation) => {
-        if (!document.startViewTransition) return;
+		if (!document.startViewTransition) return;
 
-        return new Promise((resolve) => {
-            document.startViewTransition(async () => {
-                resolve();
-                await navigation.complete;
-            });
-        });
-    });
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 </script>
 
-<div
-	style="view-transition-name: full-embed;"
-/>
+<div style="view-transition-name: full-embed;" />
 ```
 
+{% /filename %}
 
 {% alert %}
-	Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped.
+Note: view-transition-name must be unique. If two rendered elements have the same view-transition-name at the same time, ViewTransition.ready will reject and the transition will be skipped.
 {% /alert %}
 
 ## Simple scaling transition
-`+layout.svelte`
+
+{% filename name="+layout.svelte" %}
+
 ```html
 <div class="background"></div>
 <div class="container">
@@ -63,8 +66,10 @@ tags:
 </style>
 ```
 
+{% /filename %}
 
-`app.css`
+{% filename name="app.css" %}
+
 ```css
 /* Old stuff going out */
 ::view-transition-old(container) {
@@ -105,5 +110,6 @@ tags:
 		transform: scale(1);
 	}
 }
-
 ```
+
+{% /filename %}

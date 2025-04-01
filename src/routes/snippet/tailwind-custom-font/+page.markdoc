@@ -20,6 +20,8 @@ pnpm add @fontsource/FONT
 
 ## Add font to your main css file
 
+{% filename name="app.css" %}
+
 ```css
 @import '@fontsource/FONT';
 /* OR @import url(https://fonts.bunny.net/css?family=FONT:WEIGHT)*/
@@ -27,6 +29,8 @@ pnpm add @fontsource/FONT
 	--font-NAME: 'FONTNAME', 'sans-serif';
 }
 ```
+
+{% /filename %}
 
 ## How to use
 

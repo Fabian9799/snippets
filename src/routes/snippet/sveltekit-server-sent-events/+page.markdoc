@@ -7,7 +7,9 @@ tags:
   - sveltekit
 ---
 
-## Create a SSE endpoint (+server.ts)
+## Create a SSE endpoint
+
+{% filename name="src/routes/sse/+server.ts" %}
 
 ```ts
 // Set containing all the subscribers
@@ -25,17 +27,17 @@ function create_message_string(message: object) {
 export async function GET() {
 	let _controller: ReadableStreamDefaultController;
 	const stream = new ReadableStream({
-    // the controller is the current connection
+		// the controller is the current connection
 		start(controller) {
 			_controller = controller;
 
-      // Add the controller to the set of subscribers
+			// Add the controller to the set of subscribers
 			subscribers.add(_controller);
 
 			// If you want to close the connection: controller.close();
 		},
 		cancel() {
-      // Remove the controller from the set of subscribers
+			// Remove the controller from the set of subscribers
 			subscribers.delete(_controller);
 		}
 	});
@@ -51,12 +53,12 @@ export async function GET() {
 export const POST = async ({ request }) => {
 	const body = await request.json();
 
-  // create the string to send to the client
+	// create the string to send to the client
 	const data = create_message_string({
 		data: JSON.stringify(body)
 	});
 
-  // send the data to all the subscribers
+	// send the data to all the subscribers
 	for (const item of subscribers) {
 		item.enqueue(data);
 	}
@@ -65,32 +67,36 @@ export const POST = async ({ request }) => {
 };
 ```
 
+{% /filename %}
+
 ## Client-side code (+page.svelte or component)
+
+{% filename name="+page.svelte" %}
 
 ```svelte
 <script>
 	import { onMount } from 'svelte';
 
-  // list of messages and the value of the input
+	// list of messages and the value of the input
 	let messages: string[] = [];
 	let value = '';
 
-  // subscribe to the SSE endpoint on mount
+	// subscribe to the SSE endpoint on mount
 	onMount(subscribe);
 
 	function subscribe() {
-    // create event source and listen to messages
+		// create event source and listen to messages
 		const event_source = new EventSource('/sse');
 		event_source.addEventListener('message', (event) => {
 			const data = JSON.parse(event.data);
-      // push the message to the list
+			// push the message to the list
 			messages = [...messages, data.value];
 		});
 
 		return () => event_source.close();
 	}
 
-  // send message to the server
+	// send message to the server
 	async function send() {
 		const res = await fetch(`/sse`, {
 			method: 'POST',
@@ -118,7 +124,10 @@ export const POST = async ({ request }) => {
 </ol>
 ```
 
+{% /filename %}
+
 ## Keep message history on the server
+
 ```ts
 // Add to the top of +server.ts
 const messageHistory: string[] = [];
@@ -138,16 +147,16 @@ messageHistory.push(data);
 const rooms = new Map(); // [{roomId: '123', users: [1,2,3]}]
 
 // User room1
-let connection1 = "connectionData1"
+let connection1 = 'connectionData1';
 
-const room1 = rooms.get('room1') || new Set()
-room1.add(connection1)
-rooms.set('room1', room1)
+const room1 = rooms.get('room1') || new Set();
+room1.add(connection1);
+rooms.set('room1', room1);
 
 // User 1 disconnect
-const room11 = rooms.get('room1') || new Set()
-room11.delete(connection1)
-if(room11.size === 0) rooms.delete('room1')
+const room11 = rooms.get('room1') || new Set();
+room11.delete(connection1);
+if (room11.size === 0) rooms.delete('room1');
 ```
 
 ## Auth
