@@ -38,11 +38,11 @@ import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
 export function createSvelteKitContext(locals: App.Locals) {
 	return function (opts: FetchCreateContextFnOptions) {
-		return locals;
+		return { locals };
 	};
 }
 
-const t = initTRPC.context<ReturnType<typeof createSvelteKitContext>>().create();
+export const t = initTRPC.context<ReturnType<typeof createSvelteKitContext>>().create();
 export const router = t.router;
 export const publicProcedure = t.procedure;
 ```
@@ -175,6 +175,56 @@ export const load = async () => {
 {:catch error}
 	<p>{error}</p>
 {/await}
+```
+
+{% /filename %}
+
+## Middleware
+
+### Create a middleware
+
+{% alert %}
+
+Make sure to define `locals.user` in `src/hooks.server.ts` to make the middleware work.
+
+{% /alert %}
+
+{% filename name="src/lib/server/middleware.ts" %}
+
+```ts
+import { TRPCError } from '@trpc/server';
+import { t } from './context';
+
+export const authed = t.middleware(({ ctx, next }) => {
+	if (ctx.locals.user) {
+		return next();
+		// next can also modify the context or modify the incoming input by passing data to next()
+	}
+
+	throw new TRPCError({
+		code: 'UNAUTHORIZED',
+		message: 'You must be logged in to do this'
+	});
+});
+```
+
+{% /filename %}
+
+### Use the middleware
+
+{% filename name="src/lib/server/router.ts`" %}
+
+```ts
+import { publicProcedure, router } from './context';
+import { authed } from './middleware';
+
+export const appRouter = router({
+	name: router({
+		auth: publicProcedure.use(authed).query(() => 'Auth passed')
+	})
+});
+
+export type AppRouter = typeof appRouter;
 ```
 
 {% /filename %}
