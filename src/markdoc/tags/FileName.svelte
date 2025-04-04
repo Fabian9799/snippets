@@ -3,6 +3,10 @@
 </script>
 
 <div class="not-prose">
-	<p class="bg-zinc-700 w-min px-2 rounded-t-md ml-3 text-md font-jetbrains">{name}</p>
+	<div class="px-3">
+		<p class="bg-zinc-700 inline-block px-2 rounded-t-md text-md font-jetbrains wrap-anywhere">
+			{name}
+		</p>
+	</div>
 	{@render children()}
 </div>
