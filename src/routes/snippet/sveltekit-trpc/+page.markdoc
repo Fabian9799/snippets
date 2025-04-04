@@ -162,8 +162,8 @@ export const load = async () => {
 
 <input
 	bind:value={name}
-	onkeyup={() => {
-		trpc.name.set.mutate({ name });
+	onkeyup={async () => {
+		await trpc.name.set.mutate({ name });
 		serverName = trpc.name.get.query();
 	}}
 />
