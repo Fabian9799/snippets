@@ -1,0 +1,180 @@
+---
+title: How to use TRPC with SvelteKit
+description: A basic trpc example with sveltekit
+tags:
+  - sveltekit
+  - trpc
+  - zod
+---
+
+{% alert %}
+
+Most code is based on [this blog post](https://raqueeb.com/blog/2023/04/17/how-to-setup-trpc-in-a-sveltekit-project) and adapted to svelte 5 and the new [getRequestEvent](https://svelte.dev/docs/kit/load#Using-getRequestEvent) function.
+
+{% /alert %}
+
+## What is trpc?
+
+> tRPC allows you to easily build & consume fully typesafe APIs without schemas or code generation.
+> tRPC is for full-stack TypeScript developers. It makes it easy to write endpoints that you can safely use in both the front and backend of your app. Type errors with your API contracts will be caught at build time, reducing the surface for bugs in your application at runtime.
+
+[Website](https://trpc.io/)
+
+## Setup
+
+### Install dependencies
+
+```bash
+pnpm i @trpc/client @trpc/server @trpc/server zod -D
+```
+
+### Create TRPC context
+
+{% filename name="src/lib/server/context.ts" %}
+
+```ts
+import { initTRPC } from '@trpc/server';
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+
+export function createSvelteKitContext(locals: App.Locals) {
+	return function (opts: FetchCreateContextFnOptions) {
+		return locals;
+	};
+}
+
+const t = initTRPC.context<ReturnType<typeof createSvelteKitContext>>().create();
+export const router = t.router;
+export const publicProcedure = t.procedure;
+```
+
+{% /filename %}
+
+### Create TRPC router
+
+{% filename name="src/lib/server/router.ts" %}
+
+```ts
+import { z } from 'zod';
+import { publicProcedure, router } from './context';
+
+let name = 'Name';
+
+export const appRouter = router({
+	name: router({
+		get: publicProcedure.query(() => name),
+		set: publicProcedure.input(z.object({ name: z.string() })).mutation(({ input }) => {
+			name = input.name;
+			return name;
+		})
+	})
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+{% /filename %}
+
+### Create TRPC client
+
+{% filename name="src/lib/trpc.ts" %}
+
+```ts
+import { httpBatchLink, createTRPCClient } from '@trpc/client';
+import type { AppRouter } from './server/router';
+import { getRequestEvent } from '$app/server';
+
+export const trpc = createTRPCClient<AppRouter>({
+	links: [httpBatchLink({ url: '/api/trpc' })]
+});
+
+export function trpcOnServer() {
+	const { fetch } = getRequestEvent();
+	return createTRPCClient<AppRouter>({
+		links: [
+			httpBatchLink({
+				url: '/api/trpc',
+				fetch
+			})
+		]
+	});
+}
+```
+
+{% /filename %}
+
+### Create TRPC server/endpoint
+
+{% filename name="src/routes/api/trpc/[...procedure]/+server.ts" %}
+
+```ts
+import { createSvelteKitContext } from '$lib/server/context';
+import { appRouter } from '$lib/server/router';
+import type { RequestHandler } from '@sveltejs/kit';
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
+
+const handleTRPC: RequestHandler = function (event) {
+	return fetchRequestHandler({
+		req: event.request,
+		router: appRouter,
+		endpoint: '/api/trpc',
+		createContext: createSvelteKitContext(event.locals)
+	});
+};
+
+export const GET = handleTRPC;
+export const POST = handleTRPC;
+```
+
+{% /filename %}
+
+## Usage
+
+### Usage on the server
+
+{% filename name="src/routes/+page.server.ts" %}
+
+```ts
+import { trpcOnServer } from '$lib/trpc';
+
+export const load = async () => {
+	const trpc = trpcOnServer();
+
+	return { name: await trpc.name.get.query() };
+};
+```
+
+{% /filename %}
+
+### Usage on the client
+
+{% filename name="src/routes/+page.svelte" %}
+
+```svelte
+<script lang="ts">
+	import { browser } from '$app/environment';
+	import { trpc } from '$lib/trpc';
+
+	let { data } = $props();
+
+	let name = $state(data.name);
+	let serverName = $derived(browser ? trpc.name.get.query() : data.name);
+</script>
+
+<input
+	bind:value={name}
+	onkeyup={() => {
+		trpc.name.set.mutate({ name });
+		serverName = trpc.name.get.query();
+	}}
+/>
+
+{#await serverName}
+	<p>Loading...</p>
+{:then value}
+	<p>{value}</p>
+{:catch error}
+	<p>{error}</p>
+{/await}
+```
+
+{% /filename %}
