@@ -26,6 +26,7 @@ export class User {
 }
 
 export class Post {
+  private readonly __brand = 'Post'; // needed for pundit to differenciate classes if multiple have a data field
   constructor(readonly data: { id: number; authorId: number }) {}
 }
 ```
