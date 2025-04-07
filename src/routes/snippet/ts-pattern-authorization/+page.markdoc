@@ -1,0 +1,66 @@
+---
+title: Authorization with ts-pattern
+description: A simple example on how to use ts-pattern to authorize actions
+tags:
+  - authorization
+  - javascript
+---
+
+## Install ts-pattern
+
+Github repo: [https://github.com/gvergnaud/ts-pattern](https://github.com/gvergnaud/ts-pattern)
+
+```bash
+npm install ts-pattern
+```
+
+## Define post actions
+
+{% filename name="authorization.ts" %}
+
+```js
+import { match } from "ts-pattern";
+
+type PostActions = "create" | "update" | "delete";
+
+type User = { id: number; role: "admin" | "editor" | "user" };
+type Post = { id: number; authorId: number };
+
+async function authorizePost(user: User, post: Post, action: PostActions) {
+  return match(action)
+    .with("create", () => ["admin", "editor", "user"].includes(user.role))
+    .with(
+      "update",
+      () =>
+        user.role === "admin" ||
+        user.role === "editor" ||
+        post.authorId === user.id
+    )
+    .with("delete", () => user.role === "admin" || post.authorId === user.id)
+    .otherwise(() => false);
+}
+```
+
+{% /filename %}
+
+## Usage example
+
+{% filename name="index.ts" %}
+
+```js
+import { authorizePost } from "./authorization";
+
+const adminUser: User = { id: 1, role: "admin" };
+const editorUser: User = { id: 2, role: "editor" };
+const authorUser: User = { id: 3, role: "user" };
+const otherUser: User = { id: 4, role: "user" };
+
+const post = { id: 1, authorId: 3 };
+
+console.log(await authorizePost(adminUser, post, "update")); // true
+console.log(await authorizePost(editorUser, post, "delete")); // false
+console.log(await authorizePost(authorUser, post, "update")); // true
+console.log(await authorizePost(otherUser, post, "delete")); // false
+```
+
+{% /filename %}
