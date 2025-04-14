@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Article from '$lib/Article.svelte';
+	import Logo from '$lib/Logo.svelte';
 	import Search from '$lib/Search.svelte';
 
 	let { data } = $props();
@@ -23,7 +24,8 @@
 
 <main class="p-8 max-w-2xl lg:max-w-4xl mx-auto">
 	<div class="flex justify-between mb-4">
-		<div class="flex gap-2">
+		<div class="flex gap-2 items-center">
+			<Logo />
 			<p class="text-3xl flex-1 font-bold">Snippets</p>
 		</div>
 		<div class="flex gap-2">

@@ -60,6 +60,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^6.21.0
         version: 6.21.0(eslint@8.57.1)(typescript@5.8.3)
+      animejs:
+        specifier: ^4.0.1
+        version: 4.0.1
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.3)
@@ -807,6 +810,9 @@ packages:
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
+
+  animejs@4.0.1:
+    resolution: {integrity: sha512-QbNbOrToapaZ7ebNuQpRgOhEGeyg/r8+bOUKbaaDNI/64XyjDrguVWW6Xgnt8PX+HHs0aAi34WpetczSbRZ3dQ==}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -2424,6 +2430,8 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  animejs@4.0.1: {}
 
   ansi-regex@5.0.1: {}
 
