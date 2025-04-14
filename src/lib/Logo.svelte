@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { animate, svg, stagger } from 'animejs';
 
+	let pathElements: HTMLOrSVGElement[] = [];
+
 	function animateLogo() {
-		animate(svg.createDrawable('.path'), {
+		animate(svg.createDrawable(pathElements), {
 			draw: ['0 0', '0 1'],
 			ease: 'inOutCubic',
 			stroke: ['#ff073a', '#ff6a00', '#ccff00', '#0099ff', '#ffffff'],
@@ -19,14 +21,14 @@
 		xmlns="http://www.w3.org/2000/svg"
 	>
 		<path
-			class="path"
+			bind:this={pathElements[0]}
 			d="M1 3.5 1 1 3.5 1"
 			stroke-width=".5"
 			stroke-linecap="square"
 			stroke="white"
 		/>
 		<path
-			class="path"
+			bind:this={pathElements[1]}
 			d="M3.5 3.5 2 3.5 2 2 3.5 2 3.5 3.5"
 			stroke-width=".5"
 			stroke-linecap="square"
