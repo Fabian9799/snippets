@@ -7,19 +7,43 @@
 
 	function animateLogo() {
 		createTimeline()
-			.add(svg.createDrawable(pathElements), {
-				draw: ['0 1', '1 1'],
-				stroke: ['#ff073a', '#ff6a00', '#ccff00', '#0099ff', '#ffffff'],
-				'stroke-linecap': 'square',
-				ease: 'inOutCubic',
-				duration: 500
+			.label('start')
+			.add(
+				svg.createDrawable(pathElements),
+				{
+					draw: ['0 1'],
+
+					duration: 500
+				},
+				'start'
+			)
+			.add(
+				svgElement,
+				{
+					rotate: [0, 360],
+					scale: [1, 0],
+					duration: 500
+				},
+				'start'
+			)
+			.add(svgElement, {
+				opacity: 0,
+				duration: 0
+			})
+			.add(svgElement, {
+				scale: 1,
+
+				duration: 200
 			})
 			.add(svg.createDrawable(pathElements), {
 				draw: ['0 0'],
-				stroke: 'transparent',
-				duration: 200
+				'stroke-linecap': 'none',
+				duration: 0
 			})
-
+			.add(svgElement, {
+				opacity: 1,
+				duration: 0
+			})
 			.add(svg.createDrawable(pathElements), {
 				draw: ['0 0', '0 1'],
 				stroke: ['#ff073a', '#ff6a00', '#ccff00', '#0099ff', '#ffffff'],
