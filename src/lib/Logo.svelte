@@ -8,28 +8,25 @@
 	function animateLogo() {
 		createTimeline()
 			.add(svg.createDrawable(pathElements), {
-				draw: ['0 1'],
-				duration: 1
-			})
-			.add(svgElement, {
-				height: [40, 0],
-				duration: 250
+				draw: ['0 1', '1 1'],
+				stroke: ['#ff073a', '#ff6a00', '#ccff00', '#0099ff', '#ffffff'],
+				'stroke-linecap': 'square',
+				ease: 'inOutCubic',
+				duration: 500
 			})
 			.add(svg.createDrawable(pathElements), {
 				draw: ['0 0'],
-				stroke: 'transparent'
+				stroke: 'transparent',
+				duration: 200
 			})
-			.add(svgElement, {
-				height: [0, 40],
-				duration: 250
-			})
+
 			.add(svg.createDrawable(pathElements), {
 				draw: ['0 0', '0 1'],
 				stroke: ['#ff073a', '#ff6a00', '#ccff00', '#0099ff', '#ffffff'],
 				'stroke-linecap': 'square',
 				ease: 'inOutCubic',
 				duration: 500,
-				delay: stagger(1000)
+				delay: stagger(500)
 			});
 	}
 </script>
