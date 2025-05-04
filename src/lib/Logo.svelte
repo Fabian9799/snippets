@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { animate, svg, stagger } from 'animejs';
+	import { svg, stagger } from 'animejs';
 	import { createTimeline } from 'animejs';
 
 	let pathElements: HTMLOrSVGElement[] = [];
