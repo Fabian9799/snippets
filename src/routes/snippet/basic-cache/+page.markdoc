@@ -6,6 +6,8 @@ tags:
     - cache
 ---
 
+## Example
+
 ```js
 class CustomCache<T> {
   private cache: Map<

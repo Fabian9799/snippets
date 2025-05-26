@@ -9,6 +9,8 @@ tags:
 
 Allows you to select an image, send it to the photopea editor in an iframe and get back the edited image.
 
+## Example
+
 ```svelte
 <script lang="ts">
 	let base64Image = $state('');

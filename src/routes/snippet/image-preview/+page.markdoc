@@ -6,6 +6,8 @@ tags:
   - image
 ---
 
+## Example
+
 {% filename name="Component.svelte" %}
 
 ```svelte

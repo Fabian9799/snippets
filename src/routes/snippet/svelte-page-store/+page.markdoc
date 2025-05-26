@@ -10,6 +10,8 @@ tags:
 Please use [app/state](https://svelte.dev/docs/kit/$app-state) if you are using Svelte 5
 {% /alert %}
 
+## Example
+
 ```js
 import { page } from '$app/stores';
 $: name = $page.url.searchParams.get('name');

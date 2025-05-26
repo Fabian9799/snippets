@@ -6,6 +6,8 @@ tags:
     - hono
 ---
 
+## Example
+
 ```javascript
 let sseConnections = new Set<any>();
 

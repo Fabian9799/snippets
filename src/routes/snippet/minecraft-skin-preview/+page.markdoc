@@ -7,6 +7,8 @@ tags:
   - threejs
 ---
 
+## Code
+
 {% filename name="Component.svelte" %}
 
 ```svelte

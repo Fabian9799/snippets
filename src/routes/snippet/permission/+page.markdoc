@@ -11,6 +11,8 @@ Basic permissions example with bitwise
 
 Usage example at the bottom of the codeblock
 
+## Example
+
 ```js
 export class Permission {
   private permissions: bigint;

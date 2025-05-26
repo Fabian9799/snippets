@@ -6,6 +6,8 @@ tags:
     - atropos
 ---
 
+## Example
+
 ```svelte
 <script>
 	import 'atropos/atropos.css';

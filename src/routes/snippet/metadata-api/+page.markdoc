@@ -8,9 +8,7 @@ tags:
 ---
 
 {% alert %}
-Based on the repo from [DUB](https://github.com/dubinc/dub/blob/main/apps/web/app/api/metatags/utils.ts)
-
-They also have a hosted version at [https://dub.co/tools/metatags](https://dub.co/tools/metatags)
+Based on the repo from [DUB](https://github.com/dubinc/dub/blob/af444cedd2ca97190efcdba4a914e3cfa2ce3e84/apps/web/app/api/links/metatags/utils.ts)
 {% /alert %}
 
 ## Create sveltekit endpoint

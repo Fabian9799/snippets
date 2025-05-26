@@ -6,6 +6,8 @@ tags:
   - viewtransition
 ---
 
+## Basic usage
+
 {% filename name="+layout.svelte" %}
 
 ```svelte

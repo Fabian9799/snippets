@@ -6,6 +6,8 @@ tags:
     - chart
 ---
 
+## Example
+
 ```svelte
 <script>
     import * as echarts from 'echarts';
