@@ -11,11 +11,12 @@ export const GET = async ({ params }) => {
 	const height = 600;
 	const sanitizedSlug = params.slug.replace(/\.png$/, '');
 	const snippet = snippets.find((snippet) => snippet.slug === sanitizedSlug);
+	if (!snippet) return new Response(null, { status: 404 });
 
 
 	return componentToPng(
 		Image,
-		{ title: snippet?.title, description: snippet?.description },
+		{ title: snippet.title, description: snippet.description },
 		height,
 		width
 	);

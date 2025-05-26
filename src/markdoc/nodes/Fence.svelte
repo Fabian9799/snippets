@@ -10,7 +10,7 @@
 
 	const html = $page.data.highlighter.codeToHtml(content, {
 		lang: language,
-		theme: 'dracula'
+		theme: 'dracula',
 	});
 
 	let copied = $state(false);
@@ -49,6 +49,7 @@
 		</button>
 	</div>
 
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html html}
 </div>
 

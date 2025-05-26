@@ -4,10 +4,17 @@ export function listSnippets() {
 	});
 
 	const snippets = Object.entries(modules).map(([filepath, module]) => {
-		const { frontmatter } = module as { frontmatter: Record<string, string> };
+		const { frontmatter } = module as {
+			frontmatter: {
+				title: string;
+				description: string;
+				tags: string[];
+			}
+		};
 
 		const parts = filepath.split('/+page.markdoc')[0].split('/');
 		const slug = parts[parts.length - 1];
+
 
 		return {
 			title: frontmatter.title,

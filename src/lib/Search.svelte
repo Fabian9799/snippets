@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Dialog, Separator, Label } from 'bits-ui';
+	import { Dialog, Separator } from 'bits-ui';
 	import Article from './Article.svelte';
 
 	type Snippet = {
@@ -18,7 +18,7 @@
 			slug: snippet.slug,
 			tags: snippet.tags,
 			title: snippet.title,
-			description: snippet.description
+			description: snippet.description,
 		};
 	});
 
@@ -26,8 +26,8 @@
 
 	let filteredSnippets = $derived(
 		formattedSnippets.filter((snippet) =>
-			snippet.text.toLowerCase().includes(searchTerm.toLowerCase())
-		)
+			snippet.text.toLowerCase().includes(searchTerm.toLowerCase()),
+		),
 	);
 
 	let showSoos = $derived(searchTerm.toLowerCase() === 'soos');
@@ -61,7 +61,8 @@
 			stroke="currentColor"
 			stroke-width="2"
 			stroke-linecap="round"
-			stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+			stroke-linejoin="round"
+			><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
 		>
 	</Dialog.Trigger>
 	<Dialog.Portal>
@@ -88,7 +89,11 @@
 
 					{#if showSoos}
 						<p class="mt-2">Hello I'm Soos! How can I help you?</p>
-						<img class="absolute animate-spin -top-8 right-0 w-32" src="/soos.svg" alt="Soos" />
+						<img
+							class="absolute animate-spin -top-8 right-0 w-32"
+							src="/soos.svg"
+							alt="Soos"
+						/>
 					{/if}
 				</div>
 				<div
@@ -97,9 +102,16 @@
 				>
 					{#if searchTerm !== ''}
 						{#if filteredSnippets.length > 0}
-							{#each filteredSnippets as { description, slug, tags, text, title }}
+							<!-- eslint-disable-next-line svelte/require-each-key -->
+							{#each filteredSnippets as { description, slug, tags, title }}
 								<div class="w-full">
-									<Article {slug} {title} {description} {tags} search={true} />
+									<Article
+										{slug}
+										{title}
+										{description}
+										{tags}
+										search={true}
+									/>
 								</div>
 							{/each}
 						{:else}
@@ -122,7 +134,8 @@
 						stroke="currentColor"
 						stroke-width="2"
 						stroke-linecap="round"
-						stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
+						stroke-linejoin="round"
+						><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg
 					>
 					<span class="sr-only">Close</span>
 				</div>
