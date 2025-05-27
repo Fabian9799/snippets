@@ -1,0 +1,74 @@
+---
+title: Create images from HTML
+description: How to convert html to an image on the server as a sveltekit API endpoint
+tags:
+    - sveltekit
+    - html
+    - image
+---
+
+A basic example of how to convert HTML to an image on the server as a sveltekit API endpoint.
+Supports width, height, delay and watermark as query parameters.
+Html also supports tailwind classes.
+
+## Install pageres
+```bash
+npm i pageres
+```
+
+## Create endpoint
+
+{% filename name="src/routes/api/html/+server.ts" %}
+
+```ts
+import Pageres from 'pageres';
+import { error } from '@sveltejs/kit';
+
+export async function GET({ url }) {
+    const htmlParam = url.searchParams.get('html');
+    if (!htmlParam) throw error(400, 'Missing html parameter');
+
+    const html = decodeURIComponent(htmlParam);
+    const width = url.searchParams.get('width') || '1920';
+    const height = url.searchParams.get('height') || '1080';
+    const delay = parseInt(url.searchParams.get('delay') || '0');
+
+    try {
+        const screenshots = await new Pageres({ delay })
+            .source(`data:text/html,${encodeURIComponent(`
+                <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+                <div class="absolute bottom-0 right-0 p-2">
+                     <div class="text-white bg-amber-600 px-2 py-1 rounded-lg flex gap-1">
+                       <div class="size-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-current" viewBox="0 0 256 256"><path d="M168,32H88A56.06,56.06,0,0,0,32,88v80a56.06,56.06,0,0,0,56,56h48a8.07,8.07,0,0,0,2.53-.41c26.23-8.75,76.31-58.83,85.06-85.06A8.07,8.07,0,0,0,224,136V88A56.06,56.06,0,0,0,168,32ZM136,207.42V176a40,40,0,0,1,40-40h31.42C198.16,157.55,157.55,198.16,136,207.42Z"></path></svg>
+                       </div>
+                        <p>Watermark</p>
+                     </div>
+                </div>
+                ` + html)}`, [`${width}x${height}`])
+            .run();
+
+        return new Response(screenshots[0], {
+            headers: {
+                'Content-Type': 'image/png',
+                'Cache-Control': 'public, max-age=3600'
+            }
+        });
+    } catch (err) {
+        console.error('Screenshot error:', err);
+        throw error(500, 'Failed to generate screenshot');
+    }
+}
+```
+
+{% /filename %}
+
+## Usage
+
+```
+http://localhost:5173/api/html
+  ?width=1920
+  &height=1080
+  &delay=0
+  &html=<p class="text-sky-500">Hello World</p>
+```
