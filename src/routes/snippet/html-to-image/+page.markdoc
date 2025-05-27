@@ -11,6 +11,8 @@ A basic example of how to convert HTML to an image on the server as a sveltekit 
 Supports width, height, delay and watermark as query parameters.
 Html also supports tailwind classes.
 
+If you just need to make a screenshot of a html element in the browser take a look at [modern-screenshot](https://github.com/qq15725/modern-screenshot)
+
 ## Install pageres
 ```bash
 npm i pageres
