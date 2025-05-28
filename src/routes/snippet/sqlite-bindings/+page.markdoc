@@ -1,0 +1,29 @@
+---
+title: SQLite bindings
+description: How to hopefully fix the SQLite bindings error
+tags:
+    - sqlite
+    - database
+---
+
+How to hopefully fix the SQLite `Could not locate the bindings file` error.
+
+## To check
+- make sure python is installed
+- make sure node-gyp is installed globally (`pnpm install -g node-gyp`)
+
+## Fixes
+
+### Fix 1:
+```bash
+pnpm rebuild
+pnpm approve-builds
+```
+[Issue](https://github.com/WiseLibs/better-sqlite3/issues/1331#issuecomment-2695728605)
+
+### Fix 2:
+```bash
+cd node_modules/better-sqlite3
+pnpm run build-release
+```
+[Issue](https://github.com/WiseLibs/better-sqlite3/issues/866#issuecomment-1457993288)
