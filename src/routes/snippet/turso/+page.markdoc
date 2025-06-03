@@ -1,0 +1,27 @@
+---
+title: Random Turso stuff
+description: Turso stuff that I don't know where to put
+tags:
+    - database
+    - turso
+---
+
+## Database setup
+
+```bash
+docker run --name dbname -ti -v dbname:/var/lib/sqld -e SQLD_NODE=primary -p 8080:8080 ghcr.io/tursodatabase/libsql-server:latest
+```
+Connection details:
+- URL: `http://localhost:8080`
+- Token: `1` (needs to be a value)
+
+## Backup database
+```bash
+wget --header="Authorization: Bearer TOKEN" -O output.sql "https://dbname-organizationname.turso.io/dump"
+```
+generates a `output.sql` file
+
+## Restore database
+```bash
+turso db shell http://localhost:8080 < output.sql
+```
