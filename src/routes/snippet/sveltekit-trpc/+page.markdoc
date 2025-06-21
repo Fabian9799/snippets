@@ -25,7 +25,7 @@ Most code is based on [this blog post](https://raqueeb.com/blog/2023/04/17/how-t
 ### Install dependencies
 
 ```bash
-pnpm i @trpc/client @trpc/server @trpc/server zod -D
+pnpm add @trpc/client @trpc/server zod -D
 ```
 
 ### Create TRPC context
