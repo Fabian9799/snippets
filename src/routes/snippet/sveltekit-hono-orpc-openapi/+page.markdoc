@@ -15,6 +15,7 @@ You probably shouldn't use this if you don't want to go insane.
 ## What?
 
 The most cursed way of creating a REST API with SvelteKit, ORPC, OpenAPI, and Hono.
+Creates a sveltekit endpoint that has a hono instance that uses ORPS's OpenAPI reference plugin.
 
 Gives you the following:
 - hono endpoint at /api/test which returns "Hello World!"
