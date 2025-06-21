@@ -1,0 +1,134 @@
+---
+title: SvelteKit + Hono + ORPC + OpenAPI
+description: The most cursed combination of frameworks
+tags:
+    - svelte
+    - orpc
+    - openapi
+    - hono
+---
+
+{%alert%}
+You probably shouldn't use this if you don't want to go insane.
+{%/alert%}
+
+## What?
+
+The most cursed way of creating a REST API with SvelteKit, ORPC, OpenAPI, and Hono.
+
+Gives you the following:
+- hono endpoint at /api/test which returns "Hello World!"
+- OpenAPI docs at /api that uses ORPC's OpenAPI reference plugin
+
+
+## Implementation
+
+{% filename name="src/routes/api/[...rest]/+server.ts" %}
+
+```ts
+import { Hono } from 'hono';
+import { RPCHandler } from "@orpc/server/fetch";
+import { OpenAPIHandler } from '@orpc/openapi/fetch';
+import { onError } from '@orpc/server';
+import { ZodSmartCoercionPlugin, ZodToJsonSchemaConverter } from '@orpc/zod';
+import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
+import { os } from '@orpc/server';
+import { z } from 'zod';
+
+const appRouter = os.router({
+    health: {
+        ping: os
+            .route({
+                method: 'GET',
+                path: '/ping',
+                summary: 'Health check endpoint',
+                tags: ['Health'],
+            })
+            .output(z.string())
+            .handler(() => 'pong'),
+    }
+});
+
+const rpcHandler = new RPCHandler(appRouter);
+
+const openApiHandler = new OpenAPIHandler(appRouter, {
+    interceptors: [
+        onError((error) => {
+            console.error(error);
+        }),
+    ],
+    plugins: [
+        new ZodSmartCoercionPlugin(),
+        new OpenAPIReferencePlugin({
+            schemaConverters: [
+                new ZodToJsonSchemaConverter(),
+            ],
+            specGenerateOptions: {
+                info: {
+                    title: 'API',
+                    version: '1.0.0',
+                },
+                security: [{ bearerAuth: [] }],
+                components: {
+                    securitySchemes: {
+                        bearerAuth: {
+                            type: 'http',
+                            scheme: 'bearer',
+                        },
+                    },
+                },
+            },
+            docsConfig: {
+                authentication: {
+                    securitySchemes: {
+                        bearerAuth: {
+                            token: 'default-token',
+                        },
+                    },
+                },
+            },
+        }),
+    ],
+});
+
+export const GET = (event) => {
+    const api = new Hono();
+
+    api.get("/api/test", (c) => {
+        return c.text("Hello World!");
+    });
+
+    // Combined API endpoint - handles both RPC and OpenAPI
+    api.use("/api/*", async (c, next) => {
+        // Try RPC handler first
+        const { matched, response: rpcResponse } = await rpcHandler.handle(c.req.raw, {
+            prefix: "/api",
+            context: {
+                event
+            },
+        });
+
+        if (matched) {
+            return c.newResponse(rpcResponse.body, rpcResponse);
+        }
+
+        // If RPC didn't match, try OpenAPI handler
+        const { response: openApiResponse } = await openApiHandler.handle(c.req.raw, {
+            prefix: "/api",
+            context: {
+                event
+            },
+        });
+
+        if (openApiResponse) {
+            return c.newResponse(openApiResponse.body, openApiResponse);
+        }
+
+        await next();
+    });
+
+    return api.fetch(event.request);
+};
+```
+
+{% /filename %}
