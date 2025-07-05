@@ -1,0 +1,112 @@
+---
+title: Svelte 5 Web Component
+description: A basic example on how to create web components in svelte 5
+tags:
+  - webcomponent
+  - javascript
+  - svelte
+  - vite
+---
+
+## Create a second vite config
+
+{% filename name="vite.webcomponents.config.ts" %}
+
+```ts
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+
+export default defineConfig({
+	plugins: [
+		svelte({
+			compilerOptions: {
+				customElement: true
+			}
+		})
+	],
+	build: {
+		lib: {
+			entry: 'src/lib/web-components.js',
+			name: 'MyWebComponents',
+			fileName: 'my-web-components',
+			formats: ['iife']
+		},
+		rollupOptions: {
+			output: {
+				inlineDynamicImports: true
+			}
+		},
+		cssCodeSplit: false,
+		outDir: 'dist-webcomponents'
+	}
+});
+```
+
+{% /filename %}
+
+## Modify package.json to include new build script
+
+{% filename name="package.json" %}
+
+```json
+{
+	"scripts": {
+		"build:webcomponents": "vite build --config vite.webcomponents.config.js",
+	}
+}
+```
+
+{% /filename %}
+
+## Create web component
+
+{% filename name="src/lib/Component.wc.svelte" %}
+
+```svelte
+<svelte:options customElement="my-component" />
+
+<script>
+    let { name = 'world', children } = $props();
+</script>
+
+<h1>Hello {name}!</h1>
+{@render children()}
+```
+
+{% /filename %}
+
+## Create entry file for web components
+
+{% filename name="src/lib/web-components.ts" %}
+
+```js
+export { default as Component } from './Component.wc.svelte';
+```
+
+{% /filename %}
+
+## Build the web components
+
+```bash
+pnpm build:webcomponents
+```
+
+Web components will be built to `dist-webcomponents`.
+
+## Use the web component
+
+{% filename name="index.html" %}
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script src="dist-webcomponents/my-web-components.iife.js"></script>
+	</head>
+	<body>
+		<my-component name="Svelte"></my-component>
+	</body>
+</html>
+```
+
+{% /filename %}
