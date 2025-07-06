@@ -51,7 +51,7 @@ export default defineConfig({
 ```json
 {
 	"scripts": {
-		"build:webcomponents": "vite build --config vite.webcomponents.config.js",
+		"build:webcomponents": "vite build --config vite.webcomponents.config.ts",
 	}
 }
 ```
