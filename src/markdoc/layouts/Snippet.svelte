@@ -15,23 +15,23 @@
 	let slug = $derived($page.url.pathname.split('/').pop());
 
 	let article: HTMLDivElement | undefined;
-	let desktopTocElement: HTMLElement | undefined;
-	let mobileTocElement: HTMLElement | undefined;
+	let tocItems: Array<{ text: string; href: string; level: number }> = $state(
+		[],
+	);
+	let headings: NodeListOf<HTMLHeadingElement>;
+	let currentHeading = $state('');
 
 	onMount(() => {
-		if (article && (desktopTocElement || mobileTocElement)) {
-			// Generate TOC once
-			const tocElements = generateTableOfContents(article);
+		if (article) {
+			// Generate TOC data
+			tocItems = generateTableOfContents(article);
 
-			// Clone and append to desktop sidebar
-			if (desktopTocElement) {
-				desktopTocElement.appendChild(tocElements.cloneNode(true));
-			}
+			// Get all headings for scroll tracking
+			headings = article.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-			// Clone and append to mobile dropdown
-			if (mobileTocElement) {
-				mobileTocElement.appendChild(tocElements.cloneNode(true));
-			}
+			// Set initial current heading from URL hash
+			currentHeading = location.hash.slice(1);
+			updateActiveHeading();
 
 			// if # in url, scroll to element
 			if (window.location.hash) {
@@ -44,7 +44,57 @@
 			}
 		}
 	});
+
+	// Update function to activate the correct section link
+	function updateActiveHeading() {
+		if (!headings) return;
+
+		const threshold = (innerHeight * 1) / 3;
+		let found = false;
+
+		for (let i = 0; i < headings.length; i++) {
+			const heading = headings[i];
+			const next = headings[i + 1];
+
+			// If the current heading is above the threshold and the next heading is below it
+			if (
+				heading.getBoundingClientRect().top < threshold &&
+				(!next || next.getBoundingClientRect().top > threshold)
+			) {
+				currentHeading = heading.id;
+				found = true;
+				break;
+			}
+		}
+
+		// Handle case when scrolled to the top of the page
+		if (!found && scrollY === 0) {
+			currentHeading = '';
+		}
+	}
+
+	// Update current heading on hash change
+	function handleHashChange() {
+		currentHeading = location.hash.slice(1);
+	}
+
+	// Helper function to calculate indentation based on heading level
+	function getIndentStyle(level: number) {
+		if (level >= 3 && level <= 5) {
+			const baseIndent = 5;
+			const progressiveIndent = level >= 4 ? (level - 3) * 25 : 0;
+			return `margin-left: ${baseIndent + progressiveIndent}px`;
+		}
+		return '';
+	}
+
+	// Helper function to check if heading should have an arrow icon
+	function shouldShowArrow(level: number) {
+		return level >= 3 && level <= 5;
+	}
 </script>
+
+<svelte:window onscroll={updateActiveHeading} onhashchange={handleHashChange} />
 
 <svelte:head>
 	<title>{title}</title>
@@ -123,7 +173,30 @@
 				Table of Contents
 			</summary>
 			<div class="text-zinc-200 p-4 toc">
-				<div bind:this={mobileTocElement}></div>
+				<ol>
+					{#each tocItems as item}
+						<li style={getIndentStyle(item.level)}>
+							<div class="flex items-center">
+								{#if shouldShowArrow(item.level)}
+									<span class="mr-2">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16"
+											height="16"
+											fill="#666"
+											viewBox="0 0 256 256"
+										>
+											<path
+												d="M229.66,157.66l-48,48a8,8,0,0,1-11.32-11.32L204.69,160H128A104.11,104.11,0,0,1,24,56a8,8,0,0,1,16,0,88.1,88.1,0,0,0,88,88h76.69l-34.35-34.34a8,8,0,0,1,11.32-11.32l48,48A8,8,0,0,1,229.66,157.66Z"
+											></path>
+										</svg>
+									</span>
+								{/if}
+								<a href={item.href}>{item.text}</a>
+							</div>
+						</li>
+					{/each}
+				</ol>
 			</div>
 		</details>
 
@@ -161,10 +234,36 @@
 				>
 					Table of Contents
 				</p>
-				<div
-					class="text-zinc-300 toc overflow-y-auto flex-1"
-					bind:this={desktopTocElement}
-				></div>
+				<div class="text-zinc-300 toc overflow-y-auto flex-1">
+					<ol>
+						{#each tocItems as item}
+							<li style={getIndentStyle(item.level)}>
+								<div class="flex items-center">
+									{#if shouldShowArrow(item.level)}
+										<span class="mr-2">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="16"
+												height="16"
+												fill="#666"
+												viewBox="0 0 256 256"
+											>
+												<path
+													d="M229.66,157.66l-48,48a8,8,0,0,1-11.32-11.32L204.69,160H128A104.11,104.11,0,0,1,24,56a8,8,0,0,1,16,0,88.1,88.1,0,0,0,88,88h76.69l-34.35-34.34a8,8,0,0,1,11.32-11.32l48,48A8,8,0,0,1,229.66,157.66Z"
+												></path>
+											</svg>
+										</span>
+									{/if}
+									<a
+										href={item.href}
+										class:active={currentHeading ===
+											item.href.slice(1)}>{item.text}</a
+									>
+								</div>
+							</li>
+						{/each}
+					</ol>
+				</div>
 			</div>
 		</div>
 	</aside>
@@ -172,6 +271,10 @@
 
 <style>
 	.toc :global(a):hover {
+		color: var(--color-rose-500);
+	}
+
+	.toc :global(a.active) {
 		color: var(--color-rose-500);
 	}
 </style>
