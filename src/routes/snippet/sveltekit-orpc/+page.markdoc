@@ -1,0 +1,377 @@
+---
+title: How to use oRPC with SvelteKit
+description: A basic oRPC example with sveltekit
+tags:
+  - sveltekit
+  - orpc
+  - zod
+  - tanstack
+  - openapi
+---
+
+## What is oRPC?
+
+> Easy to build APIs that are end-to-end type-safe and adhere to OpenAPI standards
+
+[Website](https://orpc.unnoq.com/)
+
+## Setup
+
+### Install dependencies
+
+```bash
+pnpm add @orpc/client @orpc/server zod -D
+```
+
+## Create a base type for your router
+
+Creates a base type for your router. This will be used for all procedures so that they have access to the entire sveltekit event in the context.
+
+{% filename name="src/lib/server/orpc/base.ts" %}
+
+```ts
+import { os } from '@orpc/server'
+import type { RequestEvent } from '@sveltejs/kit'
+
+export type BaseContext = { event: RequestEvent }
+
+export const base = os.$context<BaseContext>().errors({
+    NOT_AUTHORIZED: {
+        message: "Not authorized",
+    },
+    // Define your custom errors here
+})
+```
+
+{% /filename %}
+
+
+## Create router
+
+{% filename name="src/lib/server/orpc/router.ts" %}
+
+```ts
+import { base } from './base'
+
+export const router = {
+    hello: base
+        .handler(async () => {
+            return "Hello World"
+        })
+}
+```
+
+{% /filename %}
+
+## Create server side client
+
+### Type the client
+
+{% filename name="src/app.d.ts" %}
+
+```ts
+import type { router } from "$lib/server/orpc/router"
+import type { RouterClient } from "@orpc/server"
+
+declare global {
+	namespace App {
+		interface Locals {
+			orpc: RouterClient<typeof router>
+		}
+	}
+}
+
+export { };
+```
+
+{% /filename %}
+
+### Create client
+
+{% filename name="src/hooks.server.ts" %}
+
+```ts
+import { router } from "$lib/server/orpc/router"
+import { createRouterClient } from "@orpc/server"
+import type { Handle } from "@sveltejs/kit"
+
+export const handle: Handle = async ({ event, resolve }) => {
+    event.locals.orpc = createRouterClient(router, {
+        context: {
+            event
+        },
+    })
+
+    const response = await resolve(event)
+    return response
+}
+```
+
+{% /filename %}
+
+### Use the client
+
+{% filename name="src/routes/+page.server.ts" %}
+
+```ts
+export const load = (async ({ locals }) => {
+    const hello = await locals.orpc.hello()
+    return {
+        hello
+    };
+}) 
+```
+
+{% /filename %}
+
+## Create client-side client
+
+### Create RPC endpoint
+
+{% filename name="src/routes/rpc/[...rest]/+server.ts" %}
+
+```ts
+import type { RequestHandler } from './$types';
+import { RPCHandler } from '@orpc/server/fetch'
+import { router } from '$lib/server/orpc/router'
+
+const handler = new RPCHandler(router)
+
+const handle: RequestHandler = async (event) => {
+    const { response } = await handler.handle(event.request, {
+        prefix: '/rpc',
+        context: {
+            event
+        },
+
+    })
+
+    return response ?? new Response('Not Found', { status: 404 })
+}
+
+export const GET = handle
+export const POST = handle
+export const PUT = handle
+export const PATCH = handle
+export const DELETE = handle
+```
+
+{% /filename %}
+
+### Create client
+
+{% filename name="src/lib/orpc/client.ts" %}
+
+```ts
+import type { RouterClient } from '@orpc/server'
+import { createORPCClient } from '@orpc/client'
+import { RPCLink } from '@orpc/client/fetch'
+import type { router } from '$lib/server/orpc/router'
+import { browser } from '$app/environment'
+
+const link = new RPCLink({
+    url: () => {
+        if (!browser) {
+            throw new Error('RPCLink is not allowed on the server side. Use the optimized server-side client instead.')
+        }
+
+        return `${window.location.origin}/rpc`
+    },
+})
+
+export const client: RouterClient<typeof router> = createORPCClient(link)
+```
+
+{% /filename %}
+
+### Use the client
+
+{% filename name="src/routes/+page.svelte" %}
+
+```svelte
+<script lang="ts">
+	import { browser } from '$app/environment';
+	import { client } from '$lib/orpc/client';
+</script>
+
+{#await client.hello()}
+	<p>Loading...</p>
+{:then value}
+	<p>{value}</p>
+{:catch error}
+	<p>{error}</p>
+{/await}
+```
+
+{% /filename %}
+
+## Middleware
+
+### Create middleware
+
+{% filename name="src/lib/server/orpc/middleware/auth.ts" %}
+
+```ts
+import { base } from "../base"
+
+export const auth = base
+    .middleware(async ({ context, next, errors }) => {
+
+        // throw errors.NOT_AUTHORIZED() if user doesn't exist (do cookie and session check here)
+
+        const result = await next({
+            context: {
+                ...context, // Keep the existing context (including event)
+                user: {
+                    id: '1',
+                }
+            }
+        })
+
+
+        return result
+    })
+```
+
+{% /filename %}
+
+### Using middleware
+
+{% filename name="src/lib/server/orpc/router.ts" %}
+
+```ts
+import { base } from './base'
+import { auth } from './middleware/auth'
+
+export const router = {
+    hello: base
+		.use(auth)
+        .handler(async ({context}) => {
+			// now has access to the user with context.user
+            return "Hello World"
+        })
+}
+```
+
+{% /filename %}
+
+## OpenAPI
+
+oRPC also has the option to expose your router as an OpenAPI spec. This can be useful for generating client libraries or for documentation.
+
+### Create OpenAPI endpoint
+
+{% filename name="src/routes/api/[...rest]/+server.ts" %}
+
+```ts
+import { OpenAPIHandler } from '@orpc/openapi/fetch'
+import type { RequestHandler } from '@sveltejs/kit'
+import { ZodSmartCoercionPlugin, ZodToJsonSchemaConverter } from '@orpc/zod'
+import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins'
+import { router } from '$lib/server/orpc/router'
+
+const handler = new OpenAPIHandler(router, {
+    // Exclude internal routes from OpenAPI spec (make sure item only has one tag, not sure why)
+    // filter: ({ contract, path }) => !contract['~orpc'].route.tags?.includes('internal'),
+
+    plugins: [
+        new ZodSmartCoercionPlugin(),
+        new OpenAPIReferencePlugin({
+            schemaConverters: [
+                new ZodToJsonSchemaConverter(),
+            ],
+            specGenerateOptions: {
+                info: {
+                    title: 'API',
+                    version: '1.0.0',
+                },
+                security: [{ bearerAuth: [] }],
+                components: {
+                    securitySchemes: {
+                        bearerAuth: {
+                            type: 'http',
+                            scheme: 'bearer',
+                        },
+                    },
+                },
+                // exclude: (procedure, path) => !!procedure['~orpc'].route.tags?.includes('admin'),
+            },
+            docsConfig: {
+                authentication: {
+                    securitySchemes: {
+                        bearerAuth: {
+                            token: 'default-token',
+                        },
+                    },
+                },
+            },
+        }),
+    ],
+})
+
+const handle: RequestHandler = async (event) => {
+
+    const { response } = await handler.handle(event.request, {
+        prefix: '/api',
+        context: {
+            event
+        }
+    })
+
+    return response ?? new Response('Not Found', { status: 404 })
+}
+
+export const GET = handle
+export const POST = handle
+export const PUT = handle
+export const PATCH = handle
+export const DELETE = handle
+```
+
+{% /filename %}
+
+Now you can go to `http://localhost:5173/api` to see the OpenAPI spec.
+
+More info on how to use Modify each endpoint can be found [here](https://orpc.unnoq.com/docs/openapi/getting-started).
+
+## Tanstack Query
+
+## Install dependencies
+
+```bash
+pnpm add @orpc/tanstack-query @tanstack/svelte-query -D
+```
+
+### Create tanstack query client
+
+{% filename name="src/lib/orpc/client.ts" %}
+
+```ts
+import { createTanstackQueryUtils } from '@orpc/tanstack-query'
+
+export const client = // Use client from above
+export const tanstackClient = createTanstackQueryUtils(client)
+```
+
+{% /filename %}
+
+### Use the client
+
+{% filename name="src/routes/+page.svelte" %}
+
+```svelte
+<script lang="ts">
+	import { tanstackClient } from '$lib/orpc/client';
+	import { createQuery } from '@tanstack/svelte-query'
+
+	 const query = createQuery(tanstackClient.hello());
+</script>
+
+<pre>{JSON.stringify($query.data, null, 2)}</pre>
+```
+
+{% /filename %}
+
+## Permission middleware
+
+TODO: but probably gonna use [Permix](https://permix.letstri.dev/docs/integrations/orpc)
