@@ -122,7 +122,7 @@
 
 				Table of Contents
 			</summary>
-			<div class="text-grey-200 px-2 py-4 toc">
+			<div class="text-grey-200 p-4 toc">
 				<div bind:this={tocElement}></div>
 			</div>
 		</details>

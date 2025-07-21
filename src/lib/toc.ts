@@ -10,7 +10,12 @@ export function generateTableOfContents(article: HTMLElement) {
 		const tocItem = document.createElement('li');
 		const headingLevel = parseInt(heading.tagName[1]);
 
-		tocItem.style.marginLeft = `${(headingLevel - 1) * 20}px`;
+		// H3-H5 get 5px indent (since they have icons), h4+ also get progressive indentation
+		if (headingLevel >= 3 && headingLevel <= 5) {
+			const baseIndent = 5;
+			const progressiveIndent = headingLevel >= 4 ? (headingLevel - 3) * 25 : 0;
+			tocItem.style.marginLeft = `${baseIndent + progressiveIndent}px`;
+		}
 
 		const container = document.createElement('div');
 		container.style.display = 'flex';
