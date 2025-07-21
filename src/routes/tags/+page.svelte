@@ -2,6 +2,10 @@
 	let { data } = $props();
 </script>
 
+<svelte:head>
+	<title>Tags</title>
+</svelte:head>
+
 <main class="p-8 max-w-2xl lg:max-w-4xl mx-auto">
 	<div class="flex gap-2 mb-4">
 		<button
