@@ -1,6 +1,7 @@
 <script>
 	import '../app.css';
 	import { onNavigate } from '$app/navigation';
+	import LoadingIndicator from '$lib/LoadingIndicator.svelte';
 	let { children } = $props();
 
 	onNavigate((navigation) => {
@@ -20,3 +21,5 @@
 </svelte:head>
 
 {@render children?.()}
+
+<LoadingIndicator />
