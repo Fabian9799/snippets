@@ -74,7 +74,7 @@
 <main class="flex">
 	<div class="flex flex-1"></div>
 	<article
-		class="max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-700 w-full"
+		class="max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
 	>
 		<div class="flex gap-2 flex-wrap">
 			<a
@@ -149,16 +149,20 @@
 	</article>
 
 	<!-- Desktop Sidebar TOC -->
-	<aside class="w-64 flex-1 sticky top-0 h-min grow min-w-fit hidden lg:flex">
-		<div class="p-4">
+	<aside
+		class="w-64 flex-1 sticky top-0 h-screen max-h-screen grow min-w-fit hidden lg:flex"
+	>
+		<div class="p-4 flex flex-col h-full">
 			<div
-				class="bg-zinc-800/30 border border-zinc-700 rounded-xl p-4 min-w-64 max-w-96"
+				class="bg-zinc-800/30 border border-zinc-800 rounded-xl p-4 min-w-64 max-w-96 flex flex-col min-h-0"
 			>
-				<p class="text-zinc-200 text-nowrap font-semibold mb-2">
+				<p
+					class="text-zinc-200 text-nowrap font-semibold mb-2 flex-shrink-0"
+				>
 					Table of Contents
 				</p>
 				<div
-					class="text-zinc-300 toc"
+					class="text-zinc-300 toc overflow-y-auto flex-1"
 					bind:this={desktopTocElement}
 				></div>
 			</div>
