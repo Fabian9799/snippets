@@ -372,6 +372,6 @@ export const tanstackClient = createTanstackQueryUtils(client)
 
 {% /filename %}
 
-## Permission middleware
+## TODO: Permission middleware
 
 TODO: but probably gonna use [Permix](https://permix.letstri.dev/docs/integrations/orpc)
