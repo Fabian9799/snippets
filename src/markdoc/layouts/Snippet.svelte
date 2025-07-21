@@ -23,17 +23,11 @@
 
 	onMount(() => {
 		if (article) {
-			// Generate TOC data
 			tocItems = generateTableOfContents(article);
-
-			// Get all headings for scroll tracking
 			headings = article.querySelectorAll('h1, h2, h3, h4, h5, h6');
-
-			// Set initial current heading from URL hash
 			currentHeading = location.hash.slice(1);
 			updateActiveHeading();
 
-			// if # in url, scroll to element
 			if (window.location.hash) {
 				const element = document.getElementById(
 					window.location.hash.slice(1),
@@ -45,7 +39,6 @@
 		}
 	});
 
-	// Update function to activate the correct section link
 	function updateActiveHeading() {
 		if (!headings) return;
 
@@ -56,7 +49,6 @@
 			const heading = headings[i];
 			const next = headings[i + 1];
 
-			// If the current heading is above the threshold and the next heading is below it
 			if (
 				heading.getBoundingClientRect().top < threshold &&
 				(!next || next.getBoundingClientRect().top > threshold)
@@ -67,18 +59,15 @@
 			}
 		}
 
-		// Handle case when scrolled to the top of the page
 		if (!found && scrollY === 0) {
 			currentHeading = '';
 		}
 	}
 
-	// Update current heading on hash change
 	function handleHashChange() {
 		currentHeading = location.hash.slice(1);
 	}
 
-	// Helper function to calculate indentation based on heading level
 	function getIndentStyle(level: number) {
 		if (level >= 3 && level <= 5) {
 			const baseIndent = 5;
@@ -88,7 +77,6 @@
 		return '';
 	}
 
-	// Helper function to check if heading should have an arrow icon
 	function shouldShowArrow(level: number) {
 		return level >= 3 && level <= 5;
 	}
