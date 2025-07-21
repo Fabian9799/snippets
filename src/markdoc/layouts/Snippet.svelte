@@ -171,7 +171,7 @@
 											xmlns="http://www.w3.org/2000/svg"
 											width="16"
 											height="16"
-											fill="#666"
+											class="fill-zinc-600"
 											viewBox="0 0 256 256"
 										>
 											<path
@@ -180,7 +180,9 @@
 										</svg>
 									</span>
 								{/if}
-								<a href={item.href}>{item.text}</a>
+								<a class="hover:text-rose-500" href={item.href}
+									>{item.text}</a
+								>
 							</div>
 						</li>
 					{/each}
@@ -218,7 +220,7 @@
 				class="bg-zinc-800/30 border border-zinc-800 rounded-xl p-4 min-w-64 max-w-96 flex flex-col min-h-0"
 			>
 				<p
-					class="text-zinc-200 text-nowrap font-semibold mb-2 flex-shrink-0"
+					class="text-zinc-200 text-nowrap font-semibold mb-2 text-xl flex-shrink-0"
 				>
 					Table of Contents
 				</p>
@@ -233,7 +235,7 @@
 												xmlns="http://www.w3.org/2000/svg"
 												width="16"
 												height="16"
-												fill="#666"
+												class="fill-zinc-600"
 												viewBox="0 0 256 256"
 											>
 												<path
@@ -244,8 +246,12 @@
 									{/if}
 									<a
 										href={item.href}
-										class:active={currentHeading ===
-											item.href.slice(1)}>{item.text}</a
+										class={{
+											'hover:text-rose-500': true,
+											'text-rose-500':
+												currentHeading ===
+												item.href.slice(1),
+										}}>{item.text}</a
 									>
 								</div>
 							</li>
@@ -256,13 +262,3 @@
 		</div>
 	</aside>
 </main>
-
-<style>
-	.toc :global(a):hover {
-		color: var(--color-rose-500);
-	}
-
-	.toc :global(a.active) {
-		color: var(--color-rose-500);
-	}
-</style>
