@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { generateTableOfContents } from '$lib/toc';
 	import { onMount, type Snippet } from 'svelte';
-	import { innerWidth } from 'svelte/reactivity/window';
+	import { innerHeight } from 'svelte/reactivity/window';
 
 	interface Props {
 		title: string;
@@ -12,7 +12,7 @@
 	}
 
 	let { title, tags = [], description, children }: Props = $props();
-	let slug = $derived($page.url.pathname.split('/').pop());
+	let slug = $derived(page.url.pathname.split('/').pop());
 
 	let article: HTMLDivElement | undefined;
 	let tocItems: Array<{ text: string; href: string; level: number }> = $state(
@@ -42,7 +42,7 @@
 	function updateActiveHeading() {
 		if (!headings) return;
 
-		const threshold = (innerHeight * 1) / 3;
+		const threshold = (innerHeight.current ?? window.innerHeight) * 0.1;
 		let found = false;
 
 		for (let i = 0; i < headings.length; i++) {
