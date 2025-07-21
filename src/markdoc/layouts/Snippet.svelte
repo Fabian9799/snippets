@@ -110,9 +110,9 @@
 </svelte:head>
 
 <main class="flex">
-	<div class="flex flex-1"></div>
+	<div class="flex lg:flex-1"></div>
 	<article
-		class="max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
+		class="md:max-w-2xl xl:max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
 	>
 		<div class="flex gap-2 flex-wrap">
 			<a
