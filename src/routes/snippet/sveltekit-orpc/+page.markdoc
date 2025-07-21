@@ -336,7 +336,7 @@ More info on how to use Modify each endpoint can be found [here](https://orpc.un
 
 ## Tanstack Query
 
-## Install dependencies
+### Install dependencies
 
 ```bash
 pnpm add @orpc/tanstack-query @tanstack/svelte-query -D
