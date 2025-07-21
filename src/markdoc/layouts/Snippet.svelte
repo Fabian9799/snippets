@@ -24,7 +24,9 @@
 			}
 			// if # in url, scroll to element
 			if (window.location.hash) {
-				const element = document.getElementById(window.location.hash.slice(1));
+				const element = document.getElementById(
+					window.location.hash.slice(1),
+				);
 				if (element) {
 					element.scrollIntoView({ behavior: 'smooth' });
 				}
@@ -35,18 +37,27 @@
 
 <svelte:head>
 	<title>{title}</title>
-	<meta property="og:site_name" content="Snippets" /><meta property="og:title" content={title} />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://snippets.fabian9799.cloud/snippet/{slug}" /><meta
-		name="description"
-		content={description}
+	<meta property="og:site_name" content="Snippets" /><meta
+		property="og:title"
+		content={title}
 	/>
+	<meta property="og:type" content="website" />
+	<meta
+		property="og:url"
+		content="https://snippets.fabian9799.cloud/snippet/{slug}"
+	/><meta name="description" content={description} />
 	<meta name="twitter:description" content={description} /><meta
 		property="og:description"
 		content={description}
 	/>
-	<meta property="og:image" content="https://snippets.fabian9799.cloud/og/{slug}.png" />
-	<meta name="twitter:image" content="https://snippets.fabian9799.cloud/og/{slug}.png" />
+	<meta
+		property="og:image"
+		content="https://snippets.fabian9799.cloud/og/{slug}.png"
+	/>
+	<meta
+		name="twitter:image"
+		content="https://snippets.fabian9799.cloud/og/{slug}.png"
+	/>
 	<meta name="twitter:card" content="summary_large_image" /><meta
 		property="og:image:alt"
 		content={description}
@@ -60,9 +71,12 @@
 			<a
 				aria-label="Home"
 				href="/"
-				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 			>
-				<svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
+				<svg
+					class="size-4"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 256 256"
 					><rect width="256" height="256" fill="none" /><path
 						class="fill-current"
 						d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"
@@ -72,7 +86,7 @@
 			{#each tags as tag}
 				<a
 					href="/tags/{tag}"
-					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 					>#{tag}</a
 				>
 			{/each}
@@ -84,11 +98,16 @@
 		>
 			{title}
 		</h1>
-		<p class="text-zinc-400 text-xl" style="view-transition-name: snippet-{slug}-description">
+		<p
+			class="text-zinc-400 text-xl"
+			style="view-transition-name: snippet-{slug}-description"
+		>
 			{description}
 		</p>
 
-		<details class="border-zinc-800 open:ring ring-zinc-800 rounded-xl group">
+		<details
+			class="border-zinc-800 open:ring ring-zinc-800 rounded-xl group"
+		>
 			<summary
 				class="cursor-pointer list-none text-lg font-semibold px-2 py-2 rounded-xl group-open:rounded-b-none hover:bg-zinc-800 group-open:bg-zinc-800 duration-200 flex gap-1"
 			>

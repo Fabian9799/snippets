@@ -7,7 +7,7 @@
 		<button
 			aria-label="Back"
 			onclick={() => window.history.back()}
-			class="uppercase h-min rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto"
+			class="uppercase h-min rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto hover:border-rose-600"
 		>
 			<svg
 				class="size-6"
@@ -31,7 +31,7 @@
 			<li>
 				<a
 					href="/tags/{tag}"
-					class="uppercase rounded-full hover:ring-3 ring-rose-600 font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+					class="uppercase rounded-full hover:border-rose-600 hover:ring-3 ring-rose-600 font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
 					>#{tag}</a
 				>
 			</li>

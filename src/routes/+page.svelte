@@ -37,7 +37,7 @@
 		</div>
 		<div class="flex gap-2">
 			<a
-				class="uppercase rounded-full hover:ring-3 ring-rose-600 text-sm h-min my-auto font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
+				class="uppercase rounded-full hover:ring-3 ring-rose-600 text-sm h-min my-auto font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 				href="/tags">All Tags</a
 			>
 			<Search />
