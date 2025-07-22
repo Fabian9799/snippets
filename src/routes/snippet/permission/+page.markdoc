@@ -9,9 +9,7 @@ tags:
 
 Basic permissions example with bitwise
 
-Usage example at the bottom of the codeblock
-
-## Example
+## Class
 
 ```js
 /**
@@ -80,53 +78,62 @@ export class Permission {
 }
 
 export type PermissionKey = keyof typeof Permission.PERMISSIONS;
+```
 
-// Usage Examples
-// 1. Create a new Permission instance
+## Usage
+
+### Create permission instance
+
+```js
 const userPerms = new Permission()
 console.log(userPerms.getPermissions()) // { string: "0", array: [] }
+```
 
-// 2. Set permissions (replaces all existing permissions)
+### Modify permissions
+
+```js
+// Set permissions (replaces all existing permissions)
 userPerms.setPermissions(['ADMIN', 'OWNER'])
-console.log(userPerms.getPermissions()); // { string: "12", array: ["ADMIN", "OWNER"] }
 
-// 3. Add more permissions (keeps existing ones)
+// Add more permissions (keeps existing ones)
 userPerms.addPermissions(['READ'])
-console.log(userPerms.getPermissions()) // { string: "13", array: ["READ", "ADMIN", "OWNER"] }
 
-// 4. Remove specific permissions
+// Remove specific permissions
 userPerms.removePermissions(['ADMIN']);
-console.log(userPerms.getPermissions()) // { string: "9", array: ["READ", "OWNER"] }
+```
 
-// 5. Check if user has ANY of the specified permissions
-console.log(userPerms.hasAnyPermission(['READ', 'WRITE', 'ADMIN'])) // true (has READ)
-console.log(userPerms.hasAnyPermission(['WRITE', 'ADMIN'])); // false (has neither)
+### Check permissions
 
-// 6. Check if user has ALL specified permissions
-console.log(userPerms.hasAllPermissions(['READ', 'OWNER'])) // true
-console.log('Has READ and ADMIN?', userPerms.hasAllPermissions(['READ', 'ADMIN'])) // false (missing ADMIN)
+```js
+// Check if user has ANY of the specified permissions
+userPerms.hasAnyPermission(['READ', 'WRITE', 'ADMIN']) // true (has READ)
 
-// 7. Get all available permission keys
-console.log(Permission.getPermissionKeys()) // ["NONE", "READ", "WRITE", "ADMIN", "OWNER"]
+// Check if user has ALL specified permissions
+userPerms.hasAllPermissions(['READ', 'ADMIN']) // false (missing ADMIN)
+```
 
-// 8. Create instance with initial permissions using bigint
+### Setting and restoring permissions
+
+```js
+// Get all available permission keys
+Permission.getPermissionKeys() // ["NONE", "READ", "WRITE", "ADMIN", "OWNER"]
+
+// Create instance with initial permissions using bigint
 const readOnlyUser = new Permission(1n) // READ permission
-console.log(readOnlyUser.getPermissions()); //{ string: "1", array: ["READ"] }
 
-// 9. Create instance with multiple initial permissions
+// Create instance with multiple initial permissions
 const editor = new Permission(3n) // READ (1) + WRITE (2) = 3
-console.log(editor.getPermissions()) // { string: "3", array: ["READ", "WRITE"] }
+```
 
-// 10. Database
+### Database
+
+```js
 const user = new Permission();
 user.setPermissions(['READ', 'WRITE']);
 
 // Store in database
-const permissionString = user.getPermissions().string;
-console.log(permissionString); // "3"
+user.getPermissions().string // "3"
 
-// Read from database - Method 1: Using static helper
-const userFromDb = Permission.fromString(permissionString);
-console.log(userFromDb.getPermissions()) // { string: "3", array: ["READ", "WRITE"] }
-
+// Restore from database
+const userPerms = Permission.fromString(stringFromDatabase);
 ```
