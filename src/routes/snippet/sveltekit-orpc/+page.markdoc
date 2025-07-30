@@ -235,7 +235,7 @@ export const auth = base
 
 {% /filename %}
 
-### Using middleware
+### Use middleware
 
 {% filename name="src/lib/server/orpc/router.ts" %}
 
@@ -372,6 +372,95 @@ export const tanstackClient = createTanstackQueryUtils(client)
 
 {% /filename %}
 
-## TODO: Permission middleware
+## Permission middleware
 
-TODO: but probably gonna use [Permix](https://permix.letstri.dev/docs/integrations/orpc)
+If you want to add a middleware for permissions [Permix](https://permix.letstri.dev/docs/integrations/orpc) is a great option.
+
+```bash
+pnpm add permix -D
+```
+
+### Create middleware
+
+A simple middleware with two different types of defining permissions.
+
+`post` can be checked with data within the middleware
+
+`postWithData` can be checked with data that gets passed in to the check function (see usage in next section).
+
+dataType can also be marked as required [like this](https://permix.letstri.dev/docs/guide/setup#required) inside createPermix
+
+{% filename name="src/lib/server/orpc/middleware/permix.ts" %}
+
+```ts
+import { createPermix } from 'permix/orpc'
+import { base } from '../base'
+
+export const postPermix = createPermix<{
+    post: {
+        action: 'create' | 'delete' | 'view'
+    },
+    postWithData: {
+        dataType: { public: boolean }
+        action: 'create' | 'delete' | 'view'
+    }
+}>()
+
+export const postGate = base.$context().middleware(async ({ next, context }) => {
+    const user = { role: 'ADMIN' } // get user from context
+
+    const p = postPermix.setup({
+        post: {
+            create: true,
+            view: true,
+            delete: user.role === 'ADMIN'
+        },
+        postWithData: {
+            create: true,
+            view: post => post?.public || user.role === 'ADMIN',
+            delete: user.role === 'ADMIN'
+        }
+    })
+
+    return next({
+        context: {
+            permix: p
+        }
+    })
+})
+
+
+```
+
+{% /filename %}
+
+### Use middleware
+
+You can use the middleware in your router like this:
+
+`postWithData` fill return false if it gets called without a post object
+
+{% filename name="src/lib/server/orpc/router.ts" %}
+
+```ts
+import { base } from './base'
+import { postGate, postPermix } from './middleware/permix'
+
+export const router = {
+    post: base
+        .use(postGate)
+        .use(postPermix.checkMiddleware("post", "view"))
+        .handler(async () => {
+            // do something
+        }),
+    postWithData: base
+        .use(postGate)
+        .handler(async ({ errors }) => {
+            const post = { public: false } // get post from db
+            if (!postPermix.checkMiddleware("postWithData", "view", post)) throw errors.NOT_AUTHORIZED()
+            // do something
+        })
+}
+```
+
+{% /filename %}
