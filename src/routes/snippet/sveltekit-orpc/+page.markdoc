@@ -406,7 +406,7 @@ export const postPermix = createPermix<{
     }
 }>()
 
-export const postGate = base.$context().middleware(async ({ next, context }) => {
+export const postGate = base.middleware(async ({ next, context }) => {
     const user = { role: 'ADMIN' } // get user from context
 
     const p = postPermix.setup({
