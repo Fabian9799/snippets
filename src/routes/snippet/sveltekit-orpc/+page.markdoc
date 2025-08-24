@@ -259,6 +259,12 @@ export const router = {
 
 oRPC also has the option to expose your router as an OpenAPI spec. This can be useful for generating client libraries or for documentation.
 
+### Install dependencies
+
+```bash
+pnpm i @orpc/openapi @orpc/zod -D
+```
+
 ### Create OpenAPI endpoint
 
 {% filename name="src/routes/api/[...rest]/+server.ts" %}
@@ -266,7 +272,7 @@ oRPC also has the option to expose your router as an OpenAPI spec. This can be u
 ```ts
 import { OpenAPIHandler } from '@orpc/openapi/fetch'
 import type { RequestHandler } from '@sveltejs/kit'
-import { ZodSmartCoercionPlugin, ZodToJsonSchemaConverter } from '@orpc/zod'
+import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4'
 import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins'
 import { router } from '$lib/server/orpc/router'
 
@@ -275,7 +281,6 @@ const handler = new OpenAPIHandler(router, {
     // filter: ({ contract, path }) => !contract['~orpc'].route.tags?.includes('internal'),
 
     plugins: [
-        new ZodSmartCoercionPlugin(),
         new OpenAPIReferencePlugin({
             schemaConverters: [
                 new ZodToJsonSchemaConverter(),
