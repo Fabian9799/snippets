@@ -277,7 +277,7 @@ import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins'
 import { router } from '$lib/server/orpc/router'
 
 const handler = new OpenAPIHandler(router, {
-    // Exclude internal routes from OpenAPI spec (make sure item only has one tag, not sure why)
+    // Exclude internal routes from /api/* endpoint (still shows up on the spec page, modify that below)
     // filter: ({ contract, path }) => !contract['~orpc'].route.tags?.includes('internal'),
 
     plugins: [
@@ -299,7 +299,8 @@ const handler = new OpenAPIHandler(router, {
                         },
                     },
                 },
-                // exclude: (procedure, path) => !!procedure['~orpc'].route.tags?.includes('admin'),
+                // Exclude a procedure from the spec page
+                // exclude: (procedure, path) => !!procedure['~orpc'].route.tags?.includes('internal'),
             },
             docsConfig: {
                 authentication: {
