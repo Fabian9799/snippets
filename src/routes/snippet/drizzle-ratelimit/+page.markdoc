@@ -1,0 +1,211 @@
+---
+title: Drizzle ratelimit
+description: Basic ratelimiting example with drizzle
+tags:
+    - javascript
+    - drizzle
+---
+
+{%alert%}
+WIP. Use at your own risk.
+{%/alert%}
+
+## Define database schema
+
+```javascript
+import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+
+export const ratelimit = sqliteTable('ratelimit', {
+  key: text('key').primaryKey(),
+  points: integer('points').notNull(),
+  expire: integer('expire', { mode: "timestamp" }),
+  maxPoints: integer('maxPoints').notNull(),
+  durationMs: integer('durationMs').notNull(),
+})
+```
+
+## Ratelimit function
+
+```javascript
+import { db } from "./db"; // drizzle instance
+import { ratelimit } from "./db/schema";
+import { eq } from "drizzle-orm";
+
+interface RateLimitOptions {
+  /** Maximum number of points allowed within the duration window */
+  points?: number;
+  /** Time window duration in seconds */
+  duration?: number; // in seconds
+  /** Number of points to consume per request */
+  consumePoints?: number;
+}
+
+const defaultRateLimiter = {
+  points: 1,
+  duration: 1,
+}
+
+export async function rateLimit(
+  userId: string,
+  options: RateLimitOptions = {}
+): Promise<{
+  rateLimited: boolean,
+  remainingPoints: number,
+  msBeforeNext: number,
+  consumedPoints: number,
+  isFirstInDuration: boolean
+}> {
+  const {
+    points = defaultRateLimiter.points,
+    duration = defaultRateLimiter.duration,
+    consumePoints = 1
+  } = options;
+
+  const now = new Date();
+  const nowMs = now.getTime();
+  const durationMs = duration * 1000;
+
+  const configKey = `${userId}:${points}:${duration}`;
+
+  const existingRecord = await db
+    .select()
+    .from(ratelimit)
+    .where(eq(ratelimit.key, configKey))
+    .get();
+
+  let isFirstInDuration = false;
+
+  if (!existingRecord) {
+    isFirstInDuration = true;
+    const expireTime = new Date(nowMs + durationMs);
+    if (consumePoints > points) {
+      return {
+        rateLimited: true,
+        remainingPoints: points,
+        msBeforeNext: durationMs,
+        consumedPoints: 0,
+        isFirstInDuration
+      };
+    }
+
+    await db
+      .insert(ratelimit)
+      .values({
+        key: configKey,
+        points: consumePoints,
+        expire: expireTime,
+        maxPoints: points,
+        durationMs: durationMs
+      });
+
+    return {
+      rateLimited: false,
+      remainingPoints: points - consumePoints,
+      msBeforeNext: durationMs,
+      consumedPoints: consumePoints,
+      isFirstInDuration
+    };
+  }
+
+  const expireMs = existingRecord.expire?.getTime() || 0;
+  const storedMaxPoints = existingRecord.maxPoints;
+  const storedDurationMs = existingRecord.durationMs;
+  const configChanged = storedMaxPoints !== points || storedDurationMs !== durationMs;
+
+  if (nowMs >= expireMs || configChanged) {
+    isFirstInDuration = true;
+    const newExpireTime = new Date(nowMs + durationMs);
+
+    if (consumePoints > points) {
+      await db
+        .update(ratelimit)
+        .set({
+          points: 0,
+          expire: newExpireTime,
+          maxPoints: points,
+          durationMs: durationMs
+        })
+        .where(eq(ratelimit.key, configKey));
+
+      return {
+        rateLimited: true,
+        remainingPoints: points,
+        msBeforeNext: durationMs,
+        consumedPoints: 0,
+        isFirstInDuration
+      };
+    }
+
+    await db
+      .update(ratelimit)
+      .set({
+        points: consumePoints,
+        expire: newExpireTime,
+        maxPoints: points,
+        durationMs: durationMs
+      })
+      .where(eq(ratelimit.key, configKey));
+
+    return {
+      rateLimited: false,
+      remainingPoints: points - consumePoints,
+      msBeforeNext: durationMs,
+      consumedPoints: consumePoints,
+      isFirstInDuration
+    };
+  }
+
+  const currentPoints = existingRecord.points;
+  const newPoints = currentPoints + consumePoints;
+
+  if (newPoints > points) {
+    const msBeforeNext = expireMs - nowMs;
+
+    return {
+      rateLimited: true,
+      remainingPoints: Math.max(0, points - currentPoints),
+      msBeforeNext: Math.max(0, msBeforeNext),
+      consumedPoints: 0, // No points consumed when rate limited
+      isFirstInDuration: false
+    };
+  }
+
+  await db
+    .update(ratelimit)
+    .set({
+      points: newPoints
+    })
+    .where(eq(ratelimit.key, configKey));
+
+  const msBeforeNext = expireMs - nowMs;
+
+  return {
+    rateLimited: false,
+    remainingPoints: points - newPoints,
+    msBeforeNext: Math.max(0, msBeforeNext),
+    consumedPoints: consumePoints,
+    isFirstInDuration: false
+  };
+}
+```
+
+## Usage
+
+```javascript
+const identifier = "abc" // can be a userid, sessionid, api key etc
+
+const ratelimit = await rateLimit(identifier, {
+  consumePoints: 1, // Number of points to consume per request
+  duration: 1, // Time window duration in seconds
+  points: 3 // Maximum number of points allowed within the duration window
+})
+
+// Returns the following object
+const ratelimit = {
+	rateLimited: false,
+	remainingPoints: 2,
+	msBeforeNext: 1000,
+	consumedPoints: 1,
+	isFirstInDuration: false
+}
+```
