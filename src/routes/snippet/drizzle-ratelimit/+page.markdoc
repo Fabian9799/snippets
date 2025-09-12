@@ -191,6 +191,9 @@ export async function rateLimit(
 
 ## Usage
 
+Make sure to use an identifier that is unique to the user. For example, a user id, session id or api key.
+If you use the ratelimit function for multiple different actions, make sure to use a unique identifier for each action. for example `userId:actionName`.
+
 ```javascript
 const identifier = "abc" // can be a userid, sessionid, api key etc
 
