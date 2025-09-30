@@ -8,7 +8,7 @@ tags:
 
 ## Example
 
-{% filename name="Component.svelte" %}
+{% filename name="Component.svelte" showplayground="true" %}
 
 ```svelte
 <script>

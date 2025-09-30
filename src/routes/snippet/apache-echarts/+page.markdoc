@@ -8,6 +8,8 @@ tags:
 
 ## Example
 
+{% filename name="Component.svelte" showplayground="true" %}
+
 ```svelte
 <script>
     import * as echarts from 'echarts';
@@ -29,3 +31,5 @@ tags:
 
 <div style="width: 100%; height: 300px" use:chart/>
 ```
+
+{% /filename %}

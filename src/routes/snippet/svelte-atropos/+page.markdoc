@@ -8,6 +8,8 @@ tags:
 
 ## Example
 
+{% filename name="Component.svelte" showplayground="true" %}
+
 ```svelte
 <script>
 	import 'atropos/atropos.css';
@@ -33,3 +35,5 @@ tags:
 	</div>
 </div>
 ```
+
+{% /filename %}
