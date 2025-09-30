@@ -26,12 +26,39 @@ export const handle = async ({ event, resolve }) => {
 
 export const handleFetch = async ({ event, request, fetch }) => {
 	if (request.url.startsWith('http://127.0.0.1:3000/')) {
+		// forward cookies to API
 		const cookies = event.request.headers.get('cookie');
-		if (cookies) {
-			request.headers.set('cookie', cookies);
+		if (cookies) request.headers.set('cookie', cookies);
+
+		const fetchResponse = await fetch(request);
+
+		// Set cookies from API response
+		if (fetchResponse.ok) {
+			const setCookie = fetchResponse.headers.get('set-cookie');
+			if (setCookie) {
+				Object.entries(parseCookie(setCookie)).forEach(([name, value]) => {
+					event.cookies.set(name, value, { path: '/', httpOnly: true });
+				});
+			}
 		}
+
+		return fetchResponse;
 	}
 	return fetch(request);
+};
+
+
+function parseCookie(str: string): { [key: string]: string } {
+	const cookieParts = Array.isArray(str) ? str : str.split(/,(?=\s*[A-Za-z0-9_\-]+=)/);
+
+	const cookies: { [key: string]: string } = {};
+	cookieParts.forEach((cookieStr) => {
+		const [nameValue] = cookieStr.split(';');
+		const [name, ...valParts] = nameValue.split('=');
+		cookies[decodeURIComponent(name.trim())] = decodeURIComponent(valParts.join('=').trim());
+	});
+
+	return cookies;
 };
 ```
 
@@ -78,57 +105,25 @@ export const load = async ({ locals }) => {
 ```html
 <script>
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 </script>
 
-<p>Hello {$page.data.user.name}</p>
-
-<form method="POST" action="?/login" use:enhance>
-	<button>Login</button>
-</form>
+{#if page.data.user}
+	<p>Hello {page.data.user.name}</p>
+{:else}
+	<form method="POST" action="?/login" use:enhance>
+		<button>Login</button>
+	</form>
+{/if}
 ```
 
 ```js
 export const actions = {
 	login: async ({ fetch, cookies }) => {
-		const res = await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
-		const data = await res.json();
-		// data = { token: 123} or read cookie (see next section)
-		cookies.set('token', data.token, {
-			path: '/',
-			sameSite: 'none',
-			secure: true
-		});
-	}
+		await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
+	},
+
 };
-```
-
-{% /filename %}
-
-## Parse Cookies
-
-{% filename name="+page.server.ts" %}
-
-```js
-export const actions = {
-	default: async ({ fetch }) => {
-		const res = await fetch(`http://127.0.0.1:3000/login`, { method: 'POST' });
-		const responseCookies = res.headers.get('set-cookie');
-		if (responseCookies) {
-			const parsedCookies = parseCookie(responseCookies);
-			// set cookie
-		}
-	}
-};
-
-const parseCookie = (str: string): { [key: string]: string } =>
-	str
-		.split(';')
-		.map((v) => v.split('='))
-		.reduce<{ [key: string]: string }>((acc, v) => {
-			acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
-			return acc;
-		}, {});
 ```
 
 {% /filename %}
