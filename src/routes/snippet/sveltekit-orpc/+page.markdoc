@@ -463,7 +463,7 @@ export const router = {
         .use(postGate)
         .handler(async ({ errors }) => {
             const post = { public: false } // get post from db
-            if (!postPermix.checkMiddleware("postWithData", "view", post)) throw errors.NOT_AUTHORIZED()
+           if (!context.permix.check("postWithData", "view", post)) throw errors.NOT_AUTHORIZED()
             // do something
         })
 }
