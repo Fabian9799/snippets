@@ -260,6 +260,80 @@ export const router = {
 
 {% /filename %}
 
+## Error formatting middleware
+
+Orpc also has some [Built-in Middlewares](https://orpc.unnoq.com/docs/middleware#built-in-middlewares) to simplify writing middlewares to customize your error responses.
+
+Here is a basic example that simplifies the zod error into a more readeble format.
+
+{% filename name="src/lib/server/orpc/interceptors/zodErrorHandler.ts" %}
+
+```ts
+import { ORPCError } from "@orpc/client";
+import { ValidationError } from "@orpc/server";
+
+export const handleZodError = (error: unknown, orpc: unknown) => {
+    // access metadata from the procedure
+    const meta = (orpc as any)?.procedure?.['~orpc']?.meta
+
+    // pretty zod errors
+    if (
+        error instanceof ORPCError
+        && error.code === 'BAD_REQUEST'
+        && error.cause instanceof ValidationError
+    ) {
+        const issues = error.cause.issues;
+
+        throw new ORPCError('INPUT_VALIDATION_FAILED', {
+            status: 422,
+            message: issues
+                .map((i) => {
+                    return i.path?.length
+                        ? `${i.path.join('.')}: ${i.message}`
+                        : i.message;
+                })
+
+                .join('. '),
+            cause: error.cause,
+        });
+    }
+
+    if (error instanceof ORPCError) {
+        throw error;
+    }
+
+    console.log(error)
+    throw new ORPCError('INTERNAL_SERVER_ERROR', {
+        status: 500,
+        message: 'An internal error occurred',
+    });
+};
+```
+
+{% /filename %}
+
+To use it, you can add it to your router like this:
+
+{% filename name="src/hooks.server.ts" %}
+
+```ts
+import { handleZodError } from "$lib/server/orpc/interceptor/zodErrorHandler"
+import { onError } from "@orpc/server"
+
+event.locals.orpc = createRouterClient(router, {
+	context: {
+		event
+	},
+	interceptors: [
+		onError(handleGenericError)
+	]
+})
+```
+
+**a similar setup works for rpc and openapi clients**
+
+{% /filename %}
+
 ## OpenAPI
 
 oRPC also has the option to expose your router as an OpenAPI spec. This can be useful for generating client libraries or for documentation.
