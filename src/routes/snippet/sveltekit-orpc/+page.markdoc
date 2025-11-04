@@ -114,10 +114,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 {% filename name="src/routes/+page.server.ts" %}
 
 ```ts
+import { error } from '@sveltejs/kit';
+import { safe } from '@orpc/server'
+
 export const load = (async ({ locals }) => {
-    const hello = await locals.orpc.hello()
-    return {
-        hello
+    const res = await safe(locals.orpc.hello())
+	if (res.error) error(res.isDefined ? res.error.status : 500, { message: res.isDefined ? res.error.message : 'An error has occurred' });
+    
+	return {
+        hello: res.data
     };
 }) 
 ```
