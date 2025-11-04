@@ -119,7 +119,7 @@ import { safe } from '@orpc/server'
 
 export const load = (async ({ locals }) => {
     const res = await safe(locals.orpc.hello())
-	if (res.error) error(res.isDefined ? res.error.status : 500, { message: res.isDefined ? res.error.message : 'An error has occurred' });
+	if (res.error) error(res.isDefined ? res.error.status : 500, { message: res.error.message });
     
 	return {
         hello: res.data
