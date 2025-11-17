@@ -9,11 +9,11 @@ tags:
 ## Database setup
 
 ```bash
-docker run --name dbname -ti -v dbname:/var/lib/sqld -e SQLD_NODE=primary -p 8080:8080 ghcr.io/tursodatabase/libsql-server:latest
+docker run --name dbname -ti -v ./libsql-data:/var/lib/sqld -e SQLD_NODE=primary -p 8080:8080 ghcr.io/tursodatabase/libsql-server:latest
 ```
 Connection details:
 - URL: `http://localhost:8080`
-- Token: `1` (needs to be a value)
+- Token: `1` (needs to be a value, doesn't work otherwise)
 
 ## Backup database
 ```bash
@@ -25,3 +25,45 @@ generates a `output.sql` file
 ```bash
 turso db shell http://localhost:8080 < output.sql
 ```
+
+## Client Migration not working
+
+How to fix the following drizzle error: 
+
+`[⣷] applying migrations...TypeError: this.client.migrate is not a function`
+
+
+move your migration command from `drizzle-kit migrate` to `tsx migrate.ts` with the content similar to this:
+
+{% filename name="migrate.ts" %}
+
+```ts
+import 'dotenv/config';
+
+import { drizzle } from 'drizzle-orm/libsql';
+import { migrate } from 'drizzle-orm/libsql/migrator';
+import { createClient } from '@libsql/client';
+
+if (!process.env.TURSO_URL) throw new Error('TURSO_URL is not set');
+if (!process.env.TURSO_TOKEN) throw new Error('TURSO_TOKEN is not set');
+
+async function main() {
+    const client = createClient({
+        url: process.env.TURSO_URL,
+        authToken: process.env.TURSO_TOKEN,
+    });
+
+    const db = drizzle(client);
+
+    console.log('Running migrations...');
+
+    await migrate(db, { migrationsFolder: './drizzle' });
+
+    console.log('Migrations complete!');
+    process.exit(0);
+}
+
+main().catch(console.error);
+```
+
+{% /filename %}
