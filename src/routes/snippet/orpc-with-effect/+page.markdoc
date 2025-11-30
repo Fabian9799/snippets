@@ -1,0 +1,130 @@
+---
+title: How to use oRPC with Effect
+description: A basic example on how to use oRPC with effect
+tags:
+  - effect
+  - orpc
+---
+
+## Install effect
+
+```bash
+pnpm i effect -D
+```
+
+## Create helper to handle errors
+
+{% filename name="helper.ts" %}
+
+```ts
+import { Effect, Exit } from 'effect'
+
+async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> {
+    const exit = await Effect.runPromiseExit(effect)
+
+    if (Exit.isFailure(exit)) {
+        const cause = exit.cause
+        if (cause._tag === 'Die') {
+            throw cause.defect
+        }
+        if (cause._tag === 'Fail') {
+            throw cause.error
+        }
+        throw cause
+    }
+
+    return exit.value
+}
+```
+
+{% /filename %}
+
+## Create Effect Service
+
+{% filename name="service/pokeapi.ts" %}
+
+```ts
+import { Effect, Data } from "effect"
+
+// Simple Pokemon type (just the basics)
+export interface Pokemon {
+    id: number
+    name: string
+    height: number
+    weight: number
+    types: Array<{
+        type: {
+            name: string
+        }
+    }>
+    sprites: {
+        front_default: string | null
+    }
+}
+
+/** Errors **/
+
+export class FetchError extends Data.TaggedError("FetchError")<{}> { }
+export class JsonError extends Data.TaggedError("JsonError")<{}> { }
+
+/** Service Definition **/
+
+// Define the service interface - this is the API contract
+interface PokeApi {
+    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
+}
+
+/** Implementation **/
+
+export const pokeApi: PokeApi = {
+    getPokemon: (id: number) =>
+        Effect.gen(function* () {
+            const response = yield* Effect.tryPromise({
+                try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
+                catch: () => new FetchError(),
+            })
+
+            if (!response.ok) {
+                return yield* Effect.fail(new FetchError())
+            }
+
+            return yield* Effect.tryPromise({
+                try: () => response.json() as Promise<Pokemon>,
+                catch: () => new JsonError(),
+            })
+        }),
+}
+```
+
+{% /filename %}
+
+## Create oRPC procedure
+
+{% filename name="router.ts" %}
+
+```ts
+import { base } from './base'
+import { Effect } from 'effect'
+import { pokeApi } from './service/pokeapi.ts'
+import { z } from 'zod'
+import { runEffect } from "./helper.ts"
+
+export const router = {
+    getPokemon: base
+        .input(z.object({ id: z.number() }))
+        .handler(async ({ input, errors }) => {
+            return await runEffect(
+                Effect.gen(function* () {
+                    return yield* pokeApi.getPokemon(input.id)
+                }).pipe(
+                    Effect.catchTags({
+                        FetchError: () => Effect.die(errors.FETCH_ERROR()),
+                        JsonError: () => Effect.die(errors.JSON_ERROR()),
+                    })
+                )
+            )
+        })
+}
+```
+
+{% /filename %}
