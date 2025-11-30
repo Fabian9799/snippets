@@ -6,6 +6,12 @@ tags:
   - orpc
 ---
 
+{% alert %}
+
+Don't know how to use effect? Read through this [Beginners Guide](https://www.typeonce.dev/course/effect-beginners-complete-getting-started)
+
+{% /alert %}
+
 ## Install effect
 
 ```bash
