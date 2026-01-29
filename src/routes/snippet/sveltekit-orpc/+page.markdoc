@@ -314,8 +314,6 @@ export const handleZodError = (error: unknown, orpc: unknown) => {
 
 To use it, you can add it to your router like this:
 
-(needs to be used with clientInterceptors when used inside OpenAPIHandler)
-
 {% filename name="src/hooks.server.ts" %}
 
 ```ts
@@ -332,7 +330,7 @@ event.locals.orpc = createRouterClient(router, {
 })
 ```
 
-**a similar setup works for rpc and openapi clients**
+a similar setup works for rpc and openapi clients (needs to be used with clientInterceptors when used inside OpenAPIHandler)
 
 {% /filename %}
 
