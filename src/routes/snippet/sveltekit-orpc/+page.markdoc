@@ -313,6 +313,7 @@ export const handleZodError = (error: unknown, orpc: unknown) => {
 {% /filename %}
 
 To use it, you can add it to your router like this:
+
 (needs to be used with clientInterceptors when used inside OpenAPIHandler)
 
 {% filename name="src/hooks.server.ts" %}
