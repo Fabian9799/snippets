@@ -137,7 +137,7 @@ export const router = {
 
 ## Composing Services
 
-You can also compose services without exposint the internal errors to the consumer.
+You can also compose services without exposing the internal errors to the consumer.
 
 {% filename name="service/cache.ts" %}
 
