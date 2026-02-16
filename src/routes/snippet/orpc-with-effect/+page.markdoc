@@ -134,3 +134,95 @@ export const router = {
 ```
 
 {% /filename %}
+
+## Composing Services
+
+You can also compose services without exposint the internal errors to the consumer.
+
+{% filename name="service/cache.ts" %}
+
+```ts
+import { Effect, Data } from "effect"
+
+export class CacheMissError extends Data.TaggedError("CacheMissError")<{}> {}
+
+const cache = new Map<string, { data: unknown; expiresAt: number }>()
+
+export const cacheService = {
+    get: <T>(key: string): Effect.Effect<T, CacheMissError> =>
+        Effect.suspend(() => {
+            const entry = cache.get(key)
+            if (!entry || Date.now() > entry.expiresAt) {
+                cache.delete(key)
+                return Effect.fail(new CacheMissError())
+            }
+            return Effect.succeed(entry.data as T)
+        }),
+
+    set: (key: string, data: unknown, ttlMs = 30_000) =>
+        Effect.sync(() => { cache.set(key, { data, expiresAt: Date.now() + ttlMs }) }),
+}
+```
+
+{% /filename %}
+
+Now compose it with `pokeApi`. The `CacheMissError` is caught internally with `Effect.catchTag` — it never leaks to the consumer. The interface only exposes the same `FetchError | JsonError` as the original.
+
+{% filename name="service/cached-pokeapi.ts" %}
+
+```ts
+import { Effect } from "effect"
+import { pokeApi, type Pokemon, type FetchError, type JsonError } from "./pokeapi"
+import { cacheService } from "./cache"
+
+/** Service Definition — only PokeApi errors are exposed **/
+
+interface CachedPokeApi {
+    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
+}
+
+/** Implementation **/
+
+export const cachedPokeApi: CachedPokeApi = {
+    getPokemon: (id) =>
+        cacheService.get<Pokemon>(`pokemon:${id}`).pipe(
+            // On cache miss, fetch from API and populate cache
+            Effect.catchTag("CacheMissError", () =>
+                pokeApi.getPokemon(id).pipe(
+                    Effect.tap((pokemon) => cacheService.set(`pokemon:${id}`, pokemon, 60_000))
+                )
+            )
+        ),
+}
+```
+
+{% /filename %}
+
+The router is unchanged — it only handles `FetchError` and `JsonError`, with no knowledge of the cache.
+
+{% filename name="router.ts" %}
+
+```ts
+import { base } from './base'
+import { Effect } from 'effect'
+import { cachedPokeApi } from './service/cached-pokeapi'
+import { z } from 'zod'
+import { runEffect } from './helper'
+
+export const router = {
+    getPokemon: base
+        .input(z.object({ id: z.number() }))
+        .handler(async ({ input, errors }) => {
+            return await runEffect(
+                cachedPokeApi.getPokemon(input.id).pipe(
+                    Effect.catchTags({
+                        FetchError: () => Effect.die(errors.FETCH_ERROR()),
+                        JsonError: () => Effect.die(errors.JSON_ERROR()),
+                    })
+                )
+            )
+        })
+}
+```
+
+{% /filename %}
