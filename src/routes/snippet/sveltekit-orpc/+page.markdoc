@@ -325,12 +325,12 @@ event.locals.orpc = createRouterClient(router, {
 		event
 	},
 	interceptors: [
-		onError(handleGenericError)
+		onError(handleZodError)
 	]
 })
 ```
 
-**a similar setup works for rpc and openapi clients**
+a similar setup works for rpc and openapi clients (needs to be used with clientInterceptors when used inside OpenAPIHandler)
 
 {% /filename %}
 
