@@ -25,7 +25,7 @@ pnpm i effect -D
 ```ts
 import { Effect, Exit } from 'effect'
 
-async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> {
+export async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> {
     const exit = await Effect.runPromiseExit(effect)
 
     if (Exit.isFailure(exit)) {
@@ -74,32 +74,27 @@ export class FetchError extends Data.TaggedError("FetchError")<{}> { }
 export class JsonError extends Data.TaggedError("JsonError")<{}> { }
 
 /** Service Definition **/
+export class PokeApi extends Effect.Service<PokeApi>()("PokeApi", {
+    sync: () => ({
+        getPokemon: (id: number) =>
+            Effect.gen(function* () {
+                const response = yield* Effect.tryPromise({
+                    try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
+                    catch: () => new FetchError(),
+                })
 
-// Define the service interface - this is the API contract
-interface PokeApi {
-    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
-}
+                if (!response.ok) {
+                    return yield* Effect.fail(new FetchError())
+                }
 
-/** Implementation **/
-
-export const pokeApi: PokeApi = {
-    getPokemon: (id: number) =>
-        Effect.gen(function* () {
-            const response = yield* Effect.tryPromise({
-                try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
-                catch: () => new FetchError(),
-            })
-
-            if (!response.ok) {
-                return yield* Effect.fail(new FetchError())
-            }
-
-            return yield* Effect.tryPromise({
-                try: () => response.json() as Promise<Pokemon>,
-                catch: () => new JsonError(),
-            })
-        }),
-}
+                return yield* Effect.tryPromise({
+                    try: () => response.json() as Promise<Pokemon>,
+                    catch: () => new JsonError(),
+                })
+            }),
+    }),
+    accessors: true,
+}) {}
 ```
 
 {% /filename %}
@@ -111,7 +106,7 @@ export const pokeApi: PokeApi = {
 ```ts
 import { base } from './base'
 import { Effect } from 'effect'
-import { pokeApi } from './service/pokeapi.ts'
+import { PokeApi } from './service/pokeapi.ts'
 import { z } from 'zod'
 import { runEffect } from "./helper.ts"
 
@@ -121,12 +116,13 @@ export const router = {
         .handler(async ({ input, errors }) => {
             return await runEffect(
                 Effect.gen(function* () {
-                    return yield* pokeApi.getPokemon(input.id)
+                    return yield* PokeApi.getPokemon(input.id)
                 }).pipe(
                     Effect.catchTags({
                         FetchError: () => Effect.die(errors.FETCH_ERROR()),
                         JsonError: () => Effect.die(errors.JSON_ERROR()),
-                    })
+                    }),
+                    Effect.provide(PokeApi.Default)
                 )
             )
         })
@@ -172,7 +168,7 @@ Now compose it with `pokeApi`. The `CacheMissError` is caught internally with `E
 
 ```ts
 import { Effect } from "effect"
-import { pokeApi, type Pokemon, type FetchError, type JsonError } from "./pokeapi"
+import { PokeApi, type Pokemon, type FetchError, type JsonError } from "./pokeapi"
 import { cacheService } from "./cache"
 
 /** Service Definition — only PokeApi errors are exposed **/
@@ -188,8 +184,9 @@ export const cachedPokeApi: CachedPokeApi = {
         cacheService.get<Pokemon>(`pokemon:${id}`).pipe(
             // On cache miss, fetch from API and populate cache
             Effect.catchTag("CacheMissError", () =>
-                pokeApi.getPokemon(id).pipe(
-                    Effect.tap((pokemon) => cacheService.set(`pokemon:${id}`, pokemon, 60_000))
+                PokeApi.getPokemon(id).pipe(
+                    Effect.tap((pokemon) => cacheService.set(`pokemon:${id}`, pokemon, 60_000)),
+                    Effect.provide(PokeApi.Default)
                 )
             )
         ),
