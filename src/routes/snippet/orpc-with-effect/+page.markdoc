@@ -74,25 +74,33 @@ export class FetchError extends Data.TaggedError("FetchError")<{}> { }
 export class JsonError extends Data.TaggedError("JsonError")<{}> { }
 
 /** Service Definition **/
+interface PokeApiStructure {
+    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
+}
+
 export class PokeApi extends Effect.Service<PokeApi>()("PokeApi", {
-    sync: () => ({
-        getPokemon: (id: number) =>
-            Effect.gen(function* () {
-                const response = yield* Effect.tryPromise({
-                    try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
-                    catch: () => new FetchError(),
-                })
+    sync: () => {
+        const service: PokeApiStructure = {
+            getPokemon: (id: number) =>
+                Effect.gen(function* () {
+                    const response = yield* Effect.tryPromise({
+                        try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
+                        catch: () => new FetchError(),
+                    })
 
-                if (!response.ok) {
-                    return yield* Effect.fail(new FetchError())
-                }
+                    if (!response.ok) {
+                        return yield* Effect.fail(new FetchError())
+                    }
 
-                return yield* Effect.tryPromise({
-                    try: () => response.json() as Promise<Pokemon>,
-                    catch: () => new JsonError(),
-                })
-            }),
-    }),
+                    return yield* Effect.tryPromise({
+                        try: () => response.json() as Promise<Pokemon>,
+                        catch: () => new JsonError(),
+                    })
+                }),
+        }
+
+        return service
+    },
     accessors: true,
 }) {}
 ```
