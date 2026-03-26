@@ -29,7 +29,7 @@
 		</button>
 		<p class="text-3xl font-bold my-auto">Tags</p>
 	</div>
-	<ul class="flex flex-wrap gap-4">
+	<ul class="flex flex-wrap gap-2 leading-8">
 		<!-- eslint-disable-next-line svelte/require-each-key -->
 		{#each data.tags as tag}
 			<li>
