@@ -29,14 +29,8 @@ export async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> 
     const exit = await Effect.runPromiseExit(effect)
 
     if (Exit.isFailure(exit)) {
-        const cause = exit.cause
-        if (cause._tag === 'Die') {
-            throw cause.defect
-        }
-        if (cause._tag === 'Fail') {
-            throw cause.error
-        }
-        throw cause
+        console.error(Cause.pretty(exit.cause))
+        throw Cause.squash(exit.cause)
     }
 
     return exit.value
