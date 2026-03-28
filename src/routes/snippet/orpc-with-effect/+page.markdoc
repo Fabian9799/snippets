@@ -121,7 +121,7 @@ export const router = {
                     return yield* PokeApi.getPokemon(input.id)
                 }).pipe(
                     Effect.catchTags({
-                        FetchError: () => Effect.die(errors.FETCH_ERROR()),
+                        FetchError: () => Effect.die(errors.FETCH_ERROR()), // use Effect.die(e) to pass along the error causing an internal server error
                         JsonError: () => Effect.die(errors.JSON_ERROR()),
                     }),
                     Effect.provide(PokeApi.Default)
