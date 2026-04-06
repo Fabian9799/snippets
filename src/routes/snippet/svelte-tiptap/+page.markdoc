@@ -1,0 +1,274 @@
+---
+title: Svelte TipTap component
+description: A basic example on how to use TipTap with svelte components
+tags:
+    - svelte
+    - tiptap
+---
+
+{%alert%}
+Work In Progress
+{%/alert%}
+
+## Example
+
+{% filename name="Editor.svelte" %}
+
+```svelte
+<script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
+    import { Editor } from '@tiptap/core';
+    import { StarterKit } from '@tiptap/starter-kit';
+    import BubbleMenu from '@tiptap/extension-bubble-menu';
+    import CustomNode from './node';
+
+    let bubbleMenu: HTMLElement | null = $state(null);
+    let element: HTMLElement | null = $state(null);
+    let editorState: { editor: Editor | null } = $state({ editor: null });
+
+    onMount(() => {
+        editorState.editor = new Editor({
+            element: element,
+            extensions: [
+                StarterKit,
+                BubbleMenu.configure({
+                    element: bubbleMenu,
+                }),
+                CustomNode,
+            ],
+            content: `
+          <h1>Hello Svelte! 🌍️ </h1>
+          <p>This editor is running in Svelte.</p>
+          <node-view data-count="0">Edit me.</node-view>
+          <p>Select some text to see the bubble menu popping up.</p>
+        `,
+            onTransaction: ({ editor }) => {
+                // Update the state signal to force a re-render
+                editorState = { editor };
+            },
+        });
+    });
+    onDestroy(() => {
+        editorState.editor?.destroy();
+    });
+</script>
+
+<div>
+    <div>
+        <button
+            onclick={() => {
+                editorState.editor
+                    ?.chain()
+                    .focus()
+                    .toggleHeading({ level: 1 })
+                    .run();
+            }}
+            class:active={editorState.editor?.isActive('heading', {
+                level: 1,
+            })}
+        >
+            H1
+        </button>
+        <button
+            onclick={() => {
+                editorState.editor
+                    ?.chain()
+                    .focus()
+                    .toggleHeading({ level: 2 })
+                    .run();
+            }}
+            class:active={editorState.editor?.isActive('heading', {
+                level: 2,
+            })}
+        >
+            H2
+        </button>
+        <button
+            onclick={() => {
+                editorState.editor?.chain().focus().setParagraph().run();
+            }}
+            class:active={editorState.editor?.isActive('paragraph')}
+        >
+            P
+        </button>
+    </div>
+
+    <div bind:this={element}></div>
+    <div bind:this={bubbleMenu} style="visibility: hidden;">
+        <button
+            onclick={() => {
+                editorState.editor?.chain().focus().toggleBold().run();
+            }}
+            class:active={editorState.editor?.isActive('bold')}
+        >
+            Bold
+        </button>
+        <button
+            onclick={() => {
+                editorState.editor?.chain().focus().toggleItalic().run();
+            }}
+            class:active={editorState.editor?.isActive('italic')}
+        >
+            Italic
+        </button>
+        <button
+            onclick={() => {
+                editorState.editor?.chain().focus().toggleStrike().run();
+            }}
+            class:active={editorState.editor?.isActive('strike')}
+        >
+            Strike
+        </button>
+    </div>
+</div>
+
+<style>
+    .active {
+        background: green;
+    }
+</style>
+```
+
+{% /filename %}
+
+
+{% filename name="node.js" %}
+
+```js
+import { mergeAttributes, Node } from '@tiptap/core'
+import CustomNode from './CustomNode.svelte'
+import { mount, unmount } from 'svelte'
+
+export default Node.create({
+    name: 'nodeView',
+    group: 'block',
+    content: 'inline*',
+    addAttributes() {
+        return {
+            count: {
+                default: 0,
+                parseHTML: (el) => Number(el.getAttribute('data-count')) || 0,
+                renderHTML: (attrs) =>
+                    attrs.count != null ? { 'data-count': String(attrs.count) } : {},
+            },
+        }
+    },
+
+    parseHTML() {
+        return [{ tag: 'node-view' }]
+    },
+
+    renderHTML({ HTMLAttributes }) {
+        return ['node-view', mergeAttributes(HTMLAttributes), 0]
+    },
+
+    addNodeView() {
+        return ({ editor, node, getPos }) => {
+            const { view } = editor
+            const holder = document.createElement('div')
+            let currentNode = node
+
+            const instance = mount(CustomNode, {
+                target: holder,
+                props: {
+                    count: currentNode.attrs.count,
+                    onclick: (val) => {
+                        const pos = getPos()
+                        if (typeof pos !== 'number') return
+                        const n = view.state.doc.nodeAt(pos)
+                        if (!n) return
+                        view.dispatch(
+                            view.state.tr.setNodeMarkup(pos, undefined, {
+                                ...n.attrs,
+                                count: val,
+                            }),
+                        )
+                        editor.commands.focus()
+                    },
+                },
+            })
+
+            const dom = holder.firstElementChild
+            const contentDOM = dom.querySelector(
+                '[data-node-view-content]',
+            )
+
+            return {
+                dom,
+                contentDOM,
+                destroy() {
+                    unmount(instance)
+                },
+                update(updatedNode) {
+                    if (updatedNode.type !== currentNode.type) return false
+                    currentNode = updatedNode
+                    instance.syncCount(updatedNode.attrs.count)
+                    return true
+                },
+                stopEvent(event) {
+                    const t = event.target
+                    if (!(t instanceof globalThis.Node) || !dom.contains(t)) return false
+                    return !contentDOM.contains(t)
+                },
+                ignoreMutation(mutation) {
+                    const t = mutation.target
+                    if (!(t instanceof globalThis.Node) || !dom.contains(t)) return false
+                    return !contentDOM.contains(t)
+                },
+            }
+        }
+    },
+})
+```
+
+{% /filename %}
+
+{% filename name="CustomNode.svelte" %}
+
+```svelte
+<script lang="ts">
+    import { onMount } from 'svelte';
+
+    let { count, onclick } = $props();
+
+    let displayCount = $state(0);
+
+    export function syncCount(c: number) {
+        displayCount = c;
+    }
+
+    onMount(() => {
+        displayCount = count;
+    });
+</script>
+
+<div class="wrapper">
+    <div data-node-view-content class="editable"></div>
+    <div contenteditable="false" class="chrome">
+        <button type="button" onclick={() => onclick(displayCount + 1)}>
+            This button has been clicked {displayCount} times.
+        </button>
+    </div>
+</div>
+
+<style>
+    .wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid;
+        padding: 0.5rem;
+    }
+    .editable {
+        border: 1px solid;
+        padding: 0.5rem;
+        min-width: 8rem;
+        flex: 1;
+    }
+    .chrome {
+        flex-shrink: 0;
+    }
+</style>
+```
+
+{% /filename %}
