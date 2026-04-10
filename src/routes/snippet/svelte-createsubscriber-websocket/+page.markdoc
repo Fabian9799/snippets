@@ -1,0 +1,77 @@
+---
+title: Svelte createSubscriber example with websocket
+description: A basic websocket example with sveltes createSubscriber
+tags:
+    - svelte
+---
+
+## What is createSubscriber
+
+`createSubscriber` returns a **subscribe** function that connects outside event sources (here a `WebSocket`) to Svelte's reactivity. `createSubscriber` performs the setup (connect to the WebSocket) **once** the first time `.messages` is being used anywhere. Further reads of `.messages` do not run that setup again. When it's not being used anywhere anymore it calls the teardown function (disconnect from the WebSocket).
+
+## Implementation
+
+{% filename name="socket.ts" %}
+
+```ts
+import { createSubscriber } from 'svelte/reactivity';
+
+export class ReactiveSocket {
+    #url: string;
+    #ws: WebSocket | null = null;
+    #messages: string[] = [];
+    #subscribe: () => void;
+
+    constructor(url: string) {
+        this.#url = url;
+
+        this.#subscribe = createSubscriber((update) => {
+            const ws = new WebSocket(this.#url);
+            this.#ws = ws;
+
+            const onMessage = (event: Event) => {
+                const { data } = event as MessageEvent;
+                this.#messages.push(typeof data === 'string' ? data : String(data));
+                update();
+            };
+
+            ws.addEventListener('message', onMessage);
+
+            return () => {
+                ws.removeEventListener('message', onMessage);
+                ws.close();
+                if (this.#ws === ws) this.#ws = null;
+            };
+        });
+    }
+
+    send(message: string) {
+        this.#ws?.send(message);
+    }
+
+    get messages() {
+        this.#subscribe();
+        return this.#messages.slice();
+    }
+}
+
+export const socket = new ReactiveSocket('ws://localhost:3001/');
+```
+
+{% /filename %}
+
+## Usage
+
+{% filename name="Component.svelte" %}
+
+```svelte
+<script>
+	import { socket } from "./socket"
+</script>
+
+{#each socket.messages as message}
+	{message}
+{/each}
+```
+
+{% /filename %}
