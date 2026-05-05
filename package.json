@@ -26,7 +26,7 @@
 		"eslint-plugin-svelte": "^3.16.0",
 		"globals": "^16.5.0",
 		"js-yaml": "^4.1.1",
-		"postcss": "^8.5.8",
+		"postcss": "^8.5.10",
 		"postcss-load-config": "^6.0.1",
 		"svelte": "^5.55.0",
 		"svelte-check": "^4.4.5",
