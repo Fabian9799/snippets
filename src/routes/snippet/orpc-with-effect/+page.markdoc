@@ -120,6 +120,7 @@ export const router = {
                 Effect.gen(function* () {
                     return yield* PokeApi.getPokemon(input.id)
                 }).pipe(
+                    Effect.tapError((error) => Effect.logError(error.message)),
                     Effect.catchTags({
                         FetchError: () => Effect.die(errors.FETCH_ERROR()), // use Effect.die(e) to pass along the error causing an internal server error
                         JsonError: () => Effect.die(errors.JSON_ERROR()),
