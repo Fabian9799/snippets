@@ -23,7 +23,7 @@ pnpm i effect -D
 {% filename name="helper.ts" %}
 
 ```ts
-import { Effect, Exit } from 'effect'
+import { Effect, Exit, Cause } from 'effect'
 
 export async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> {
     const exit = await Effect.runPromiseExit(effect)
