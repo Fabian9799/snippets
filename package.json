@@ -15,7 +15,7 @@
 		"@eslint/js": "^9.39.4",
 		"@markdoc/markdoc": "^0.5.7",
 		"@sveltejs/adapter-auto": "^6.1.1",
-		"@sveltejs/kit": "^2.55.0",
+		"@sveltejs/kit": "^2.57.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/typography": "^0.5.19",
 		"@types/js-yaml": "^4.0.9",
@@ -26,16 +26,16 @@
 		"eslint-plugin-svelte": "^3.16.0",
 		"globals": "^16.5.0",
 		"js-yaml": "^4.1.1",
-		"postcss": "^8.5.8",
+		"postcss": "^8.5.10",
 		"postcss-load-config": "^6.0.1",
-		"svelte": "^5.55.0",
+		"svelte": "^5.55.7",
 		"svelte-check": "^4.4.5",
 		"svelte-markdoc-preprocess": "^3.0.0",
 		"tailwindcss": "^4.2.2",
 		"tslib": "^2.8.1",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.57.2",
-		"vite": "^7.3.1"
+		"vite": "^7.3.2"
 	},
 	"type": "module",
 	"dependencies": {
