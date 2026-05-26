@@ -33,24 +33,30 @@ Because the event is read with `getRequestEvent()`, you don't need to pass it ma
 ```ts
 import { getRequestEvent } from '$app/server';
 import { os } from '@orpc/server'
+import type { RequestEvent } from '@sveltejs/kit'
 
-export const base = os
-    .errors({
-        NOT_AUTHORIZED: {
-            message: "Not authorized",
-        },
-        // Define your custom errors here
-    })
-    .use(async ({ context, next }) => {
-        const event = getRequestEvent();
+export type BaseContext = { event: RequestEvent }
 
-        return await next({
-            context: {
-                ...context,
-                event
-            }
-        });
-    })
+export const orpc = os.errors({
+    NOT_AUTHORIZED: {
+        message: "Not authorized",
+    },
+    // Define your custom errors here
+})
+
+const requestEvent = orpc.middleware(async ({ next }) => {
+    const event = getRequestEvent();
+
+    const baseContext: BaseContext = {
+        event
+    }
+
+    return await next({
+        context: baseContext
+    });
+})
+
+export const base = orpc.use(requestEvent)
 ```
 
 {% /filename %}
@@ -216,22 +222,24 @@ export const client: RouterClient<typeof router> = createORPCClient(link)
 
 ### Create middleware
 
+This assumes your SvelteKit auth hook sets `event.locals.user`.
+
 {% filename name="src/lib/server/orpc/middleware/auth.ts" %}
 
 ```ts
-import { base } from "../base"
+import { orpc, type BaseContext } from "../base"
 
-export const auth = base
+export const auth = orpc
+    .$context<BaseContext>()
     .middleware(async ({ context, next, errors }) => {
+        const user = context.event.locals.user
 
-        // throw errors.NOT_AUTHORIZED() if user doesn't exist (do cookie and session check here)
+        if (!user) throw errors.NOT_AUTHORIZED()
 
         const result = await next({
             context: {
-                ...context, // Keep the existing context (including event)
-                user: {
-                    id: '1',
-                }
+                ...context,
+                user
             }
         })
 
@@ -254,7 +262,7 @@ export const router = {
     hello: base
 		.use(auth)
         .handler(async ({context}) => {
-			// now has access to the user with context.user
+			// now has access to context.user and context.event
             return "Hello World"
         })
 }
@@ -475,7 +483,7 @@ dataType can also be marked as required [like this](https://permix.letstri.dev/d
 
 ```ts
 import { createPermix } from 'permix/orpc'
-import { base } from '../base'
+import { orpc, type BaseContext } from '../base'
 
 export const postPermix = createPermix<{
     post: {
@@ -487,28 +495,31 @@ export const postPermix = createPermix<{
     }
 }>()
 
-export const postGate = base.middleware(async ({ next, context }) => {
-    const user = { role: 'ADMIN' } // get user from context
+export const postGate = orpc
+    .$context<BaseContext>()
+    .middleware(async ({ next, context }) => {
+        const user = { role: 'ADMIN' } // get user using context.event
 
-    const p = postPermix.setup({
-        post: {
-            create: true,
-            view: true,
-            delete: user.role === 'ADMIN'
-        },
-        postWithData: {
-            create: true,
-            view: post => post?.public || user.role === 'ADMIN',
-            delete: user.role === 'ADMIN'
-        }
-    })
+        const p = postPermix.setup({
+            post: {
+                create: true,
+                view: true,
+                delete: user.role === 'ADMIN'
+            },
+            postWithData: {
+                create: true,
+                view: post => post?.public || user.role === 'ADMIN',
+                delete: user.role === 'ADMIN'
+            }
+        })
 
-    return next({
-        context: {
-            permix: p
-        }
+        return next({
+            context: {
+                ...context,
+                permix: p
+            }
+        })
     })
-})
 
 
 ```
@@ -536,7 +547,7 @@ export const router = {
         }),
     postWithData: base
         .use(postGate)
-        .handler(async ({ errors }) => {
+        .handler(async ({ context, errors }) => {
             const post = { public: false } // get post from db
            if (!context.permix.check("postWithData", "view", post)) throw errors.NOT_AUTHORIZED()
             // do something
