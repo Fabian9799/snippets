@@ -23,24 +23,34 @@ tags:
 pnpm add @orpc/client @orpc/server zod -D
 ```
 
-## Create a base type for your router
+## Create a base for your router
 
-Creates a base type for your router. This will be used for all procedures so that they have access to the entire sveltekit event in the context.
+Creates a base for your router. This will be used for all procedures so that they have access to the entire SvelteKit event in the context.
+Because the event is read with `getRequestEvent()`, you don't need to pass it manually to `createRouterClient`, `RPCHandler`, or `OpenAPIHandler`.
 
 {% filename name="src/lib/server/orpc/base.ts" %}
 
 ```ts
+import { getRequestEvent } from '$app/server';
 import { os } from '@orpc/server'
-import type { RequestEvent } from '@sveltejs/kit'
 
-export type BaseContext = { event: RequestEvent }
+export const base = os
+    .errors({
+        NOT_AUTHORIZED: {
+            message: "Not authorized",
+        },
+        // Define your custom errors here
+    })
+    .use(async ({ context, next }) => {
+        const event = getRequestEvent();
 
-export const base = os.$context<BaseContext>().errors({
-    NOT_AUTHORIZED: {
-        message: "Not authorized",
-    },
-    // Define your custom errors here
-})
+        return await next({
+            context: {
+                ...context,
+                event
+            }
+        });
+    })
 ```
 
 {% /filename %}
@@ -96,11 +106,7 @@ import { createRouterClient } from "@orpc/server"
 import type { Handle } from "@sveltejs/kit"
 
 export const handle: Handle = async ({ event, resolve }) => {
-    event.locals.orpc = createRouterClient(router, {
-        context: {
-            event
-        },
-    })
+    event.locals.orpc = createRouterClient(router)
 
     const response = await resolve(event)
     return response
@@ -144,11 +150,7 @@ const handler = new RPCHandler(router)
 
 const handle: RequestHandler = async (event) => {
     const { response } = await handler.handle(event.request, {
-        prefix: '/rpc',
-        context: {
-            event
-        },
-
+        prefix: '/rpc'
     })
 
     return response ?? new Response('Not Found', { status: 404 })
@@ -321,9 +323,6 @@ import { handleZodError } from "$lib/server/orpc/interceptor/zodErrorHandler"
 import { onError } from "@orpc/server"
 
 event.locals.orpc = createRouterClient(router, {
-	context: {
-		event
-	},
 	interceptors: [
 		onError(handleZodError)
 	]
@@ -397,10 +396,7 @@ const handler = new OpenAPIHandler(router, {
 const handle: RequestHandler = async (event) => {
 
     const { response } = await handler.handle(event.request, {
-        prefix: '/api',
-        context: {
-            event
-        }
+        prefix: '/api'
     })
 
     return response ?? new Response('Not Found', { status: 404 })
