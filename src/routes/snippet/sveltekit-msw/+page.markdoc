@@ -109,11 +109,18 @@ Start MSW only in development so mocked responses never ship to production.
 
 	let { children } = $props();
 
-	onMount(async () => {
-		if (dev) {
-			const { worker } = await import('$lib/mocks/browser');
-			return worker.start();
-		}
+	onMount(() => {
+		if (!dev) return;
+
+		let worker: SetupWorker;
+
+		(async () => {
+			const { worker: w } = await import('$lib/mocks/browser');
+			worker = w;
+			worker.start();
+		})();
+
+		return () => worker?.stop();
 	});
 </script>
 
