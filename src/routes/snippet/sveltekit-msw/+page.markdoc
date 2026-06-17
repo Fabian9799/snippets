@@ -1,0 +1,153 @@
+---
+title: How to use MSW with SvelteKit
+description: Mock API requests in development with Mock Service Worker
+tags:
+  - sveltekit
+  - msw
+  - testing
+  - development
+---
+
+## What is MSW?
+
+> Mock Service Worker (MSW) is an API mocking library that uses Service Worker to intercept network requests.
+
+[Website](https://mswjs.io/)
+
+MSW intercepts `fetch` calls in the browser and returns mocked responses defined in your handlers. This lets you develop against APIs that do not exist yet, or work offline without changing application code.
+
+## Setup
+
+### Install dependencies
+
+```bash
+pnpm add msw -D
+```
+
+### Generate the service worker
+
+MSW needs a service worker file served from your app's static directory. Generate it with:
+
+```bash
+pnpx msw init static --save
+```
+
+This creates `static/mockServiceWorker.js` and adds an `msw` field to `package.json`:
+
+{% filename name="package.json" %}
+
+```json
+{
+  "msw": {
+    "workerDirectory": [
+      "static"
+    ]
+  }
+}
+```
+
+{% /filename %}
+
+Do not edit `mockServiceWorker.js` manually. Re-run `msw init` when you upgrade MSW.
+
+If you use pnpm, allow MSW to run its postinstall script:
+
+{% filename name="pnpm-workspace.yaml" %}
+
+```yaml
+allowBuilds:
+  msw: true
+```
+
+{% /filename %}
+
+### Define request handlers
+
+Handlers describe which requests to intercept and what to return.
+
+{% filename name="src/lib/mocks/handlers.ts" %}
+
+```ts
+import { http, HttpResponse } from 'msw';
+
+export const handlers = [
+	http.get('https://api.example.com/user', () => {
+		return HttpResponse.json({
+			id: 'abc-123',
+			firstName: 'Rick',
+			lastName: 'Astley'
+		});
+	})
+];
+```
+
+{% /filename %}
+
+### Create the browser worker
+
+{% filename name="src/lib/mocks/browser.ts" %}
+
+```ts
+import { setupWorker } from 'msw/browser';
+import { handlers } from './handlers.js';
+
+export const worker = setupWorker(...handlers);
+```
+
+{% /filename %}
+
+### Start the worker in development
+
+Start MSW only in development so mocked responses never ship to production.
+
+{% filename name="src/routes/+layout.svelte" %}
+
+```svelte
+<script>
+	import { onMount } from 'svelte';
+	import { dev } from '$app/environment';
+
+	let { children } = $props();
+
+	onMount(async () => {
+		if (dev) {
+			const { worker } = await import('$lib/mocks/browser');
+			return worker.start();
+		}
+	});
+</script>
+
+{@render children()}
+```
+
+{% /filename %}
+
+## Usage
+
+Once the worker is running, `fetch` calls that match your handlers are intercepted automatically.
+
+{% filename name="src/routes/+page.svelte" %}
+
+```svelte
+<script>
+	function fetchUser() {
+		fetch('https://api.example.com/user')
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data);
+			});
+	}
+</script>
+
+<button onclick={fetchUser}>Fetch User</button>
+```
+
+{% /filename %}
+
+Clicking the button logs the mocked user object instead of hitting the real API.
+
+## Notes
+
+- MSW only runs in the browser. Server-side `fetch` calls in `load` functions or `+server.ts` files are not intercepted by the browser worker.
+- For server-side mocking, set up a [Node server integration](https://mswjs.io/docs/integrations/node) separately.
+- After changing handlers, a page refresh is enough; you do not need to restart the dev server.
