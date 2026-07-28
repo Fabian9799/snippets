@@ -10,9 +10,10 @@
 	let { slug, title, description, tags, search = false }: Props = $props();
 </script>
 
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a href="/snippet/{slug}" class="inline-block w-full rounded-xl h-full">
 	<div
-		class="border duration-200 group border-zinc-800 hover:border-rose-600 h-full flex flex-col p-5 rounded-xl shadow hover:bg-gradient-to-r hover:from-rose-600/30 hover:ring-2 ring-rose-600"
+		class="border duration-200 group border-zinc-800 hover:border-rose-600 h-full flex flex-col p-5 rounded-xl shadow hover:bg-linear-to-r hover:from-rose-600/30 hover:ring-2 ring-rose-600"
 	>
 		<h2
 			class="font-semibold text-xl"

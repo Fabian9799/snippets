@@ -1,7 +1,26 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import Article from '$lib/Article.svelte';
 
 	let { data } = $props();
+
+	function goBack() {
+		const navigation =
+			'navigation' in window
+				? (
+						window as Window & {
+							navigation: { canGoBack: boolean };
+						}
+					).navigation
+				: undefined;
+
+		if (navigation?.canGoBack ?? history.length > 1) {
+			history.back();
+		} else {
+			goto(resolve('/'));
+		}
+	}
 </script>
 
 <svelte:head>
@@ -12,8 +31,8 @@
 	<div class="flex gap-2 mb-4">
 		<button
 			aria-label="Back"
-			onclick={() => window.history.back()}
-			class="uppercase h-min rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto"
+			onclick={goBack}
+			class="uppercase h-min rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 cursor-pointer border border-zinc-700 bg-zinc-800/30 text-zinc-200 my-auto"
 		>
 			<svg
 				class="size-6"

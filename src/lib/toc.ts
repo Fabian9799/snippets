@@ -6,7 +6,7 @@ export function generateTableOfContents(article: HTMLElement) {
 	// First pass: generate unique IDs for all headings
 	headings.forEach((heading) => {
 		if (!heading.id && heading.textContent) {
-			let baseId = heading.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+			const baseId = heading.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 			let uniqueId = baseId;
 			let counter = 1;
 

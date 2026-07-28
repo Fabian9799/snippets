@@ -11,7 +11,7 @@
 		}, 500);
 	}
 
-	setContext('showplayground', showplayground === 'true');
+	setContext('showplayground', () => showplayground === 'true');
 </script>
 
 <div class="not-prose">

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+
 	let { data } = $props();
 </script>
 
@@ -31,10 +33,10 @@
 	</div>
 	<ul class="flex flex-wrap gap-2 leading-8">
 		<!-- eslint-disable-next-line svelte/require-each-key -->
-		{#each data.tags as tag}
+		{#each data.tags as tag (tag)}
 			<li>
 				<a
-					href="/tags/{tag}"
+					href={resolve('/tags/[tag]', { tag })}
 					class="uppercase rounded-full hover:border-rose-600 hover:ring-3 ring-rose-600 font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
 					>#{tag}</a
 				>

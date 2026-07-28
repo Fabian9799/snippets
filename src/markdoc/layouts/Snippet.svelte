@@ -3,6 +3,7 @@
 	import { generateTableOfContents } from '$lib/toc';
 	import { onMount, type Snippet } from 'svelte';
 	import { innerHeight } from 'svelte/reactivity/window';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		title: string;
@@ -117,7 +118,7 @@
 		<div class="flex gap-2 flex-wrap">
 			<a
 				aria-label="Home"
-				href="/"
+				href={resolve('/')}
 				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 			>
 				<svg
@@ -132,9 +133,9 @@
 					/>
 				</svg>
 			</a>
-			{#each tags as tag}
+			{#each tags as tag (tag)}
 				<a
-					href="/tags/{tag}"
+					href={resolve('/tags/[tag]', { tag })}
 					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 					>#{tag}</a
 				>
@@ -162,7 +163,7 @@
 			</summary>
 			<div class="text-zinc-200 p-4 toc">
 				<ol>
-					{#each tocItems as item}
+					{#each tocItems as item (item.href)}
 						<li style={getIndentStyle(item.level)}>
 							<div class="flex items-center">
 								{#if shouldShowArrow(item.level)}
@@ -180,9 +181,11 @@
 										</svg>
 									</span>
 								{/if}
+								<!-- eslint-disable svelte/no-navigation-without-resolve -->
 								<a class="hover:text-rose-500" href={item.href}
 									>{item.text}</a
 								>
+								<!-- eslint-enable svelte/no-navigation-without-resolve -->
 							</div>
 						</li>
 					{/each}
@@ -220,13 +223,13 @@
 				class="bg-zinc-800/30 border border-zinc-800 rounded-xl p-4 min-w-64 max-w-96 flex flex-col min-h-0"
 			>
 				<p
-					class="text-zinc-200 text-nowrap font-semibold mb-2 text-xl flex-shrink-0"
+					class="text-zinc-200 text-nowrap font-semibold mb-2 text-xl shrink-0"
 				>
 					Table of Contents
 				</p>
 				<div class="text-zinc-300 toc overflow-y-auto flex-1">
 					<ol>
-						{#each tocItems as item}
+						{#each tocItems as item (item.href)}
 							<li style={getIndentStyle(item.level)}>
 								<div class="flex items-center">
 									{#if shouldShowArrow(item.level)}
@@ -244,6 +247,7 @@
 											</svg>
 										</span>
 									{/if}
+									<!-- eslint-disable svelte/no-navigation-without-resolve -->
 									<a
 										href={item.href}
 										class={{
@@ -253,6 +257,7 @@
 												item.href.slice(1),
 										}}>{item.text}</a
 									>
+									<!-- eslint-enable svelte/no-navigation-without-resolve -->
 								</div>
 							</li>
 						{/each}

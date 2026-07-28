@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { error } from '@sveltejs/kit';
+	import { page } from '$app/state';
 	import { getContext } from 'svelte';
 
 	interface Props {
@@ -10,10 +9,12 @@
 
 	let { content, language }: Props = $props();
 
-	const html = $page.data.highlighter.codeToHtml(content, {
-		lang: language,
-		theme: 'dracula',
-	});
+	const html = $derived(
+		page.data.highlighter.codeToHtml(content, {
+			lang: language,
+			theme: 'dracula',
+		}),
+	);
 
 	let copied = $state(false);
 
@@ -25,7 +26,12 @@
 		}, 500);
 	}
 
-	let showplayground = getContext('showplayground');
+	const getShowplayground = getContext('showplayground');
+	const showplayground = $derived(
+		typeof getShowplayground === 'function'
+			? getShowplayground()
+			: getShowplayground,
+	);
 
 	async function codeToPlaygroundUrl(code: string) {
 		const json = {
@@ -97,6 +103,7 @@
 		</button>
 		{#if showplayground}
 			{#await codeToPlaygroundUrl(content) then value}
+				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
 					href={value}
 					aria-label="Open in playground"
@@ -116,6 +123,7 @@
 						/></svg
 					>
 				</a>
+				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			{/await}
 		{/if}
 	</div>
