@@ -7,7 +7,10 @@
 	let { title, description }: Props = $props();
 </script>
 
-<div class="flex text-3xl h-full bg-zinc-900 p-12">
+<div
+	class="flex w-full h-full text-3xl bg-zinc-900 p-6"
+	style="font-family: 'Atkinson Hyperlegible'"
+>
 	<div
 		class="w-full p-8 flex flex-col justify-center items-center text-center border-8 rounded-[50px] border-rose-600 text-white"
 	>
