@@ -12,7 +12,7 @@
 	style="font-family: 'Atkinson Hyperlegible'"
 >
 	<div
-		class="w-full p-8 flex flex-col justify-center items-center text-center border-8 rounded-[50px] border-rose-600 text-white"
+		class="w-full p-8 flex flex-col justify-center items-center text-center border-8 rounded-2xl border-rose-600 text-white from-rose-600/10 bg-linear-to-t"
 	>
 		<p class="font-bold" style="font-size: 80px">{title}</p>
 		<p>{description}</p>
