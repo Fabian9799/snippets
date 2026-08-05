@@ -41,10 +41,12 @@ export async function runEffect<T>(effect: Effect.Effect<T, never>): Promise<T> 
 
 ## Create Effect Service
 
+Define a service with `Context.Tag`, then provide a live implementation with `Layer`.
+
 {% filename name="service/pokeapi.ts" %}
 
 ```ts
-import { Effect, Data } from "effect"
+import { Context, Data, Effect, Layer } from "effect"
 
 // Simple Pokemon type (just the basics)
 export interface Pokemon {
@@ -64,51 +66,54 @@ export interface Pokemon {
 
 /** Errors **/
 
-export class FetchError extends Data.TaggedError("FetchError")<{}> { }
-export class JsonError extends Data.TaggedError("JsonError")<{}> { }
+export class FetchError extends Data.TaggedError("FetchError")<{}> {}
+export class JsonError extends Data.TaggedError("JsonError")<{}> {}
 
 /** Service Definition **/
-interface PokeApiStructure {
-    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
-}
 
-export class PokeApi extends Effect.Service<PokeApi>()("PokeApi", {
-    sync: () => {
-        const service: PokeApiStructure = {
-            getPokemon: (id: number) =>
-                Effect.gen(function* () {
-                    const response = yield* Effect.tryPromise({
-                        try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
-                        catch: () => new FetchError(),
-                    })
+export class PokeApi extends Context.Tag("PokeApi")<
+    PokeApi,
+    {
+        readonly getPokemon: (
+            id: number,
+        ) => Effect.Effect<Pokemon, FetchError | JsonError>
+    }
+>() {}
 
-                    if (!response.ok) {
-                        return yield* Effect.fail(new FetchError())
-                    }
+/** Live Implementation **/
 
-                    return yield* Effect.tryPromise({
-                        try: () => response.json() as Promise<Pokemon>,
-                        catch: () => new JsonError(),
-                    })
-                }),
-        }
+export const PokeApiLive = Layer.succeed(PokeApi, {
+    getPokemon: (id: number) =>
+        Effect.gen(function* () {
+            const response = yield* Effect.tryPromise({
+                try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
+                catch: () => new FetchError(),
+            })
 
-        return service
-    },
-    accessors: true,
-}) {}
+            if (!response.ok) {
+                return yield* Effect.fail(new FetchError())
+            }
+
+            return yield* Effect.tryPromise({
+                try: () => response.json() as Promise<Pokemon>,
+                catch: () => new JsonError(),
+            })
+        }),
+})
 ```
 
 {% /filename %}
 
 ## Create oRPC procedure
 
+Provide the layer with `Effect.provide`, then access the service via `yield* PokeApi`.
+
 {% filename name="router.ts" %}
 
 ```ts
 import { base } from './base'
 import { Effect } from 'effect'
-import { PokeApi } from './service/pokeapi.ts'
+import { PokeApi, PokeApiLive } from './service/pokeapi.ts'
 import { z } from 'zod'
 import { runEffect } from "./helper.ts"
 
@@ -118,14 +123,15 @@ export const router = {
         .handler(async ({ input, errors }) => {
             return await runEffect(
                 Effect.gen(function* () {
-                    return yield* PokeApi.getPokemon(input.id)
+                    const pokeApi = yield* PokeApi
+                    return yield* pokeApi.getPokemon(input.id)
                 }).pipe(
                     Effect.tapError((error) => Effect.logError(error.message)),
                     Effect.catchTags({
                         FetchError: () => Effect.die(errors.FETCH_ERROR()), // use Effect.die(e) to pass along the error causing an internal server error
                         JsonError: () => Effect.die(errors.JSON_ERROR()),
                     }),
-                    Effect.provide(PokeApi.Default)
+                    Effect.provide(PokeApiLive)
                 )
             )
         })
@@ -136,76 +142,106 @@ export const router = {
 
 ## Composing Services
 
-You can also compose services without exposing the internal errors to the consumer.
+You can also compose services with layers. First define a `Cache` service:
 
 {% filename name="service/cache.ts" %}
 
 ```ts
-import { Effect, Data } from "effect"
+import { Context, Data, Effect, Layer } from "effect"
 
 export class CacheMissError extends Data.TaggedError("CacheMissError")<{}> {}
 
-const cache = new Map<string, { data: unknown; expiresAt: number }>()
+export class Cache extends Context.Tag("Cache")<
+    Cache,
+    {
+        readonly get: <T>(key: string) => Effect.Effect<T, CacheMissError>
+        readonly set: (key: string, data: unknown, ttlMs?: number) => Effect.Effect<void>
+    }
+>() {}
 
-export const cacheService = {
-    get: <T>(key: string): Effect.Effect<T, CacheMissError> =>
+const store = new Map<string, { data: unknown; expiresAt: number }>()
+
+export const CacheLive = Layer.succeed(Cache, {
+    get: <T>(key: string) =>
         Effect.suspend(() => {
-            const entry = cache.get(key)
+            const entry = store.get(key)
             if (!entry || Date.now() > entry.expiresAt) {
-                cache.delete(key)
+                store.delete(key)
                 return Effect.fail(new CacheMissError())
             }
             return Effect.succeed(entry.data as T)
         }),
 
-    set: (key: string, data: unknown, ttlMs = 30_000) =>
-        Effect.sync(() => { cache.set(key, { data, expiresAt: Date.now() + ttlMs }) }),
-}
+    set: (key, data, ttlMs = 30_000) =>
+        Effect.sync(() => {
+            store.set(key, { data, expiresAt: Date.now() + ttlMs })
+        }),
+})
 ```
 
 {% /filename %}
 
-Now compose it with `pokeApi`. The `CacheMissError` is caught internally with `Effect.catchTag` — it never leaks to the consumer. The interface only exposes the same `FetchError | JsonError` as the original.
+Now compose it with `PokeApi`. `CacheMissError` is caught internally with `Effect.catchTag` — it never leaks to the consumer. The interface only exposes the same `FetchError | JsonError` as the original.
 
 {% filename name="service/cached-pokeapi.ts" %}
 
 ```ts
-import { Effect } from "effect"
-import { PokeApi, type Pokemon, type FetchError, type JsonError } from "./pokeapi"
-import { cacheService } from "./cache"
+import { Context, Effect, Layer } from "effect"
+import { PokeApi, PokeApiLive, type Pokemon, FetchError, JsonError } from "./pokeapi"
+import { Cache, CacheLive } from "./cache"
 
 /** Service Definition — only PokeApi errors are exposed **/
 
-interface CachedPokeApi {
-    readonly getPokemon: (id: number) => Effect.Effect<Pokemon, FetchError | JsonError>
-}
+export class CachedPokeApi extends Context.Tag("CachedPokeApi")<
+    CachedPokeApi,
+    {
+        readonly getPokemon: (
+            id: number,
+        ) => Effect.Effect<Pokemon, FetchError | JsonError>
+    }
+>() {}
 
-/** Implementation **/
+/** Live Implementation — depends on PokeApi + Cache **/
 
-export const cachedPokeApi: CachedPokeApi = {
-    getPokemon: (id) =>
-        cacheService.get<Pokemon>(`pokemon:${id}`).pipe(
-            // On cache miss, fetch from API and populate cache
-            Effect.catchTag("CacheMissError", () =>
-                PokeApi.getPokemon(id).pipe(
-                    Effect.tap((pokemon) => cacheService.set(`pokemon:${id}`, pokemon, 60_000)),
-                    Effect.provide(PokeApi.Default)
-                )
-            )
-        ),
-}
+export const CachedPokeApiLive = Layer.effect(
+    CachedPokeApi,
+    Effect.gen(function* () {
+        const pokeApi = yield* PokeApi
+        const cache = yield* Cache
+
+        return {
+            getPokemon: (id: number) =>
+                cache.get<Pokemon>(`pokemon:${id}`).pipe(
+                    // On cache miss, fetch from API and populate cache
+                    Effect.catchTag("CacheMissError", () =>
+                        pokeApi.getPokemon(id).pipe(
+                            Effect.tap((pokemon) =>
+                                cache.set(`pokemon:${id}`, pokemon, 60_000),
+                            ),
+                        ),
+                    ),
+                ),
+        }
+    }),
+)
+
+// Wire dependencies into a complete layer
+export const MainLive = CachedPokeApiLive.pipe(
+    Layer.provide(PokeApiLive),
+    Layer.provide(CacheLive),
+)
 ```
 
 {% /filename %}
 
-The router is unchanged — it only handles `FetchError` and `JsonError`, with no knowledge of the cache.
+The router only handles `FetchError` and `JsonError`, with no knowledge of the cache.
 
 {% filename name="router.ts" %}
 
 ```ts
 import { base } from './base'
 import { Effect } from 'effect'
-import { cachedPokeApi } from './service/cached-pokeapi'
+import { CachedPokeApi, MainLive } from './service/cached-pokeapi'
 import { z } from 'zod'
 import { runEffect } from './helper'
 
@@ -214,11 +250,15 @@ export const router = {
         .input(z.object({ id: z.number() }))
         .handler(async ({ input, errors }) => {
             return await runEffect(
-                cachedPokeApi.getPokemon(input.id).pipe(
+                Effect.gen(function* () {
+                    const pokeApi = yield* CachedPokeApi
+                    return yield* pokeApi.getPokemon(input.id)
+                }).pipe(
                     Effect.catchTags({
                         FetchError: () => Effect.die(errors.FETCH_ERROR()),
                         JsonError: () => Effect.die(errors.JSON_ERROR()),
-                    })
+                    }),
+                    Effect.provide(MainLive)
                 )
             )
         })
