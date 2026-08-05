@@ -4,6 +4,7 @@ description: Different ways to generate a pdf file
 tags:
     - pdf
     - html
+    - takumi
 ---
 
 ## Option 1: Using the browsers print feature
@@ -88,5 +89,34 @@ export async function GET() {
             'Content-Disposition': 'attachment; filename="page-print.pdf"' // use 'inline' instead of 'attachment' to display the PDF in the browser
         }
     });
+}
+```
+
+## Option 4: Using Takumi PDF
+
+[takumi-pdf](https://github.com/kane50613/takumi/tree/master/takumi-pdf-js) renders HTML to a paged, selectable-text PDF via WebAssembly — no Chromium required.
+
+Install with `pnpm install takumi-pdf takumi-js`, then use it in a SvelteKit `+server.ts` endpoint:
+
+```ts
+import { fromHtml } from 'takumi-js/helpers/html';
+import { render } from 'takumi-pdf';
+
+export async function GET() {
+	const { node, stylesheets } = await fromHtml(`
+		<h1>Hello world</h1>
+	`);
+
+	const pdf = await render(node, {
+		size: 'a4',
+		stylesheets
+	});
+
+	return new Response(pdf, {
+		headers: {
+			'Content-Type': 'application/pdf',
+			'Content-Disposition': 'attachment; filename="document.pdf"' // use "inline" instead of "attachment" to display the pdf in the browser
+		}
+	});
 }
 ```
