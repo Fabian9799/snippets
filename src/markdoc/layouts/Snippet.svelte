@@ -4,6 +4,7 @@
 	import { onMount, type Snippet } from 'svelte';
 	import { innerHeight } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
+	import Search from '$lib/Search.svelte';
 
 	interface Props {
 		title: string;
@@ -115,31 +116,34 @@
 	<article
 		class="md:max-w-2xl xl:max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
 	>
-		<div class="flex gap-2 flex-wrap">
-			<a
-				aria-label="Home"
-				href={resolve('/')}
-				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
-			>
-				<svg
-					class="size-4"
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 256 256"
-				>
-					<rect width="256" height="256" fill="none" />
-					<path
-						class="fill-current"
-						d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"
-					/>
-				</svg>
-			</a>
-			{#each tags as tag (tag)}
+		<div class="flex gap-2 flex-wrap items-center justify-between">
+			<div class="flex gap-2 flex-wrap">
 				<a
-					href={resolve('/tags/[tag]', { tag })}
-					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
-					>#{tag}</a
+					aria-label="Home"
+					href={resolve('/')}
+					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest p-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
 				>
-			{/each}
+					<svg
+						class="size-4"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 256 256"
+					>
+						<rect width="256" height="256" fill="none" />
+						<path
+							class="fill-current"
+							d="M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z"
+						/>
+					</svg>
+				</a>
+				{#each tags as tag (tag)}
+					<a
+						href={resolve('/tags/[tag]', { tag })}
+						class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+						>#{tag}</a
+					>
+				{/each}
+			</div>
+			<Search />
 		</div>
 
 		<!-- Mobile TOC -->
