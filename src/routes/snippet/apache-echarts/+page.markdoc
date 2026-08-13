@@ -3,8 +3,8 @@ title: Svelte Apache Echarts
 description: How to use apache echarts with svelte
 publishedAt: "2025-09-30T15:31:06+02:00"
 tags:
-    - svelte
-    - chart
+  - svelte
+  - chart
 ---
 
 ## Example
@@ -27,7 +27,7 @@ tags:
 		const chart = echarts.init(node)
 		chart.setOption(data)
 	}
-	
+
 </script>
 
 <div style="width: 100%; height: 300px" use:chart/>

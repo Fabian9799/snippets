@@ -1,9 +1,17 @@
-export type SnippetMeta = {
-	title: string;
-	description: string;
+import { z } from 'zod';
+
+const snippetFrontmatterSchema = z.object({
+	title: z.string().min(1),
+	description: z.string().min(1),
+	tags: z.array(z.string().min(1)),
+	publishedAt: z.preprocess(
+		(value) => (value instanceof Date ? value.toISOString() : value),
+		z.iso.datetime({ offset: true })
+	)
+});
+
+export type SnippetMeta = z.infer<typeof snippetFrontmatterSchema> & {
 	slug: string;
-	tags: string[];
-	publishedAt: string;
 };
 
 export function listSnippets(): SnippetMeta[] {
@@ -11,29 +19,23 @@ export function listSnippets(): SnippetMeta[] {
 		eager: true
 	});
 
-	const snippets = Object.entries(modules).map(([filepath, module]) => {
-		const { frontmatter } = module as {
-			frontmatter: {
-				title: string;
-				description: string;
-				tags: string[];
-				publishedAt: string;
-			};
-		};
-
+	return Object.entries(modules).map(([filepath, module]) => {
 		const parts = filepath.split('/+page.markdoc')[0].split('/');
 		const slug = parts[parts.length - 1];
+		const frontmatter = (module as { frontmatter: unknown }).frontmatter;
+		const result = snippetFrontmatterSchema.safeParse(frontmatter);
+
+		if (!result.success) {
+			throw new Error(
+				`Invalid frontmatter in src/routes/snippet/${slug}/+page.markdoc\n${z.prettifyError(result.error)}`
+			);
+		}
 
 		return {
-			title: frontmatter.title,
-			description: frontmatter.description,
-			slug,
-			tags: frontmatter.tags,
-			publishedAt: frontmatter.publishedAt
+			...result.data,
+			slug
 		};
 	});
-
-	return snippets;
 }
 
 export function getRelatedSnippets(
