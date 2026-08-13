@@ -1,6 +1,7 @@
 ---
 title: Metadata API
 description: How to create a simple api to get metadata from a url
+publishedAt: "2025-05-26T02:45:22+02:00"
 tags:
   - javascript
   - sveltekit

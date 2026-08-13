@@ -3,6 +3,7 @@ export type SnippetMeta = {
 	description: string;
 	slug: string;
 	tags: string[];
+	publishedAt: string;
 };
 
 export function listSnippets(): SnippetMeta[] {
@@ -16,6 +17,7 @@ export function listSnippets(): SnippetMeta[] {
 				title: string;
 				description: string;
 				tags: string[];
+				publishedAt: string;
 			};
 		};
 
@@ -26,7 +28,8 @@ export function listSnippets(): SnippetMeta[] {
 			title: frontmatter.title,
 			description: frontmatter.description,
 			slug,
-			tags: frontmatter.tags
+			tags: frontmatter.tags,
+			publishedAt: frontmatter.publishedAt
 		};
 	});
 

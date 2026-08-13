@@ -1,6 +1,7 @@
 ---
 title: Server Sent Events with SvelteKit
 description: How to use Server Sent Events with SvelteKit
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - javascript
   - server-sent-events

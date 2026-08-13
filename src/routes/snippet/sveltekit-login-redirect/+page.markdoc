@@ -1,6 +1,7 @@
 ---
 title: Sveltekit Login Redirect
 description: A basic example on how to redirect the user back to the previous page after login.
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - sveltekit
   - authentication

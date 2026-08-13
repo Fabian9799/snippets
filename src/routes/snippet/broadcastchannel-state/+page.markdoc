@@ -1,6 +1,7 @@
 ---
 title: Svelte Brodcast Channel State
 description: How to use the broadcast channel api with a state
+publishedAt: "2025-05-26T02:45:22+02:00"
 tags:
   - svelte
   - broadcastchannel

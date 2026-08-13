@@ -1,6 +1,7 @@
 ---
 title: How to use oRPC with SvelteKit
 description: A basic oRPC example with sveltekit
+publishedAt: "2026-05-26T05:58:02+02:00"
 tags:
   - sveltekit
   - orpc

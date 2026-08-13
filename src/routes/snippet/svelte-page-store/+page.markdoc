@@ -1,6 +1,7 @@
 ---
 title: Sveltekit page store
 description: How to use the sveltekit page store to access url parameters
+publishedAt: "2025-05-26T02:45:22+02:00"
 tags:
   - svelte
   - sveltekit

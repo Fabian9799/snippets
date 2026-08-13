@@ -1,6 +1,7 @@
 ---
 title: Weather API
 description: A simple function to return data with a weather api and some icons
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - api
   - weather

@@ -1,6 +1,7 @@
 ---
 title: Discord oAuth with Sveltekit
 description: How to log in to a website with discord
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - authentication
   - sveltekit

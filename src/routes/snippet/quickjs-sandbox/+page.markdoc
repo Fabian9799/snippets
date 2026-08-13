@@ -1,6 +1,7 @@
 ---
 title: QuickJS sandbox
 description: A basic example on how to run user provided code in a sandbox in the browser with svelte
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - sandbox
   - javascript

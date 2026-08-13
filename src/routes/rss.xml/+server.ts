@@ -14,13 +14,16 @@ function escapeXml(value: string) {
 }
 
 export const GET: RequestHandler = async () => {
-	const snippets = listSnippets();
+	const snippets = listSnippets().sort(
+		(a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)
+	);
 	const items = snippets
 		.map(
 			(snippet) => `    <item>
       <title>${escapeXml(snippet.title)}</title>
       <link>${SITE_URL}/snippet/${snippet.slug}</link>
       <guid>${SITE_URL}/snippet/${snippet.slug}</guid>
+      <pubDate>${new Date(snippet.publishedAt).toUTCString()}</pubDate>
       <description>${escapeXml(snippet.description)}</description>
       ${snippet.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join('\n      ')}
     </item>`

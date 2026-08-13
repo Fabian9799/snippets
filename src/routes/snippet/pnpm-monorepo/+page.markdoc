@@ -1,6 +1,7 @@
 ---
 title: Pnpm Monorepo
 description: How to create a monorepo with pnpm workspaces
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - monorepo
   - pnpm

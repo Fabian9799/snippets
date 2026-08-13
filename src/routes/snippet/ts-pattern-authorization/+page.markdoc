@@ -1,6 +1,7 @@
 ---
 title: Authorization with ts-pattern
 description: A simple example on how to use ts-pattern to authorize actions
+publishedAt: "2025-04-07T19:21:53+02:00"
 tags:
   - authorization
   - javascript

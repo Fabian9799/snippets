@@ -1,6 +1,7 @@
 ---
 title: How to use MSW with SvelteKit
 description: Mock API requests in development with Mock Service Worker
+publishedAt: "2026-06-17T21:04:10+02:00"
 tags:
   - sveltekit
   - msw

@@ -1,6 +1,7 @@
 ---
 title: Hono Server Sent Events
 description: How to Server Sent Events with Hono
+publishedAt: "2025-05-26T02:45:22+02:00"
 tags:
     - javascript
     - hono

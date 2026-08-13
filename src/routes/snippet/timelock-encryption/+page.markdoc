@@ -1,6 +1,7 @@
 ---
 title: Timelock encryption
 description: Timelock encryption allows you to encrypt data that can only be decrypted after a certain time
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - javascript
   - timelock

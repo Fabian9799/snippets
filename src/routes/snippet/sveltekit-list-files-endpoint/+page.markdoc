@@ -1,6 +1,7 @@
 ---
 title: 'Sveltekit Files endpoint'
 description: 'How to list files with sveltekit'
+publishedAt: "2025-04-01T21:52:31+02:00"
 tags:
   - sveltekit
   - vite
