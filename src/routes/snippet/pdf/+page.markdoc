@@ -2,12 +2,13 @@
 title: Generate a pdf file
 description: Different ways to generate a pdf file
 tags:
-    - pdf
-    - html
-    - takumi
+  - pdf
+  - html
+  - takumi
 ---
 
 ## Option 1: Using the browsers print feature
+
 Use `window.print()` to print the current page.
 
 To hide certain elements from the print view you can use `@media print` in your css.
@@ -15,22 +16,26 @@ To hide certain elements from the print view you can use `@media print` in your 
 ```html
 <button onclick="window.print()">Print</button>
 
-<p class="no-print">I'm visible on the website but hidden on the printed page.</p>
-<p class="print">I'm invisible on the website but visible on the printed page.</p>
+<p class="no-print">
+  I'm visible on the website but hidden on the printed page.
+</p>
+<p class="print">
+  I'm invisible on the website but visible on the printed page.
+</p>
 
 <style>
-    .print {
-        display: none;
-    }
+  .print {
+    display: none;
+  }
 
-    @media print {
-        .no-print {
-            display: none;
-        }
-        .print {
-            display: block;
-        }
+  @media print {
+    .no-print {
+      display: none;
     }
+    .print {
+      display: block;
+    }
+  }
 </style>
 ```
 
@@ -73,50 +78,50 @@ You can use a headless browser like [Playwright](https://playwright.dev/) to gen
 Here is a basic example of using it with a sveltekit `+server.ts` endpoint:
 
 ```ts
-import { chromium } from 'playwright';
+import { chromium } from "playwright";
 
 export async function GET() {
-    const browser = await chromium.launch();
-    const page = await browser.newPage();
-    await page.goto('https://playwright.dev/');
-    await page.emulateMedia({ media: 'print' });
-    const pdf = await page.pdf();
-    await browser.close();
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto("https://playwright.dev/");
+  await page.emulateMedia({ media: "print" });
+  const pdf = await page.pdf();
+  await browser.close();
 
-    return new Response(pdf, {
-        headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename="page-print.pdf"' // use 'inline' instead of 'attachment' to display the PDF in the browser
-        }
-    });
+  return new Response(pdf, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'attachment; filename="page-print.pdf"', // use 'inline' instead of 'attachment' to display the PDF in the browser
+    },
+  });
 }
 ```
 
 ## Option 4: Using Takumi PDF
 
-[takumi-pdf](https://github.com/kane50613/takumi/tree/master/takumi-pdf-js) renders HTML to a paged, selectable-text PDF via WebAssembly — no Chromium required.
+[takumi-pdf](https://takumi.kane.tw/docs/pdf) renders HTML to a paged, selectable-text PDF via WebAssembly — no Chromium required.
 
 Install with `pnpm install takumi-pdf takumi-js`, then use it in a SvelteKit `+server.ts` endpoint:
 
 ```ts
-import { fromHtml } from 'takumi-js/helpers/html';
-import { render } from 'takumi-pdf';
+import { fromHtml } from "takumi-js/helpers/html";
+import { render } from "takumi-pdf";
 
 export async function GET() {
-	const { node, stylesheets } = await fromHtml(`
+  const { node, stylesheets } = await fromHtml(`
 		<h1>Hello world</h1>
 	`);
 
-	const pdf = await render(node, {
-		size: 'a4',
-		stylesheets
-	});
+  const pdf = await render(node, {
+    size: "a4",
+    stylesheets,
+  });
 
-	return new Response(pdf, {
-		headers: {
-			'Content-Type': 'application/pdf',
-			'Content-Disposition': 'attachment; filename="document.pdf"' // use "inline" instead of "attachment" to display the pdf in the browser
-		}
-	});
+  return new Response(pdf, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'attachment; filename="document.pdf"', // use "inline" instead of "attachment" to display the pdf in the browser
+    },
+  });
 }
 ```
