@@ -7,6 +7,11 @@
   import { getRelatedSnippets } from "$lib/snippets";
   import { GITHUB_EDIT_URL } from "$lib/constants";
   import Article from "$lib/Article.svelte";
+  import {
+    addFavorite,
+    favorites,
+    removeFavorite,
+  } from "$lib/service/favorite";
 
   interface Props {
     title: string;
@@ -19,6 +24,15 @@
   let slug = $derived(page.url.pathname.split("/").pop() ?? "");
   let related = $derived(slug ? getRelatedSnippets(slug, tags) : []);
   let editUrl = $derived(`${GITHUB_EDIT_URL}/${slug}/+page.markdoc`);
+  let favorited = $derived(favorites.current.includes(slug));
+
+  function toggleFavorite() {
+    if (favorited) {
+      removeFavorite(slug);
+    } else {
+      addFavorite(slug);
+    }
+  }
 
   let article: HTMLDivElement | undefined;
   let tocItems: Array<{ text: string; href: string; level: number }> = $state(
@@ -128,17 +142,49 @@
           >
         {/each}
       </div>
-      <!-- eslint-disable svelte/no-navigation-without-resolve -->
-      <a
-        href={editUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
-        title="Edit this snippet on GitHub"
-      >
-        Edit this snippet
-      </a>
-      <!-- eslint-enable svelte/no-navigation-without-resolve -->
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class={[
+            "rounded-md p-1 hover:text-rose-500 cursor-pointer",
+            favorited && "text-rose-500",
+          ]}
+          aria-pressed={favorited}
+          aria-label={favorited
+            ? "Remove from favorites"
+            : "Add to favorites"}
+          title={favorited ? "Remove from favorites" : "Add to favorites"}
+          onclick={toggleFavorite}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill={favorited ? "currentColor" : "none"}
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+        </button>
+        <!-- eslint-disable svelte/no-navigation-without-resolve -->
+        <a
+          href={editUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+          title="Edit this snippet on GitHub"
+        >
+          Edit this snippet
+        </a>
+        <!-- eslint-enable svelte/no-navigation-without-resolve -->
+      </div>
     </div>
 
     <!-- Mobile TOC -->
