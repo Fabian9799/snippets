@@ -25,7 +25,9 @@ const config = {
 	],
 	extensions: ['.markdoc', '.svelte'],
 	kit: {
-		adapter: adapter(),
+		adapter: adapter({
+			fallback: '404.html'
+		}),
 
 	},
 	vitePlugin: {

@@ -1,4 +1,11 @@
-export function listSnippets() {
+export type SnippetMeta = {
+	title: string;
+	description: string;
+	slug: string;
+	tags: string[];
+};
+
+export function listSnippets(): SnippetMeta[] {
 	const modules = import.meta.glob('../routes/snippet/**/*.markdoc', {
 		eager: true
 	});
@@ -9,12 +16,11 @@ export function listSnippets() {
 				title: string;
 				description: string;
 				tags: string[];
-			}
+			};
 		};
 
 		const parts = filepath.split('/+page.markdoc')[0].split('/');
 		const slug = parts[parts.length - 1];
-
 
 		return {
 			title: frontmatter.title,
@@ -25,4 +31,41 @@ export function listSnippets() {
 	});
 
 	return snippets;
+}
+
+export function getRelatedSnippets(
+	slug: string,
+	tags: string[],
+	limit = 4
+): SnippetMeta[] {
+	const tagSet = new Set(tags);
+
+	return listSnippets()
+		.filter((snippet) => snippet.slug !== slug)
+		.map((snippet) => ({
+			snippet,
+			score: snippet.tags.filter((tag) => tagSet.has(tag)).length
+		}))
+		.filter(({ score }) => score > 0)
+		.sort(
+			(a, b) =>
+				b.score - a.score ||
+				a.snippet.title.localeCompare(b.snippet.title)
+		)
+		.slice(0, limit)
+		.map(({ snippet }) => snippet);
+}
+
+export function listTagsWithCounts() {
+	const counts = new Map<string, number>();
+
+	for (const snippet of listSnippets()) {
+		for (const tag of snippet.tags) {
+			counts.set(tag, (counts.get(tag) ?? 0) + 1);
+		}
+	}
+
+	return [...counts.entries()]
+		.map(([tag, count]) => ({ tag, count }))
+		.sort((a, b) => a.tag.localeCompare(b.tag));
 }

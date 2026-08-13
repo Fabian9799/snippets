@@ -5,6 +5,7 @@
   import { page } from "$app/state";
   import LoadingIndicator from "$lib/LoadingIndicator.svelte";
   import Search from "$lib/Search.svelte";
+  import { SITE_URL } from "$lib/site";
   let { children } = $props();
 
   onNavigate((navigation) => {
@@ -21,6 +22,12 @@
 
 <svelte:head>
   <meta name="theme-color" content="#dc084a" />
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title="Snippets RSS"
+    href="{SITE_URL}/rss.xml"
+  />
 </svelte:head>
 
 <a
@@ -56,6 +63,29 @@
         ]}>All Tags</a
       >
       <Search />
+      <a
+        href={resolve("/rss.xml")}
+        class="inline-flex size-10 items-center justify-center rounded-md hover:text-rose-500"
+        title="RSS feed"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 11a9 9 0 0 1 9 9" />
+          <path d="M4 4a16 16 0 0 1 16 16" />
+          <circle cx="5" cy="19" r="1" />
+        </svg>
+        <span class="sr-only">RSS feed</span>
+      </a>
     </div>
   </div>
 </nav>

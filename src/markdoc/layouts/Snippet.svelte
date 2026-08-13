@@ -4,6 +4,9 @@
 	import { onMount, type Snippet } from 'svelte';
 	import { innerHeight } from 'svelte/reactivity/window';
 	import { resolve } from '$app/paths';
+	import { getRelatedSnippets } from '$lib/snippets';
+	import { GITHUB_EDIT_URL } from '$lib/site';
+	import Article from '$lib/Article.svelte';
 
 	interface Props {
 		title: string;
@@ -13,7 +16,9 @@
 	}
 
 	let { title, tags = [], description, children }: Props = $props();
-	let slug = $derived(page.url.pathname.split('/').pop());
+	let slug = $derived(page.url.pathname.split('/').pop() ?? '');
+	let related = $derived(slug ? getRelatedSnippets(slug, tags) : []);
+	let editUrl = $derived(`${GITHUB_EDIT_URL}/${slug}/+page.markdoc`);
 
 	let article: HTMLDivElement | undefined;
 	let tocItems: Array<{ text: string; href: string; level: number }> = $state(
@@ -115,14 +120,27 @@
 	<article
 		class="md:max-w-2xl xl:max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
 	>
-		<div class="flex gap-2 flex-wrap">
-			{#each tags as tag (tag)}
-				<a
-					href={resolve('/tags/[tag]', { tag })}
-					class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
-					>#{tag}</a
-				>
-			{/each}
+		<div class="flex gap-2 flex-wrap items-center justify-between">
+			<div class="flex gap-2 flex-wrap">
+				{#each tags as tag (tag)}
+					<a
+						href={resolve('/tags/[tag]', { tag })}
+						class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+						>#{tag}</a
+					>
+				{/each}
+			</div>
+			<!-- eslint-disable svelte/no-navigation-without-resolve -->
+			<a
+				href={editUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+				title="Edit this snippet on GitHub"
+			>
+				Edit this snippet
+			</a>
+			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 
 		<!-- Mobile TOC -->
@@ -195,6 +213,24 @@
 		>
 			{@render children?.()}
 		</div>
+
+		{#if related.length > 0}
+			<section class="mt-4 pt-6 border-t border-zinc-800">
+				<h2 class="text-xl font-semibold mb-4">Related snippets</h2>
+				<ul class="grid sm:grid-cols-2 gap-4">
+					{#each related as snippet (snippet.slug)}
+						<li>
+							<Article
+								slug={snippet.slug}
+								title={snippet.title}
+								description={snippet.description}
+								tags={snippet.tags}
+							/>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 	</article>
 
 	<!-- Desktop Sidebar TOC -->

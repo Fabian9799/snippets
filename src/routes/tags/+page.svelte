@@ -32,13 +32,15 @@
     <p class="text-3xl font-bold my-auto">Tags</p>
   </div>
   <ul class="flex flex-wrap gap-2 leading-8">
-    <!-- eslint-disable-next-line svelte/require-each-key -->
-    {#each data.tags as tag (tag)}
+    {#each data.tags as { tag, count } (tag)}
       <li>
         <a
           href={resolve("/tags/[tag]", { tag })}
           class="uppercase rounded-full hover:border-rose-600 hover:ring-3 ring-rose-600 font-semibold tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200"
-          >#{tag}</a
+          >#{tag}
+          <span class="normal-case tracking-normal text-zinc-400 font-medium"
+            >{count}</span
+          ></a
         >
       </li>
     {/each}
