@@ -221,6 +221,7 @@
                 title={snippet.title}
                 description={snippet.description}
                 tags={snippet.tags}
+                size="sm"
               />
             </li>
           {/each}
