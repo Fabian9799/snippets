@@ -45,7 +45,9 @@
   aria-label="Main"
   class="sticky top-0 z-40 h-14 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md"
 >
-  <div class="flex h-full items-center justify-between gap-4 px-4 lg:px-8">
+  <div
+    class="flex h-full w-full max-w-2xl lg:max-w-4xl mx-auto items-center justify-between gap-4 px-2"
+  >
     <a
       href={resolve("/")}
       class="text-xl font-bold hover:text-rose-500"
