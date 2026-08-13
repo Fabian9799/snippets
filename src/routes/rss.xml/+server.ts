@@ -1,5 +1,5 @@
 import { listSnippets } from '$lib/snippets';
-import { SITE_URL } from '$lib/site';
+import { SITE_URL } from '$lib/constants';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;

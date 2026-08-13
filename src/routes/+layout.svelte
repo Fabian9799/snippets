@@ -5,7 +5,7 @@
   import { page } from "$app/state";
   import LoadingIndicator from "$lib/LoadingIndicator.svelte";
   import Search from "$lib/Search.svelte";
-  import { SITE_URL } from "$lib/site";
+  import { SITE_URL } from "$lib/constants";
   let { children } = $props();
 
   onNavigate((navigation) => {
