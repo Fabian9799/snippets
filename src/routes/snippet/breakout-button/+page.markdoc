@@ -1,0 +1,34 @@
+---
+title: CSS breakout button
+description: How to make an entire card clickable without nested links
+tags:
+  - html
+  - css
+  - tailwind
+---
+
+A basic example of how to make an entire card clickable while keeping a second link (like a tag or a "View" button) working on its own. Nested `<a>` elements are invalid HTML, so the title link stretches a pseudo-element over the card instead.
+
+## Basic usage
+
+```html
+<div class="relative flex justify-between">
+  <a href="#" class="after:absolute after:inset-0 after:content-['']">
+    Card title
+  </a>
+
+  <a href="#" class="relative z-10">
+    View
+  </a>
+</div>
+```
+
+1. The card is `relative`. This is the positioning context for the overlay.
+2. The title link's `after:absolute after:inset-0 after:content-['']` stretches an invisible hit area over the whole card.
+3. The second link uses `relative z-10` so it sits above that overlay and stays independently clickable.
+
+{% alert %}
+If other content (like a description) sits on top of the overlay and blocks clicks, add `pointer-events-none` to that content and `pointer-events-auto` to the links.
+{% /alert %}
+
+For a more detailed example with a semantic `<button>` take a look at [Andy Bell's article on Piccalilli](https://piccalil.li/blog/create-a-semantic-break-out-button-to-make-an-entire-element-clickable/).
