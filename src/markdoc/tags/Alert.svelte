@@ -25,7 +25,7 @@
     /></svg
   >
 
-  <div class="prose-invert prose prose-rose flex-1">
+  <div class="prose-invert prose prose-rose flex-1 mt-0.5">
     {@render children?.()}
   </div>
 </div>

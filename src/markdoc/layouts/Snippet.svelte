@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import { generateTableOfContents } from "$lib/toc";
   import { onMount, type Snippet } from "svelte";
+  import { SvelteDate } from "svelte/reactivity";
   import { innerHeight } from "svelte/reactivity/window";
   import { resolve } from "$app/paths";
   import { getRelatedSnippets } from "$lib/snippets";
@@ -17,14 +18,29 @@
     title: string;
     tags?: string[];
     description: string;
+    publishedAt: string;
     children?: Snippet;
   }
 
-  let { title, tags = [], description, children }: Props = $props();
+  let {
+    title,
+    tags = [],
+    description,
+    publishedAt,
+    children,
+  }: Props = $props();
   let slug = $derived(page.url.pathname.split("/").pop() ?? "");
   let related = $derived(slug ? getRelatedSnippets(slug, tags) : []);
   let editUrl = $derived(`${GITHUB_EDIT_URL}/${slug}/+page.markdoc`);
   let favorited = $derived(favorites.current.includes(slug));
+  let outdated = $derived(isOlderThanOneYear(publishedAt));
+
+  function isOlderThanOneYear(date: string) {
+    const publishedDate = new Date(date);
+    const oneYearAgo = new SvelteDate();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    return publishedDate < oneYearAgo;
+  }
 
   function toggleFavorite() {
     if (favorited) {
@@ -132,6 +148,34 @@
   <article
     class="md:max-w-2xl xl:max-w-4xl mx-auto p-4 lg:border-r lg:border-zinc-800 w-full"
   >
+    {#if outdated}
+      <div
+        role="alert"
+        class="border-2 mb-4 rounded-sm border-amber-600 bg-amber-600/10 p-2 flex gap-2 text-white tracking-wide items-center"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="stroke-amber-600 h-8"
+          ><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path
+            d="M12 8h.01"
+          /></svg
+        >
+
+        <div class="flex-1">
+          This post was published more than a year ago and may no longer reflect
+          current best practices.
+        </div>
+      </div>
+    {/if}
+
     <div class="flex gap-2 flex-wrap items-center justify-between">
       <div class="flex gap-2 flex-wrap">
         {#each tags as tag (tag)}
@@ -150,9 +194,7 @@
             favorited && "text-rose-500",
           ]}
           aria-pressed={favorited}
-          aria-label={favorited
-            ? "Remove from favorites"
-            : "Add to favorites"}
+          aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
           title={favorited ? "Remove from favorites" : "Add to favorites"}
           onclick={toggleFavorite}
         >
