@@ -1,6 +1,6 @@
 import Markdoc from '@markdoc/markdoc';
 import { json } from '@sveltejs/kit';
-import { load as loadYaml } from 'js-yaml';
+import { parse as parseYaml } from 'yaml';
 import { markdocToPlainText } from './text';
 
 export type SnippetSearchData = {
@@ -28,7 +28,7 @@ export const GET = async () => {
 			const ast = Markdoc.parse(content);
 			const frontmatter = (
 				ast.attributes.frontmatter
-					? loadYaml(ast.attributes.frontmatter)
+					? parseYaml(ast.attributes.frontmatter)
 					: {}
 			) as {
 				title: string;
