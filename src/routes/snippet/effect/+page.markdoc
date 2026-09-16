@@ -1,0 +1,185 @@
+---
+title: Effect
+description: Random effect stuff
+publishedAt: "2026-09-16T12:42:00+02:00"
+tags:
+  - effect
+---
+
+## Installing effect
+
+Follow this page to install effect: [https://effect.website/docs/v4/getting-started/installation](https://effect.website/docs/v4/getting-started/installation)
+
+Follow this page to install the effect LSP: [https://effect.website/docs/v4/getting-started/devtools](https://effect.website/docs/v4/getting-started/installation)
+
+## Basics
+
+### The effect type
+
+```
+         ┌─── Represents the success type
+         │        ┌─── Represents the error type
+         │        │      ┌─── Represents required dependencies
+         ▼        ▼      ▼
+Effect<Success, Error, Requirements>
+```
+
+Effect models three ways a computation can finish, tracked (partially) in the `Effect<A, E, R>` type signature
+
+#### Success
+
+The effect completes normally and produces a value of type `A`
+
+```ts
+const success = Effect.succeed(42);
+// Effect<number, never, never>
+```
+
+#### Fail
+
+An expected typed error. Something you declared up front and plan to handle. It shows up in the E channel.
+Failures are recoverable: `Effect.catchAll`, `Effect.catchTag`, etc. can intercept them.
+
+```ts
+const failure = Effect.fail(new Error("Something went wrong"));
+// Effect<never, Error, never>
+```
+
+#### Die
+
+An unexpected error. It's deliberately not tracked in the E type parameter, since it isn't something callers are meant to plan around.
+
+```ts
+const defect = Effect.die(new Error("Unexpected!"));
+// Effect<never, never, never>
+```
+
+Ordinary error handling (`catchAll`, `catchTag`) lets defects pass straight through. You need `Effect.catchAllDefect` to reach them.
+
+### Running an effect
+
+```ts
+import { Effect } from "effect";
+
+const program = Effect.gen(function* () {
+  console.log("Hello, World!");
+  return 1;
+});
+
+const result = Effect.runSync(program);
+// Output: Hello, World!
+
+console.log(result);
+
+result; // => 1
+```
+
+## Services
+
+### Defining a service
+
+Define a service with `Context.Tag`, then provide a live implementation with `Layer`.
+
+```ts
+import { Context, Data, Effect, Layer } from "effect";
+
+// Simple Pokemon type (just the basics)
+export interface Pokemon {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  types: Array<{
+    type: {
+      name: string;
+    };
+  }>;
+  sprites: {
+    front_default: string | null;
+  };
+}
+
+/** Errors **/
+
+export class FetchError extends Data.TaggedError("FetchError")<{}> {}
+export class JsonError extends Data.TaggedError("JsonError")<{}> {}
+
+/** Service Definition **/
+
+export class PokeApi extends Context.Tag("PokeApi")<
+  PokeApi,
+  {
+    readonly getPokemon: (
+      id: number,
+    ) => Effect.Effect<Pokemon, FetchError | JsonError>;
+  }
+>() {}
+
+/** Live Implementation **/
+
+export const PokeApiLive = Layer.succeed(PokeApi, {
+  getPokemon: (id: number) =>
+    Effect.gen(function* () {
+      const response = yield* Effect.tryPromise({
+        try: () => fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`),
+        catch: () => new FetchError(),
+      });
+
+      if (!response.ok) {
+        return yield* Effect.fail(new FetchError());
+      }
+
+      return yield* Effect.tryPromise({
+        try: () => response.json() as Promise<Pokemon>,
+        catch: () => new JsonError(),
+      });
+    }),
+});
+```
+
+### Using a service:
+
+```ts
+Effect.gen(function* () {
+  const pokeApi = yield* PokeApi;
+  return yield* pokeApi.getPokemon(input.id);
+}).pipe(Effect.provide(PokeApiLive));
+```
+
+## Helpers
+
+### Handle all errors
+
+Use this effect helper to make sure all errors need to be handled
+
+```ts
+import { Effect, Exit, Cause } from "effect";
+
+export async function runEffect<T>(
+  effect: Effect.Effect<T, never>,
+): Promise<T> {
+  const exit = await Effect.runPromiseExit(effect);
+
+  if (Exit.isFailure(exit)) {
+    console.error(Cause.pretty(exit.cause));
+    throw Cause.squash(exit.cause);
+  }
+
+  return exit.value;
+}
+```
+
+usage:
+
+```ts
+return await runEffect(
+  Effect.gen(function* () {
+    // some effect
+  }).pipe(
+    Effect.catchTags({
+      // handle errors
+      FetchError: () => Effect.die(errors.FETCH_ERROR()),
+    }),
+  ),
+);
+```
