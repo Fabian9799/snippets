@@ -137,13 +137,25 @@ export const PokeApiLive = Layer.succeed(PokeApi, {
 });
 ```
 
-### Using a service:
+### Using a service
 
 ```ts
 Effect.gen(function* () {
   const pokeApi = yield* PokeApi;
   return yield* pokeApi.getPokemon(input.id);
 }).pipe(Effect.provide(PokeApiLive));
+```
+
+### Splitting a service
+
+If you need to split a services implementation across multiple files use this:
+
+```ts
+type GetPokemon = (typeof PokeApi.Service)["getPokemon"];
+
+export const getPokemon: GetPokemon = (id) =>Effect.gen(function* () {
+    // ...
+}
 ```
 
 ## Helpers
