@@ -22,6 +22,6 @@
     @apply outline-none ring-3 ring-rose-600;
   }
   code {
-    @apply font-jetbrains text-sm;
+    @apply font-jetbrains text-sm leading-none;
   }
 }

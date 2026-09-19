@@ -167,6 +167,12 @@
 </div>
 
 <style>
+  .code-block :global(pre),
+  .code-block :global(code),
+  .code-block :global(.line) {
+    line-height: 1.1;
+  }
+
   .code-block :global(pre) {
     padding: 10px;
     overflow: auto;
