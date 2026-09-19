@@ -181,7 +181,7 @@
         {#each tags as tag (tag)}
           <a
             href={resolve("/tags/[tag]", { tag })}
-            class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+            class="uppercase font-bold rounded-xl hover:ring-3 ring-rose-600 text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
             >#{tag}</a
           >
         {/each}
@@ -220,10 +220,10 @@
           href={editUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="uppercase rounded-xl hover:ring-3 ring-rose-600 font-semibold text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
+          class="uppercase font-bold rounded-xl hover:ring-3 ring-rose-600 text-xs tracking-widest px-2 py-1 border border-zinc-700 bg-zinc-800/30 text-zinc-200 hover:border-rose-600"
           title="Edit this snippet on GitHub"
         >
-          Edit this snippet
+          Edit
         </a>
         <!-- eslint-enable svelte/no-navigation-without-resolve -->
       </div>
