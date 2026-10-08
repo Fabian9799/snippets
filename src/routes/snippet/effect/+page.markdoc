@@ -10,7 +10,7 @@ tags:
 
 Follow this page to install effect: [https://effect.website/docs/v4/getting-started/installation](https://effect.website/docs/v4/getting-started/installation)
 
-Follow this page to install the effect LSP: [https://effect.website/docs/v4/getting-started/devtools](https://effect.website/docs/v4/getting-started/installation)
+Follow this page to install the effect LSP: [https://effect.website/docs/v4/getting-started/devtools](https://effect.website/docs/v4/getting-started/devtools)
 
 ## Basics
 
@@ -38,7 +38,7 @@ const success = Effect.succeed(42);
 #### Fail
 
 An expected typed error. Something you declared up front and plan to handle. It shows up in the E channel.
-Failures are recoverable: `Effect.catchAll`, `Effect.catchTag`, etc. can intercept them.
+Failures are recoverable: `Effect.catch`, `Effect.catchTag`, etc. can intercept them.
 
 ```ts
 const failure = Effect.fail(new Error("Something went wrong"));
@@ -54,7 +54,7 @@ const defect = Effect.die(new Error("Unexpected!"));
 // Effect<never, never, never>
 ```
 
-Ordinary error handling (`catchAll`, `catchTag`) lets defects pass straight through. You need `Effect.catchAllDefect` to reach them.
+Ordinary error handling (`catch`, `catchTag`) lets defects pass straight through. You need `Effect.catchDefect` to reach them.
 
 ### Running an effect
 
@@ -78,7 +78,7 @@ result; // => 1
 
 ### Defining a service
 
-Define a service with `Context.Tag`, then provide a live implementation with `Layer`.
+Define a service with `Context.Service`, then provide a live implementation with `Layer`.
 
 ```ts
 import { Context, Data, Effect, Layer } from "effect";
@@ -106,14 +106,14 @@ export class JsonError extends Data.TaggedError("JsonError")<{}> {}
 
 /** Service Definition **/
 
-export class PokeApi extends Context.Tag("PokeApi")<
+export class PokeApi extends Context.Service<
   PokeApi,
   {
     readonly getPokemon: (
       id: number,
     ) => Effect.Effect<Pokemon, FetchError | JsonError>;
   }
->() {}
+>()("PokeApi") {}
 
 /** Live Implementation **/
 
@@ -153,9 +153,10 @@ If you need to split a services implementation across multiple files use this:
 ```ts
 type GetPokemon = (typeof PokeApi.Service)["getPokemon"];
 
-export const getPokemon: GetPokemon = (id) =>Effect.gen(function* () {
+export const getPokemon: GetPokemon = (id) =>
+  Effect.gen(function* () {
     // ...
-}
+  });
 ```
 
 ## Helpers
