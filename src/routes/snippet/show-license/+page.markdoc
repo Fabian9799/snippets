@@ -1,7 +1,8 @@
 ---
 title: Get License from package.json
 description: How to get and show the projects license from package.json
-publishedAt: "2025-04-01T21:52:31+02:00"
+publishedAt: "2025-04-01T00:00:00+02:00"
+updatedAt: "2025-04-01T00:00:00+02:00"
 tags:
   - svelte
   - javascript

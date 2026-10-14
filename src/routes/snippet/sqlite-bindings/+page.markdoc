@@ -1,7 +1,8 @@
 ---
 title: SQLite bindings
 description: How to hopefully fix the SQLite bindings error
-publishedAt: "2025-05-28T17:57:55+02:00"
+publishedAt: "2025-05-28T00:00:00+02:00"
+updatedAt: "2025-05-28T00:00:00+02:00"
 tags:
     - sqlite
     - database

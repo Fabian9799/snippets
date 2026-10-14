@@ -1,7 +1,8 @@
 ---
 title: Svelte ViewTransition
 description: How to use the view transition api with svelte
-publishedAt: "2025-05-26T02:45:22+02:00"
+publishedAt: "2025-05-26T00:00:00+02:00"
+updatedAt: "2025-05-26T00:00:00+02:00"
 tags:
   - svelte
   - viewtransition

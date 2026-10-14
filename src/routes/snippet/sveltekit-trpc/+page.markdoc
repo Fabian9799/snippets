@@ -1,7 +1,8 @@
 ---
 title: How to use TRPC with SvelteKit
 description: A basic trpc example with sveltekit
-publishedAt: "2025-06-07T18:04:09+02:00"
+publishedAt: "2025-06-07T00:00:00+02:00"
+updatedAt: "2025-06-07T00:00:00+02:00"
 tags:
   - sveltekit
   - trpc

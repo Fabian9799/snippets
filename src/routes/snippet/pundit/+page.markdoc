@@ -1,7 +1,8 @@
 ---
 title: Authorization with Pundit
 description: Pundit is a simple and powerful authorization library that allows you to define policies for your application.
-publishedAt: "2025-04-06T00:34:01+02:00"
+publishedAt: "2025-04-06T00:00:00+02:00"
+updatedAt: "2025-04-06T00:00:00+02:00"
 tags:
   - authorization
   - javascript

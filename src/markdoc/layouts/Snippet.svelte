@@ -19,6 +19,7 @@
     tags?: string[];
     description: string;
     publishedAt: string;
+    updatedAt: string;
     children?: Snippet;
   }
 
@@ -27,19 +28,20 @@
     tags = [],
     description,
     publishedAt,
+    updatedAt,
     children,
   }: Props = $props();
   let slug = $derived(page.url.pathname.split("/").pop() ?? "");
   let related = $derived(slug ? getRelatedSnippets(slug, tags) : []);
   let editUrl = $derived(`${GITHUB_EDIT_URL}/${slug}/+page.markdoc`);
   let favorited = $derived(favorites.current.includes(slug));
-  let outdated = $derived(isOlderThanOneYear(publishedAt));
+  let outdated = $derived(isOlderThanOneYear(updatedAt));
 
   function isOlderThanOneYear(date: string) {
-    const publishedDate = new Date(date);
+    const updatedDate = new Date(date);
     const oneYearAgo = new SvelteDate();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    return publishedDate < oneYearAgo;
+    return updatedDate < oneYearAgo;
   }
 
   function toggleFavorite() {
@@ -170,8 +172,8 @@
         >
 
         <div class="flex-1">
-          This post was published more than a year ago and may no longer reflect
-          current best practices.
+          This post has not been updated in over a year and may no longer
+          reflect current best practices.
         </div>
       </div>
     {/if}

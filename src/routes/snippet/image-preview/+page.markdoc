@@ -1,7 +1,8 @@
 ---
 title: Svelte image preview
 description: Preview a selected image
-publishedAt: "2025-09-30T15:31:06+02:00"
+publishedAt: "2025-09-30T00:00:00+02:00"
+updatedAt: "2025-09-30T00:00:00+02:00"
 tags:
   - svelte
   - image

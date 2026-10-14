@@ -1,7 +1,8 @@
 ---
 title: Drizzle ratelimit
 description: Basic ratelimiting example with drizzle
-publishedAt: "2025-09-12T17:13:36+02:00"
+publishedAt: "2025-09-12T00:00:00+02:00"
+updatedAt: "2025-09-12T00:00:00+02:00"
 tags:
     - javascript
     - drizzle
