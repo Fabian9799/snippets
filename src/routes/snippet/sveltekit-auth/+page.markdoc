@@ -2,7 +2,7 @@
 title: SvelteKit auth with seperate Backend
 description: SvelteKit auth with seperate Backend
 publishedAt: "2025-09-30T00:00:00+02:00"
-updatedAt: "2025-09-30T00:00:00+02:00"
+updatedAt: "2026-10-17T00:00:00+02:00"
 tags:
   - authentication
   - sveltekit
@@ -88,7 +88,7 @@ export {};
 
 ## Return user data to page
 
-{% filename name="src/routes/+page.svelte" %}
+{% filename name="src/routes/+page.server.ts" %}
 
 ```js
 export const load = async ({ locals }) => {
