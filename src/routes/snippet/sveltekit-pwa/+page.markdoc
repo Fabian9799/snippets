@@ -1,0 +1,52 @@
+---
+title: Progressive Web Apps with Sveltekit
+description: Progressive Web Apps with Sveltekit
+publishedAt: "2026-10-17T00:00:00+02:00"
+updatedAt: "2026-10-17T00:00:00+02:00"
+tags:
+  - pwa
+  - sveltekit
+---
+
+## Setup app.html
+
+{% filename name="src/app.html" %}
+
+```html
+<meta name="theme-color" content="#151515" />
+<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
+```
+
+{% /filename %}
+
+## Setup manifest
+
+{% filename name="static/manifest.json" %}
+
+```json
+{
+    "theme_color": "#151515",
+    "background_color": "#151515",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "name": "Fabian9799",
+    "short_name": "Fabian",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ]
+}
+```
+
+{% /filename %}
+
+## Notes
+
+- Replace #151515 with your preferred color
+- Add icons to:
+  - /static/icon-192.png
+  - /static/icon.svg
