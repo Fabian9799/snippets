@@ -6,7 +6,10 @@ export const prerender = true;
 
 export const GET: RequestHandler = () => {
   const items = listSnippets()
-    .sort((a, b) => a.title.localeCompare(b.title))
+    .sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+    )
     .map(
       ({ slug, title, description }) =>
         `- [${title}](${SITE_URL}/snippet/${slug}/llms.txt): ${description}`,
